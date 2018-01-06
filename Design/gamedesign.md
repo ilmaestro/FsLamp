@@ -1,5 +1,29 @@
 # Revie Game Design
 
+## Player State
+
+### long term state
+- Characteristics
+    - Name (string)
+    - Gender (Male, Female, Non-Binary)
+- Status
+    - Health (int)
+    - Wealth (int)
+    - Experience (int)
+    - Level (string, function of experience)
+- Abilities
+    - Strength (int)
+    - Defense (int)
+    - Agility (int)
+    - Wisdom (int)
+- Equipment (list)
+- Items (list)
+- Quests (list)
+
+### immediate state
+- Location (grid location on the map)
+- Temporary Effects (things like drugs and alcohol)
+
 ## Game Mechanics
 
 Major mechanics in the game:
