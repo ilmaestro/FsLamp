@@ -1,4 +1,5 @@
 open Microsoft.FSharp.Reflection
+open System
 
 type LevelList = seq<int * int * string> // MinExperience, LevelNo, Name
 
@@ -18,8 +19,7 @@ type Player = {
     Wealth: int
     Experience: int
     BaseAbilities: Map<Ability, int>
-    Equipment: Equipment list
-    Items: Item list
+    Inventory: Inventory list
     Quests: Quest list
     MapPosition: Position
     TemporaryEffects: Effect list
@@ -43,28 +43,22 @@ and Ability =
 | Agility
 | Wisdom
 
-and Equipment = {
-    Name: string
-    Effect: Effect
-}
-and Item = {
-    Name: string
-    Effect: Effect
-}
+and Inventory = 
+| Equipment of string * Effect
+| Item of string * Effect
+
+and Effect = 
+| AbilityEffect of Ability * int * TimeSpan // ability effectAmount lifetime
+| NoEffect
+
 and Quest = {
     Name: string
 }
 
-and Effect = {
-    Name: string
-    Ability: Ability
-    Add: int
-    Lifetime: int
-}
 and Position = int * int // x,y coords
 
 // function to create and initialize a new level 1 player
-let createPlayer name gender =
+let createPlayer name gender wealth experience =
     let rnd = System.Random()
     let health = rnd.Next(10, 20)
     let abilities =
@@ -75,19 +69,39 @@ let createPlayer name gender =
         Name = name
         Gender = gender
         Health = health
-        Wealth = 0
-        Experience = 2445
+        Wealth = wealth
+        Experience = experience
         BaseAbilities = abilities
-        Equipment = []
-        Items = []
+        Inventory = []
         Quests = []
         MapPosition = (0, 0)
         TemporaryEffects = []
     }
 
+let updateTemporaryEffects (elapsedTime: int) player =
+    let elapsedTimespan = TimeSpan.FromSeconds(float elapsedTime)
+    let updatedEffects =
+        player.TemporaryEffects
+        |> List.map(fun eff ->
+            match eff with
+            | AbilityEffect (ability, effectAmount, lifetime) ->
+                if lifetime.Seconds > elapsedTime 
+                then AbilityEffect (ability, effectAmount, lifetime.Subtract(elapsedTimespan))
+                else NoEffect
+            | NoEffect -> eff
+        )
+        |> List.filter (fun eff -> eff <> NoEffect) // get rid of noEffects
+    { player with TemporaryEffects = updatedEffects }
+
+let createItemWithAbilityEffect name ability effectAmount lifetime  = 
+    Item (name, AbilityEffect (ability, effectAmount, lifetime))
+
+let createEquipmentWithAbilityEffect name ability effectAmount lifetime  = 
+    Equipment (name, AbilityEffect (ability, effectAmount, lifetime))
+
 // testing
 let levels = createLevels 30
-let joe = createPlayer "Joe" Male
+let joe = createPlayer "Joe" Male 2000 2500
 joe.Level levels
 joe.CurrentAbility Defense
 
