@@ -31,7 +31,36 @@ with
         |> Seq.head
 
     member this.CurrentAbility ability =
-        this.BaseAbilities.Item(ability)
+        this.BaseAbilities.Item(ability) 
+            + (Player.TotalTemporaryEffectAmount ability this.TemporaryEffects)
+            + (Player.TotalEquippedEffectAmount ability this.Inventory)
+
+
+    static member TotalEquippedEffectAmount ability inventory =
+        inventory
+        |> List.sumBy (fun inv ->
+            match inv with
+            | Equipment (_, Equipped, effects) -> 
+                Player.TotalPermanentEffectAmount ability effects
+            | _ -> 0
+        )
+
+    static member TotalTemporaryEffectAmount ability effects =
+        effects
+        |> List.sumBy (fun te ->
+            match te with 
+            | TemporaryAbility (_, ab, amount, _) when ab = ability -> 
+                amount
+            | _ -> 0)
+
+    static member TotalPermanentEffectAmount ability effects =
+        effects
+        |> List.sumBy (fun te ->
+            match te with 
+            | PermananentAbility (_, ab, amount) when ab = ability -> 
+                amount
+            | _ -> 0)
+
 and Gender = 
 | Male
 | Female
@@ -44,12 +73,27 @@ and Ability =
 | Wisdom
 
 and Inventory = 
-| Equipment of string * Effect
-| Item of string * Effect
+| Equipment of string * EquipmentState * Effect list
+| Item of string * ItemState * Effect list
+
+and EquipmentState =
+| Equipped
+| Unequipped
+
+and ItemState =
+| Used
+| Unused
 
 and Effect = 
-| AbilityEffect of Ability * int * TimeSpan // ability effectAmount lifetime
+| TemporaryAbility of EffectType * Ability * int * TimeSpan // ability effectAmount lifetime
+| PermananentAbility of EffectType * Ability * int // ability effectAmount lifetime
 | NoEffect
+
+and EffectType =
+| Enhancement
+| Poisoned
+| Drunkeness
+| Sleep
 
 and Quest = {
     Name: string
@@ -78,31 +122,59 @@ let createPlayer name gender wealth experience =
         TemporaryEffects = []
     }
 
+let createItemWithAbilityEffect name ability effectAmount lifetime  = 
+    Item (name, Unused, [TemporaryAbility (Enhancement, ability, effectAmount, lifetime)])
+
+let createEquipmentWithAbilityEffect name ability effectAmount = 
+    Equipment (name, Unequipped, [PermananentAbility (Enhancement, ability, effectAmount)])
+
+let addTemporaryEffect temporaryEffect player =
+    { player with TemporaryEffects = temporaryEffect :: player.TemporaryEffects }
+
+let addInventory item player =
+    { player with Inventory = item :: player.Inventory }
+
+let equipFromInventoryByName name player =
+    let newInventory = 
+        player.Inventory 
+        |> List.map (fun inv ->
+            match inv with
+            | Equipment (eqName, Unequipped, amount) when eqName = name ->
+                Equipment (eqName, Equipped, amount)
+            | _ -> inv
+        )
+    { player with Inventory = newInventory }
+
+
 let updateTemporaryEffects (elapsedTime: int) player =
     let elapsedTimespan = TimeSpan.FromSeconds(float elapsedTime)
     let updatedEffects =
         player.TemporaryEffects
         |> List.map(fun eff ->
             match eff with
-            | AbilityEffect (ability, effectAmount, lifetime) ->
-                if lifetime.Seconds > elapsedTime 
-                then AbilityEffect (ability, effectAmount, lifetime.Subtract(elapsedTimespan))
+            | TemporaryAbility (effectType, ability, effectAmount, lifetime) ->
+                if lifetime > elapsedTimespan 
+                then TemporaryAbility (effectType, ability, effectAmount, lifetime.Subtract(elapsedTimespan))
                 else NoEffect
-            | NoEffect -> eff
+            | _ -> eff
         )
         |> List.filter (fun eff -> eff <> NoEffect) // get rid of noEffects
     { player with TemporaryEffects = updatedEffects }
 
-let createItemWithAbilityEffect name ability effectAmount lifetime  = 
-    Item (name, AbilityEffect (ability, effectAmount, lifetime))
-
-let createEquipmentWithAbilityEffect name ability effectAmount lifetime  = 
-    Equipment (name, AbilityEffect (ability, effectAmount, lifetime))
-
 // testing
 let levels = createLevels 30
-let joe = createPlayer "Joe" Male 2000 2500
+let joe = 
+    createPlayer "Joe" Male 2000 2500
+    |> addInventory (createEquipmentWithAbilityEffect "Sword of Destiny" Strength 5)
+    |> addTemporaryEffect (TemporaryAbility (Poisoned, Strength, -2, TimeSpan.FromMinutes(5.)))
+    |> equipFromInventoryByName "Sword of Destiny"
+
 joe.Level levels
 joe.CurrentAbility Defense
+joe.CurrentAbility Strength
 
+joe |> updateTemporaryEffects 300
 
+// questions?
+// can inventory items have multiple effects? yes
+// effects 
