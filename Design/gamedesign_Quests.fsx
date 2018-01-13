@@ -46,9 +46,17 @@ let addQuest quest player =
         Quests = quest :: player.Quests
         }
 
-let createQuest name state tasks =
-    { Name = name; QuestState = state; QuestTasks = tasks; }
-   
+let createQuest name tasks =
+    { Name = name; QuestState = Inactive; QuestTasks = tasks; }
+
+let startQuest name player =
+    let newQuests = player.Quests |> List.map (fun q -> 
+        if q.Name = name
+        then { q with QuestState = Active}
+        else q)
+    {player with Quests = newQuests }
+    
+ 
 let addTask name taskType updater quest =
     { quest with 
         QuestTasks = {Name = name; TaskType = taskType; TaskState = Incomplete; UpdateState = updater} :: quest.QuestTasks 
@@ -68,32 +76,34 @@ let reciteWords = Say "Clateu verata necktaou"
 let approachPedestal = Approach (34, 42)
 
 let questAwakeTheDead =
-    createQuest "Awaken the dead" Active []
-    |> addTask "Find book of the dead" (Find bookOfTheDead) (fun (player, _, _) -> 
+    createQuest "Awaken the dead" []
+    |> addTask "Find book of the dead." (Find bookOfTheDead) (fun (player, _, _) -> 
                             if player |> hasInventory bookOfTheDead then Complete
                             else Incomplete)
-    |> addTask "Approach pedestal in the old graveyard." approachPedestal (fun (player, quest, _) ->
-                            if quest |> hasTaskInState (Perform reciteWords) Complete then Complete
-                            elif player.MapPosition = (34, 42) then CompleteAtCurrentMoment
+    |> addTask "Approach pedestal in the old graveyard." approachPedestal (fun (player, _, _) ->
+                            if player.MapPosition = (34, 42) then Complete
                             else Incomplete)
-    |> addTask "Recite words from the book of the dead" (Perform reciteWords) (fun (_, quest, actions) ->
+    |> addTask "Recite words from the book of the dead while at the pedestal." (Perform reciteWords) (fun (player, quest, actions) ->
                             if (quest |> hasTaskInState (Find bookOfTheDead) Complete) 
-                                && (quest |> hasTaskInState approachPedestal CompleteAtCurrentMoment)
+                                && (player.MapPosition = (34, 42))
                                 && (actions |> hasAction reciteWords) then Complete
                             else Incomplete)
 
 let runQuestTests () =
-    let mutable joeWithQuests = joe |> addQuest questAwakeTheDead
-    printfn "1. Should be active: %A" (joeWithQuests |> updatePlayerQuests [] |> fstPlayerQuest |> assertQuestState Active)
+    let mutable joeWithQuests = joe |> addQuest questAwakeTheDead |> updatePlayerQuests []
+    printfn "0. Should be inactive: %A" (joeWithQuests  |> fstPlayerQuest |> assertQuestState Inactive)
+
+    joeWithQuests <- joeWithQuests |> startQuest "Awaken the dead"
+    printfn "1. Should be active: %A" (joeWithQuests  |> fstPlayerQuest |> assertQuestState Active)
 
     joeWithQuests <- joeWithQuests |> addInventory bookOfTheDead |> updatePlayerQuests []
-    printfn "%A" joeWithQuests
+    // printfn "%A" joeWithQuests
     printfn "2. Should be active: %A" (joeWithQuests |> fstPlayerQuest |> assertQuestState Active)
 
     joeWithQuests <- joeWithQuests |> setPosition (34, 42) |> updatePlayerQuests []
-    printfn "%A" joeWithQuests
+    // printfn "%A" joeWithQuests
     printfn "3. Should be active: %A" (joeWithQuests  |> fstPlayerQuest |> assertQuestState Active)
 
     joeWithQuests <- joeWithQuests |> updatePlayerQuests [reciteWords]
-    printfn "%A" joeWithQuests
-    printfn "3. Should have succeeded: %A" (joeWithQuests |> fstPlayerQuest |> assertQuestState Succeeded)
+    // printfn "%A" joeWithQuests
+    printfn "4. Should have succeeded: %A" (joeWithQuests |> fstPlayerQuest |> assertQuestState Succeeded)
