@@ -40,4 +40,25 @@
     - add stats to player
     - create battle menu
  - sprint X - a cut scene
- - sprint X - ...
+    - no player interaction
+    - full screen animation
+    - animated dialog
+    - start and an end
+ - sprint X - a town
+    - create a tilemap of a town
+    - create town transitions
+    - add two internal house tilemaps with scene transitions
+    - add 3 NPC's with path movement
+    - allow player to interact with NPC's
+ - sprint X - a shop
+    - create shop scene
+    - create menu for interacting with shop owner
+    - display items
+    - allow player to buy item with money
+    - allow player to sell item for money
+ - sprint X - a quest
+    - create a quest storyline
+    - allow player to initiate a quest
+    - add quest page to status menu
+    - show current quest tasks and status
+    - allow player to complete quest
