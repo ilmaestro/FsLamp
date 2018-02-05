@@ -62,3 +62,12 @@
     - add quest page to status menu
     - show current quest tasks and status
     - allow player to complete quest
+ - sprint X - end of game quest
+    - create quest to complete for end of game
+    - create end of game cut scene
+ - sprint X - pause menu
+    - add save
+    - add load
+    - add quit
+ 
+
