@@ -44,6 +44,10 @@
     - full screen animation
     - animated dialog
     - start and an end
+ - sprint X - music
+    - generate music assets
+    - set up audio manager
+    - add background music
  - sprint X - a town
     - create a tilemap of a town
     - create town transitions
