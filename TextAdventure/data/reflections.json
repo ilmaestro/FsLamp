@@ -1,0 +1,66 @@
+[
+    {
+      "input" : "am",
+      "output" : "are" 
+    },
+    {
+      "input" : "was",
+      "output" : "were"
+    }, 
+    {
+      "input" : "i",
+      "output" : "you"
+    },
+    {
+      "input" : "i'd",
+      "output" : "you would"
+    },
+    {
+       "input" : "i've",
+       "output" : "you have"
+    },
+    {
+       "input" : "i'll",
+       "output" : "you will"
+    },
+    {
+        "input" : "my",
+        "output" : "your"
+    },
+    {
+        "input" : "are",
+        "output" : "am"
+    },
+    {
+        "input" : "you've",
+        "output" : "I have"
+    },
+    {
+        "input" : "you'll",
+        "output" : "I will"
+    },
+    {
+        "input" : "your",
+        "output" : "my"
+    },
+    {
+        "input" : "yours",
+        "output" : "mine"
+    },
+    {
+        "input" : "you",
+        "output" : "me"
+    },
+    {
+        "input" : "me",
+        "output" : "you"
+    },
+    {
+        "input" : "myself",
+        "output" : "yourself"
+    },
+    {
+        "input" : "yourself",
+        "output" : "myself"
+    }
+]
