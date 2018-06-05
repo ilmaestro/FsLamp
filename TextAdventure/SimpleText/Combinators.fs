@@ -46,7 +46,7 @@ let noOp : GamePart =
 
 let move dir: GamePart =
     fun gamestate ->
-        let pathOption = gamestate.Environment.Paths |> List.tryFind (fun p -> p.Direction = dir && p.PathState.IsVisible)
+        let pathOption = gamestate.Environment.Exits |> List.tryFind (fun p -> p.Direction = dir && p.ExitState.IsVisible)
         let nextEnvironment = 
             match pathOption with
             | Some path ->
@@ -65,14 +65,14 @@ let move dir: GamePart =
             let log = [path.Description; nextEnvironment.Description]
             { gamestate with Environment = nextEnvironment; World = world; Output = Output log }
         | None ->
-            { gamestate with Output = Output [sprintf "There are no paths to the %A." dir] }
+            { gamestate with Output = Output [sprintf "There are no exits to the %A." dir] }
 
 let look : GamePart =
     fun gamestate ->
-        // list the paths
+        // list the exits
         let pathHelper = sprintf "To the %A: %s"
-        let paths = gamestate.Environment.Paths |> List.map (fun p -> pathHelper p.Direction p.Description)
-        { gamestate with Output = Output paths }
+        let exits = gamestate.Environment.Exits |> List.map (fun p -> pathHelper p.Direction p.Description)
+        { gamestate with Output = Output exits }
 
 let message s : GamePart =
     fun gamestate ->

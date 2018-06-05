@@ -1,5 +1,5 @@
-﻿// Run the game!
-open Game
+﻿open Game
+
 let title = """
 ,d88~~\ ,e,                         888                 ~~~888~~~                      d8   
 8888     "  888-~88e-~88e 888-~88e  888  e88~~8e           888     e88~~8e  Y88b  /  _d88__ 

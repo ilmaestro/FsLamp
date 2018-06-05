@@ -15,21 +15,26 @@ type Player = Player of string
 type Health = Health of current: float * max: float
 type Experience = Experience of total: int * level: int
 
+type Item = Undefined
+
 // the player's immediate location/environment
 // environments are connected by paths
 type Environment = {
     Id: EnvironmentId
     Name: string
     Description: string
-    Paths: Path list
+    Exits: Exit list
+    Items: Item list
 }
+
 and EnvironmentId = EnvironmentId of int
-and Path = {
+
+and Exit = {
     Target: EnvironmentId
     Direction: Direction
     Distance: Distance
     Description: string
-    PathState: PathState
+    ExitState: ExitState
 }
 
 and Direction =
@@ -42,7 +47,7 @@ and Distance =
 | Steps of int // assuming 1 step per second
 | Distance of float<meter> // assuming 0.1 meters per second
 
-and PathState =
+and ExitState =
 | Open
 | Locked
 | Hidden
@@ -95,9 +100,18 @@ with
         | "west" -> Some West
         | _ -> None
  
-type PathState
+type ExitState
 with
     member x.IsVisible =
         match x with
         | Hidden -> false
         | _ -> true
+
+// constructors
+
+let createEnvironment id name description exits items =
+    { Id = EnvironmentId id; Name = name; Description = description; Exits = exits; Items = items }
+
+let createExit environmentId exitState direction distance description =
+    { Target = EnvironmentId environmentId; ExitState = exitState; Direction = direction; 
+        Distance = distance; Description = description }
