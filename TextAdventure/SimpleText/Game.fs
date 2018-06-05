@@ -67,11 +67,25 @@ let handleOutput = function
     | Empty -> ()
     | Output log -> log |> List.iter (printfn "%s")
 
-let RunInConsole (parseInput: CommandParser) (dispatcher: Command -> GamePart) gamestate =
-    let rec gameLoop gs command =
+let RunInConsole (parseInput: CommandParser) (dispatcher: Command -> GamePart) initialState =
+    let rec gameLoop gamestate history command =
         if command = Exit then ()
-        else 
-            let nextState = (command |> dispatcher) <| gs
+        else
+            let (nextState, nextHistory) = 
+                // crudely rewind history
+                if command = Undo then
+                    let (oldState, newHistory) =
+                        match history with
+                        | _ :: old :: tail -> 
+                            (old, tail)
+                        | _ -> (gamestate, history)
+
+                    ((command |> dispatcher) <| oldState, newHistory)
+                else 
+                    ((command |> dispatcher) <| gamestate, history)
+
             nextState.Output |> handleOutput
-            getCommand parseInput |> gameLoop nextState
-    gameLoop gamestate StartGame
+            
+            getCommand parseInput |> gameLoop nextState (nextState :: nextHistory)
+
+    gameLoop initialState [] StartGame

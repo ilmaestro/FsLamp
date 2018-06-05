@@ -14,5 +14,6 @@ let dispatch command : GamePart =
             | Move dir -> move dir
             | Look -> look
             | StartGame -> message (gamestate.Environment.Description)
+            | Undo -> noOp
 
         {gamestate with LastCommand = command } |> action

@@ -18,4 +18,5 @@ let simpleParser : CommandParser =
         | [| "exit" |] -> Some Exit
         | [| "help" |] -> Some Help
         | [| "look" |] -> Some Look
+        | [| "undo" |] -> Some Undo
         | _ -> None

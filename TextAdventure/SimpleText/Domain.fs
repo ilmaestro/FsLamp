@@ -66,6 +66,7 @@ type Command =
 | Status
 | Help
 | Exit
+| Undo
 
 type Output = 
 | Output of string list
@@ -80,6 +81,8 @@ type GameState = {
     LastCommand: Command
     Output: Output
 }
+
+type GameHistory = GameState list
 
 // extensions
 type Direction
