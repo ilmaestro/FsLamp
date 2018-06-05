@@ -71,3 +71,7 @@ let look : GamePart =
         let pathHelper = sprintf "To the %A: %s"
         let paths = gamestate.Environment.Paths |> List.map (fun p -> pathHelper p.Direction p.Description)
         { gamestate with Output = Output paths }
+
+let message s : GamePart =
+    fun gamestate ->
+        {gamestate with Output = Output [s]}

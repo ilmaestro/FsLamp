@@ -51,20 +51,25 @@ let defaultGamestate map =
         Input = NoInput;
         Output = Empty}
 
-let RunInConsole (parseInput: InputParser) (dispatcher: Input -> GamePart) gamestate =
-    let rec gameLoop gs =
-        Console.Write("\n$> ")
-        let readline = Console.ReadLine()
-        match readline |> parseInput with
-        | Some input ->
-            let nextState = (input |> dispatcher) <| gs
-            match nextState.Output with
-            | Empty -> ()
-            | Output log ->
-                log |> List.iter (printfn "%s")
-                gameLoop nextState
-        | None ->
-            printfn "I don't understand %s." readline
-            gameLoop gs
 
-    gameLoop gamestate
+let getCommand (parseInput: InputParser) =
+    Console.Write("\n$> ")
+    let readline = Console.ReadLine()
+    match readline |> parseInput with
+    | Some command -> command
+    | None -> 
+        printfn "I don't understand %s." readline
+        NoInput
+
+let handleOutput = function
+    | Empty -> ()
+    | Output log -> log |> List.iter (printfn "%s")
+
+let RunInConsole (parseInput: InputParser) (dispatcher: Input -> GamePart) gamestate =
+    let rec gameLoop gs command =
+        if command = Exit then ()
+        else 
+            let nextState = (command |> dispatcher) <| gs
+            nextState.Output |> handleOutput
+            getCommand parseInput |> gameLoop nextState
+    gameLoop gamestate StartGame

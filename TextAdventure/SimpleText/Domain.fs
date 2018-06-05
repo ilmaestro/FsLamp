@@ -59,6 +59,7 @@ let timespanFromDistance = function
 
 type Input =
 | NoInput
+| StartGame
 | Wait of TimeSpan
 | Move of Direction
 | Look

@@ -10,8 +10,9 @@ let dispatch command : GamePart =
             | Status -> status
             | Exit -> noOp
             | Help -> help
-            | NoInput -> noOp
+            | NoInput -> message "Nothing to do."
             | Move dir -> move dir
             | Look -> look
+            | StartGame -> message (gamestate.Environment.Description)
 
         {gamestate with Input = command } |> action
