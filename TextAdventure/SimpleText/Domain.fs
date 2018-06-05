@@ -15,7 +15,12 @@ type Player = Player of string
 type Health = Health of current: float * max: float
 type Experience = Experience of total: int * level: int
 
-type Item = Undefined
+type Item =
+| Item of ItemProperties
+
+and ItemProperties = {
+    Name: string
+}
 
 // the player's immediate location/environment
 // environments are connected by paths
@@ -81,6 +86,7 @@ type GameState = {
     Player: Player
     Health: Health
     Experience: Experience
+    Inventory: Item list
     Environment: Environment
     World: World
     LastCommand: Command
@@ -115,3 +121,10 @@ let createEnvironment id name description exits items =
 let createExit environmentId exitState direction distance description =
     { Target = EnvironmentId environmentId; ExitState = exitState; Direction = direction; 
         Distance = distance; Description = description }
+
+let createItem name =
+    Item { Name = name }
+
+let itemDescription item =
+    match item with
+    | Item props -> props.Name

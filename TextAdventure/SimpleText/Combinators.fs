@@ -39,7 +39,6 @@ exit                          - exit the game
         let outputs = [help]
         { gamestate with Output = Output outputs }
 
-
 let noOp : GamePart =
     fun gamestate ->
         { gamestate with Output = Empty }
@@ -69,10 +68,13 @@ let move dir: GamePart =
 
 let look : GamePart =
     fun gamestate ->
-        // list the exits
-        let pathHelper = sprintf "To the %A: %s"
-        let exits = gamestate.Environment.Exits |> List.map (fun p -> pathHelper p.Direction p.Description)
-        { gamestate with Output = Output exits }
+        let exitHelper = sprintf "%s to the %A"
+        let exits = gamestate.Environment.Exits |> List.map (fun p -> exitHelper p.Description p.Direction)
+        let items = gamestate.Environment.Items |> List.map itemDescription
+        let log = [
+            yield "Exits:"; yield! exits; 
+            match items with [] -> () | _ -> yield ""; yield "Items:"; yield! items ]
+        { gamestate with Output = Output log }
 
 let message s : GamePart =
     fun gamestate ->

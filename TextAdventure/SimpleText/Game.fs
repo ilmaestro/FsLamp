@@ -9,7 +9,7 @@ let defaultMap =
         (createEnvironment 1 "Origin"
             "A moment ago you were just in bed floating above your mind, dreaming about how to add zebras to spreadsheets.  Now it appears you've awakened in a dimlit room. Many unfamiliar smells lurk around you."
             [createExit 2 Open North (Steps 2) "Creaky Door"]
-            []
+            [createItem "Rusty Key"]
         );
         (createEnvironment 2 "Long Hallway, South End"
             "The door opens into what appears to be a really long hallway leading North. There's no light at the other end."
@@ -38,6 +38,7 @@ let defaultGamestate map =
     { Player = Player "one";
         Health = Health (12.,12.);
         Experience = Experience (0, 1);
+        Inventory = [];
         World = { Time = DateTime.Parse("1971-01-01 06:01:42"); Map = map };
         Environment = map.[0];
         LastCommand = NoCommand;
