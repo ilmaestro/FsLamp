@@ -20,23 +20,32 @@ type Experience = Experience of total: int * level: int
 type Environment = {
     Id: EnvironmentId
     Name: string
+    Description: string
     Paths: Path list
 }
 and EnvironmentId = EnvironmentId of int
 and Path = {
-    Source: EnvironmentId
     Target: EnvironmentId
     Direction: Direction
     Distance: Distance
+    Description: string
+    PathState: PathState
 }
+
 and Direction =
 | North
 | South
 | East
 | West
+
 and Distance = 
 | Steps of int // assuming 1 step per second
 | Distance of float<meter> // assuming 0.1 meters per second
+
+and PathState =
+| Open
+| Locked
+| Hidden
 
 type World = {
     Time: DateTime
@@ -89,3 +98,10 @@ with
         | "east" -> Some East
         | "west" -> Some West
         | _ -> None
+ 
+type PathState
+with
+    member x.IsVisible =
+        match x with
+        | Hidden -> false
+        | _ -> true

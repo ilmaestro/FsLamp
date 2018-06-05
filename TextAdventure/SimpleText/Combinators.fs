@@ -44,29 +44,30 @@ let noOp : GamePart =
 
 let move dir: GamePart =
     fun gamestate ->
-        let (path, environment) = 
-            match gamestate.Environment.Paths |> List.tryFind (fun p -> p.Direction = dir) with
+        let pathOption = gamestate.Environment.Paths |> List.tryFind (fun p -> p.Direction = dir && p.PathState.IsVisible)
+        let nextEnvironment = 
+            match pathOption with
             | Some path ->
-                (Some path, gamestate.World.Map |> Array.find (fun env -> env.Id = path.Target))
+                gamestate.World.Map |> Array.find (fun env -> env.Id = path.Target)
             | None ->
-                (None, gamestate.Environment)
+                gamestate.Environment
 
         // update the world and environment
-        match path with
-        | Some p ->
+        match pathOption with
+        | Some path ->
             // calculate and add the travel time 
-            let world = {gamestate.World with Time = gamestate.World.Time + (p.Distance |> timespanFromDistance)}
+            let time = path.Distance |> timespanFromDistance
+            let world = {gamestate.World with Time = gamestate.World.Time + time }
+
             // log outputs
-            let log = [
-                (sprintf "You have entered %s." environment.Name)
-            ]
-            { gamestate with Environment = environment; World = world; Output = Output log }
+            let log = [path.Description; nextEnvironment.Description]
+            { gamestate with Environment = nextEnvironment; World = world; Output = Output log }
         | None ->
             { gamestate with Output = Output [sprintf "There are no paths to the %A." dir] }
 
 let look : GamePart =
     fun gamestate ->
         // list the paths
-        let pathHelper = sprintf "There's a path to the %A."
-        let paths = gamestate.Environment.Paths |> List.map (fun p -> pathHelper p.Direction)
+        let pathHelper = sprintf "To the %A: %s"
+        let paths = gamestate.Environment.Paths |> List.map (fun p -> pathHelper p.Direction p.Description)
         { gamestate with Output = Output paths }
