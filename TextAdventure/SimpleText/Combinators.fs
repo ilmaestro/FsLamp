@@ -1,6 +1,8 @@
 module Combinators
 open Domain
 
+type GamePart = GameState -> GameState
+
 let wait ts : GamePart =
     fun gamestate ->
         let world = {gamestate.World with Time = gamestate.World.Time + ts}

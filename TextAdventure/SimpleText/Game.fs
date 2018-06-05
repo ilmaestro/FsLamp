@@ -1,5 +1,7 @@
 module Game
 open Domain
+open Combinators
+open Parser
 open System
 
 let defaultMap =
@@ -48,24 +50,24 @@ let defaultGamestate map =
         Experience = Experience (0, 1);
         World = { Time = DateTime.Parse("1971-01-01 06:01:42"); Map = map };
         Environment = map.[0];
-        Input = NoInput;
+        LastCommand = NoCommand;
         Output = Empty}
 
 
-let getCommand (parseInput: InputParser) =
+let getCommand (parseInput: CommandParser) =
     Console.Write("\n$> ")
     let readline = Console.ReadLine()
     match readline |> parseInput with
     | Some command -> command
     | None -> 
         printfn "I don't understand %s." readline
-        NoInput
+        NoCommand
 
 let handleOutput = function
     | Empty -> ()
     | Output log -> log |> List.iter (printfn "%s")
 
-let RunInConsole (parseInput: InputParser) (dispatcher: Input -> GamePart) gamestate =
+let RunInConsole (parseInput: CommandParser) (dispatcher: Command -> GamePart) gamestate =
     let rec gameLoop gs command =
         if command = Exit then ()
         else 

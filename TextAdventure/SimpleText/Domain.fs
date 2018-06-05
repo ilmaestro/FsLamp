@@ -57,8 +57,8 @@ let timespanFromDistance = function
     | Steps s -> TimeSpan.FromSeconds(float s)
     | Distance d -> TimeSpan.FromSeconds(float (time d))
 
-type Input =
-| NoInput
+type Command =
+| NoCommand
 | StartGame
 | Wait of TimeSpan
 | Move of Direction
@@ -77,17 +77,9 @@ type GameState = {
     Experience: Experience
     Environment: Environment
     World: World
-    Input: Input
+    LastCommand: Command
     Output: Output
 }
-
-type GameError = Undefined
-
-type Command<'a> = GameState -> 'a -> Result<GameState, GameError>
-
-type GamePart = GameState -> GameState
-type InputParser = string -> Input option
-
 
 // extensions
 type Direction

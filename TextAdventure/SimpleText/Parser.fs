@@ -2,7 +2,9 @@ module Parser
 open Domain
 open System
 
-let simpleParser : InputParser =
+type CommandParser = string -> Command option
+
+let simpleParser : CommandParser =
     fun input ->
         match input.ToLower().Split(" ") with
         | [| "status" |] -> Some Status
