@@ -1,5 +1,6 @@
 module Domain
 open System
+open System.ComponentModel.Design
 
 type Undefined = exn
 type Player = Player of string
@@ -10,12 +11,14 @@ type Environment = {
 }
 
 type Input =
-| NoOp
+| NoInput
 | Wait of TimeSpan
 | Status
+| Help
+| Exit
 
 type Output = 
-| Output of string 
+| Output of string list
 | Empty
 
 type GameState = {
@@ -32,4 +35,4 @@ type GameError = Undefined
 type Command<'a> = GameState -> 'a -> Result<GameState, GameError>
 
 type GamePart = GameState -> GameState
-type InputParser = string -> Input
+type InputParser = string -> Input option

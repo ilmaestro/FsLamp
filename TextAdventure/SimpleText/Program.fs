@@ -1,8 +1,5 @@
-﻿open Domain
-open Game
-
+﻿// Run the game!
 [<EntryPoint>]
 let main _ =
-    let stateHandler : GamePart = setEnvironment >> setOutput
-    RunGame simpleParser setInput stateHandler defaultGamestate
+    Game.RunInConsole Parser.simpleParser Dispatcher.dispatch Game.defaultGamestate
     0
