@@ -12,5 +12,6 @@ let dispatch command : GamePart =
             | Help -> help
             | NoInput -> noOp
             | Move dir -> move dir
+            | Look -> look
 
         {gamestate with Input = command } |> action

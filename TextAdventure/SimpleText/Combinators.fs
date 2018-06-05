@@ -27,11 +27,12 @@ let help : GamePart =
     fun gamestate ->
         let help = """
 Commands:
-status
-wait {seconds}
-move {north|south|east|west}
-help
-exit
+status                        - get the current player status
+wait {seconds}                - wait for specified number of seconds
+move {north|south|east|west}  - move in specified direction
+help                          - show help
+look                          - find things
+exit                          - exit the game
         """
         let outputs = [help]
         { gamestate with Output = Output outputs }
@@ -62,3 +63,10 @@ let move dir: GamePart =
             { gamestate with Environment = environment; World = world; Output = Output log }
         | None ->
             { gamestate with Output = Output [sprintf "There are no paths to the %A." dir] }
+
+let look : GamePart =
+    fun gamestate ->
+        // list the paths
+        let pathHelper = sprintf "There's a path to the %A."
+        let paths = gamestate.Environment.Paths |> List.map (fun p -> pathHelper p.Direction)
+        { gamestate with Output = Output paths }

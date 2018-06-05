@@ -52,6 +52,7 @@ type Input =
 | NoInput
 | Wait of TimeSpan
 | Move of Direction
+| Look
 | Status
 | Help
 | Exit

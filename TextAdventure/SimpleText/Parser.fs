@@ -15,4 +15,5 @@ let simpleParser : InputParser =
             dir |> Direction.Parse |> Option.map Move
         | [| "exit" |] -> Some Exit
         | [| "help" |] -> Some Help
+        | [| "look" |] -> Some Look
         | _ -> None
