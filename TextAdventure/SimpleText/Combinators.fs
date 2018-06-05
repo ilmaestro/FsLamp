@@ -1,5 +1,6 @@
 module Combinators
 open Domain
+open GameState
 
 type GamePart = GameState -> GameState
 
@@ -46,24 +47,26 @@ let noOp : GamePart =
 
 let move dir: GamePart =
     fun gamestate ->
-        let pathOption = gamestate.Environment.Exits |> List.tryFind (fun p -> p.Direction = dir && p.ExitState.IsVisible)
-        let nextEnvironment = 
-            match pathOption with
-            | Some path ->
-                gamestate.World.Map |> Array.find (fun env -> env.Id = path.Target)
-            | None ->
-                gamestate.Environment
+        let exitOption = gamestate.Environment.Exits |> List.tryFind (fun p -> p.Direction = dir)
+        match exitOption with
+        | Some exit ->
+            match exit.ExitState with
+            | Open ->
+                let nextEnvironment = 
+                    gamestate.World.Map
+                    |> Array.find (fun env -> env.Id = exit.Target)
 
-        // update the world and environment
-        match pathOption with
-        | Some path ->
-            // calculate and add the travel time 
-            let time = path.Distance |> timespanFromDistance
-            let world = {gamestate.World with Time = gamestate.World.Time + time }
+                // calculate and add the travel time 
+                let time = exit.Distance |> timespanFromDistance
+                let world = {gamestate.World with Time = gamestate.World.Time + time }
 
-            // log outputs
-            let log = [path.Description; nextEnvironment.Description]
-            { gamestate with Environment = nextEnvironment; World = world; Output = Output log }
+                // log outputs
+                let log = [exit.Description; nextEnvironment.Description]
+                { gamestate with Environment = nextEnvironment; World = world; Output = Output log }
+            | Locked ->
+                { gamestate with Output = Output ["The exit is locked."]}
+            | Hidden -> 
+                { gamestate with Output = Output [sprintf "There are no exits to the %A." dir] }
         | None ->
             { gamestate with Output = Output [sprintf "There are no exits to the %A." dir] }
 
@@ -89,18 +92,11 @@ let take (itemName: string) : GamePart =
             |> List.tryFind (fun i -> ((itemDescription i).ToLower()) = itemName.ToLower())
         match itemOption with
         | Some item ->
-            // remove from items, environment, and map
-            let items = gamestate.Environment.Items |> List.filter (fun i -> i <> item)
-            let environment = {gamestate.Environment with Items = items }
-            let map = gamestate.World.Map |> Array.map (fun env -> if env = gamestate.Environment then environment else env)
-            let world = {gamestate.World with Map = map }
-            let output = [sprintf "You took %s" (itemDescription item)]
-            // add to inventory
-            {gamestate with 
-                Inventory = item :: gamestate.Inventory;
-                Environment = environment;
-                World = world;
-                Output = Output output }
+            gamestate
+            |> removeItemFromEnvironment item
+            |> addItemToInventory item
+            |> updateWorldEnvironment
+            |> setOutput (Output [sprintf "You took %s" (itemDescription item)])
         | None ->    
             let output = [sprintf "Couldn't find %s" itemName]
             {gamestate with Output = Output output }
@@ -113,18 +109,47 @@ let drop (itemName: string) : GamePart =
             |> List.tryFind (fun i -> ((itemDescription i).ToLower()) = itemName.ToLower())
         match itemOption with
         | Some item ->
-            // add to environment items and map
-            let items = item :: gamestate.Environment.Items
-            let environment = {gamestate.Environment with Items = items }
-            let map = gamestate.World.Map |> Array.map (fun env -> if env = gamestate.Environment then environment else env)
-            let world = {gamestate.World with Map = map }
-            let output = [sprintf "You dropped %s" (itemDescription item)]
-            // remove from inventory
-            {gamestate with 
-                Inventory = (gamestate.Inventory |> List.filter (fun i -> i = item));
-                Environment = environment;
-                World = world;
-                Output = Output output }
+            gamestate
+            |> addItemToEnvironment item
+            |> updateWorldEnvironment
+            |> setOutput (Output [sprintf "You dropped %s" (itemDescription item)])
+        | None ->    
+            let output = [sprintf "Couldn't find %s" itemName]
+            {gamestate with Output = Output output }
+
+let useItem (itemName: string) : GamePart =
+    let tryOpenExit id env =
+        env.Exits 
+        |> List.tryFind (fun e -> e.Id = id)
+        |> Option.map (fun e -> { e with ExitState = Open })
+
+    fun gamestate ->
+        // find item
+        let itemOption = 
+            gamestate.Inventory
+            |> List.tryFind (fun i -> ((itemDescription i).ToLower()) = itemName.ToLower())
+        match itemOption with
+        | Some (Item item) ->
+            let firstOpenExitOption = 
+                item.Uses
+                |> List.map(fun u -> 
+                    match u with
+                    | Unlock exitId
+                    | Unhide exitId ->
+                        tryOpenExit exitId gamestate.Environment
+                )
+                |> List.choose id
+                |> List.tryHead
+                
+            match firstOpenExitOption with
+            | Some openExit ->
+                gamestate
+                |> updateEnvironmentExit openExit
+                |> updateWorldEnvironment
+                |> setOutput (Output [sprintf "%s opened with %s" openExit.Description item.Name])
+            | None ->
+                gamestate
+                |> setOutput (Output [sprintf "Can't use %s here." (item.Name)])
         | None ->    
             let output = [sprintf "Couldn't find %s" itemName]
             {gamestate with Output = Output output }

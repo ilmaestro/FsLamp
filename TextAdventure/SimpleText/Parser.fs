@@ -21,4 +21,5 @@ let simpleParser : CommandParser =
         | [| "undo" |] -> Some Undo
         | [| "take"; itemName |] -> Some (Take itemName)
         | [| "drop"; itemName |] -> Some (Drop itemName)
+        | [| "use"; itemName |] -> Some (Use itemName)
         | _ -> None

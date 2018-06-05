@@ -17,5 +17,6 @@ let dispatch command : GamePart =
             | Undo -> noOp
             | Take itemName -> take itemName
             | Drop itemName -> drop itemName
+            | Use itemName -> useItem itemName
 
         {gamestate with LastCommand = command } |> action

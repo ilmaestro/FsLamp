@@ -1,5 +1,6 @@
 module Game
 open Domain
+open GameState
 open Combinators
 open Parser
 open System
@@ -8,28 +9,26 @@ let defaultMap =
     [|
         (createEnvironment 1 "Origin"
             "A moment ago you were just in bed floating above your mind, dreaming about how to add zebras to spreadsheets.  Now it appears you've awakened in a dimlit room. Many unfamiliar smells lurk around you."
-            [createExit 2 Open North (Steps 2) "Creaky Door"]
-            [createItem "RustyKey"]
+            [createExit 1 2 Open North (Steps 2) "Creaky Door"]
+            [createItem "RustyKey" [Unlock (ExitId 5)]]
         );
         (createEnvironment 2 "Long Hallway, South End"
             "The door opens into what appears to be a really long hallway leading North. There's no light at the other end."
             [
-                createExit 1 Open South (Steps 2) "Creaky Door, leading back where you came from.";
-                createExit 3 Open North (Steps 6) "Continue down the dark hallway.";
-                ]
+                createExit 2 1 Open South (Steps 2) "Creaky Door, leading back where you came from.";
+                createExit 3 3 Open North (Steps 6) "Continue down the dark hallway.";]
             []
         );
         (createEnvironment 3 "Long Hallway, North End"
             "It gets so dark you have to feel your way around."
             [ 
-                createExit 2 Open South (Steps 6) "The south end of the hallway.";
-                createExit 4 Locked East (Steps 6) "A door with no features, labeled 'Private'."
-            ]
+                createExit 4 2 Open South (Steps 6) "The south end of the hallway.";
+                createExit 5 4 Locked East (Steps 6) "A door with no features, labeled 'Private'."]
             []
         );
         (createEnvironment 4 "Office"
             "As the door opens, you begin to see the remnants of an old dusty office.  This place hasn't been used in years."
-            [ createExit 3 Open West (Steps 6) "The hallway."]
+            [ createExit 6 3 Open West (Steps 6) "The hallway."]
             []
         );
     |]

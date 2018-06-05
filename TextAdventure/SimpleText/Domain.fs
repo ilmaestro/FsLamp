@@ -10,6 +10,10 @@ let time dist : float<second> = dist / defaultSpeed
 
 type Undefined = exn
 
+// primitives
+type EnvironmentId = EnvironmentId of int
+type ExitId = ExitId of int
+
 // basic player status
 type Player = Player of string
 type Health = Health of current: float * max: float
@@ -20,7 +24,13 @@ type Item =
 
 and ItemProperties = {
     Name: string
+    Uses: ItemUse list // list of uses for this item.
 }
+
+and ItemUse =
+| Unlock of ExitId
+| Unhide of ExitId
+
 
 // the player's immediate location/environment
 // environments are connected by paths
@@ -32,9 +42,8 @@ type Environment = {
     Items: Item list
 }
 
-and EnvironmentId = EnvironmentId of int
-
 and Exit = {
+    Id: ExitId
     Target: EnvironmentId
     Direction: Direction
     Distance: Distance
@@ -63,10 +72,6 @@ type World = {
 }
 and Map = Environment []
 
-let timespanFromDistance = function
-    | Steps s -> TimeSpan.FromSeconds(float s)
-    | Distance d -> TimeSpan.FromSeconds(float (time d))
-
 type Command =
 | NoCommand
 | StartGame
@@ -79,23 +84,11 @@ type Command =
 | Undo
 | Take of ItemName: string
 | Drop of ItemName: string
+| Use of ItemName: string
 
 type Output = 
 | Output of string list
 | Empty
-
-type GameState = {
-    Player: Player
-    Health: Health
-    Experience: Experience
-    Inventory: Item list
-    Environment: Environment
-    World: World
-    LastCommand: Command
-    Output: Output
-}
-
-type GameHistory = GameState list
 
 // extensions
 type Direction
@@ -115,17 +108,23 @@ with
         | Hidden -> false
         | _ -> true
 
-// constructors
+// helpers
+let timespanFromDistance = function
+    | Steps s -> TimeSpan.FromSeconds(float s)
+    | Distance d -> TimeSpan.FromSeconds(float (time d))
 
+
+// constructors
 let createEnvironment id name description exits items =
     { Id = EnvironmentId id; Name = name; Description = description; Exits = exits; Items = items }
 
-let createExit environmentId exitState direction distance description =
-    { Target = EnvironmentId environmentId; ExitState = exitState; Direction = direction; 
+let createExit id environmentId exitState direction distance description =
+    { Id = ExitId id; Target = EnvironmentId environmentId; ExitState = exitState; Direction = direction; 
         Distance = distance; Description = description }
 
-let createItem name =
-    Item { Name = name }
+let createItem name uses =
+    Item { Name = name; Uses = uses }
+
 
 let itemDescription item =
     match item with
