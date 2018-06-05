@@ -2,11 +2,24 @@ module Game
 open Domain
 open System
 
-let defaultGamestate =
+let defaultMap =
+    [|
+        { Id = EnvironmentId 1; 
+            Name = "Room 1"; 
+            Paths = [{Source = EnvironmentId 1; Target = EnvironmentId 2; Direction = North; Distance = Steps 2 }]
+        };
+        { Id = EnvironmentId 2;
+            Name = "Room 2"; 
+            Paths = [{Source = EnvironmentId 2; Target = EnvironmentId 1; Direction = South; Distance = Steps 2 }]
+        }
+    |]
+
+let defaultGamestate map =
     { Player = Player "one";
         Health = Health (12.,12.);
         Experience = Experience (0, 1);
-        Environment = { Time = DateTime.Parse("1971-01-01 06:01:42")};
+        World = { Time = DateTime.Parse("1971-01-01 06:01:42"); Map = map };
+        Environment = map.[0];
         Input = NoInput;
         Output = Empty}
 

@@ -11,6 +11,8 @@ let simpleParser : InputParser =
             if succeeded then 
                 Wait (TimeSpan.FromSeconds(result)) |> Some
             else None
+        | [|"move"; dir |] ->
+            dir |> Direction.Parse |> Option.map Move
         | [| "exit" |] -> Some Exit
         | [| "help" |] -> Some Help
         | _ -> None
