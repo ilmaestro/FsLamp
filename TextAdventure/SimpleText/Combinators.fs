@@ -21,7 +21,8 @@ let status : GamePart =
             sprintf "%A" gamestate.Player;
             sprintf "%A" gamestate.Health;
             sprintf "%A" gamestate.Experience;
-            sprintf "%A" gamestate.World.Time;            
+            sprintf "%A" gamestate.World.Time;    
+            sprintf "%A" gamestate.Inventory;    
         ]
         { gamestate with Output = Output outputs }
 
@@ -79,3 +80,51 @@ let look : GamePart =
 let message s : GamePart =
     fun gamestate ->
         {gamestate with Output = Output [s]}
+
+let take (itemName: string) : GamePart =
+    fun gamestate ->
+        // find item
+        let itemOption = 
+            gamestate.Environment.Items 
+            |> List.tryFind (fun i -> ((itemDescription i).ToLower()) = itemName.ToLower())
+        match itemOption with
+        | Some item ->
+            // remove from items, environment, and map
+            let items = gamestate.Environment.Items |> List.filter (fun i -> i <> item)
+            let environment = {gamestate.Environment with Items = items }
+            let map = gamestate.World.Map |> Array.map (fun env -> if env = gamestate.Environment then environment else env)
+            let world = {gamestate.World with Map = map }
+            let output = [sprintf "You took %s" (itemDescription item)]
+            // add to inventory
+            {gamestate with 
+                Inventory = item :: gamestate.Inventory;
+                Environment = environment;
+                World = world;
+                Output = Output output }
+        | None ->    
+            let output = [sprintf "Couldn't find %s" itemName]
+            {gamestate with Output = Output output }
+
+let drop (itemName: string) : GamePart =
+    fun gamestate ->
+        // find item
+        let itemOption = 
+            gamestate.Inventory
+            |> List.tryFind (fun i -> ((itemDescription i).ToLower()) = itemName.ToLower())
+        match itemOption with
+        | Some item ->
+            // add to environment items and map
+            let items = item :: gamestate.Environment.Items
+            let environment = {gamestate.Environment with Items = items }
+            let map = gamestate.World.Map |> Array.map (fun env -> if env = gamestate.Environment then environment else env)
+            let world = {gamestate.World with Map = map }
+            let output = [sprintf "You dropped %s" (itemDescription item)]
+            // remove from inventory
+            {gamestate with 
+                Inventory = (gamestate.Inventory |> List.filter (fun i -> i = item));
+                Environment = environment;
+                World = world;
+                Output = Output output }
+        | None ->    
+            let output = [sprintf "Couldn't find %s" itemName]
+            {gamestate with Output = Output output }

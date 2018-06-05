@@ -15,5 +15,7 @@ let dispatch command : GamePart =
             | Look -> look
             | StartGame -> message (gamestate.Environment.Description)
             | Undo -> noOp
+            | Take itemName -> take itemName
+            | Drop itemName -> drop itemName
 
         {gamestate with LastCommand = command } |> action

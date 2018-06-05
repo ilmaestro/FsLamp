@@ -77,6 +77,8 @@ type Command =
 | Help
 | Exit
 | Undo
+| Take of ItemName: string
+| Drop of ItemName: string
 
 type Output = 
 | Output of string list
