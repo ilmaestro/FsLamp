@@ -13,9 +13,12 @@ let title = """
 [<EntryPoint>]
 let main _ =
     printfn "%s" title
-    printfn "Type GO to start the game."
-    System.Console.ReadLine() |> ignore
-    
-    let gamestate = defaultGamestate defaultMap
+    printfn "Type GO to start the game, or LOAD to start from saved game."
+    let command = System.Console.ReadLine()
+    let gamestate =
+      if command = "LOAD" then
+        GameState.loadGameState "./SaveData/GameSave.json"
+      else defaultGamestate defaultMap
+
     RunInConsole Parser.simpleParser Dispatcher.dispatch gamestate
     0

@@ -85,6 +85,7 @@ type Command =
 | Take of ItemName: string
 | Drop of ItemName: string
 | Use of ItemName: string
+| Save
 
 type Output = 
 | Output of string list

@@ -1,5 +1,6 @@
 module GameState
 open Domain
+open Newtonsoft.Json
 
 type GameState = {
     Player: Player
@@ -47,3 +48,11 @@ let updateWorldEnvironment gamestate =
 // Output
 let setOutput output gamestate =
     { gamestate with Output = output }
+
+let saveGameState filename gamestate =
+    let json = JsonConvert.SerializeObject(gamestate)
+    System.IO.File.WriteAllText(filename, json)
+
+let loadGameState filename =
+    let json = System.IO.File.ReadAllText(filename)
+    JsonConvert.DeserializeObject<GameState>(json)

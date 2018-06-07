@@ -153,3 +153,8 @@ let useItem (itemName: string) : GamePart =
         | None ->    
             let output = [sprintf "Couldn't find %s" itemName]
             {gamestate with Output = Output output }
+
+let save filename : GamePart =
+    fun gamestate ->
+        saveGameState filename gamestate
+        gamestate |> setOutput (Output ["Game saved."])

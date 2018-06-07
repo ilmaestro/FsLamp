@@ -1,6 +1,10 @@
 module Dispatcher
 open Domain
 open Combinators
+open GameState
+
+let getSaveDataFilename = 
+    "./SaveData/GameSave.json"
 
 let dispatch command : GamePart =
     fun gamestate ->
@@ -18,5 +22,6 @@ let dispatch command : GamePart =
             | Take itemName -> take itemName
             | Drop itemName -> drop itemName
             | Use itemName -> useItem itemName
+            | Save -> save getSaveDataFilename
 
         {gamestate with LastCommand = command } |> action
