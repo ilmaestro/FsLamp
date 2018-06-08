@@ -157,3 +157,6 @@ with
 let timespanFromDistance = function
     | Steps s -> TimeSpan.FromSeconds(float s)
     | Distance d -> TimeSpan.FromSeconds(float (time d))
+
+let isAlive (Health (current, _)) =
+    current > 0.

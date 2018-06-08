@@ -2,6 +2,9 @@ module Player
 open Domain
 open GameState
 
+let isAlive player =
+    player.Health |> Domain.isAlive
+
 let getLevel points =
     match points with
     | p when p < 100 -> 1

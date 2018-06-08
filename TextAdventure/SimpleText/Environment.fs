@@ -2,23 +2,23 @@ module Environment
 open Domain
 open GameState
 
-[<AutoOpen>]
 module Environment =
-    let createEnvironment id name description exits items environmentItems =
+    let create id name description exits items environmentItems =
         { Id = EnvironmentId id; Name = name; Description = description; Exits = exits; InventoryItems = items; EnvironmentItems = environmentItems }
 
-    let createExit id environmentId exitState direction distance description =
-        { Id = ExitId id; Target = EnvironmentId environmentId; ExitState = exitState; Direction = direction; 
-            Distance = distance; Description = description }
+    let findById id gamestate =
+        gamestate.World.Map
+        |> Array.find (fun env -> env.Id = id)
+
+module Item =
+    let createEnvironmentItem name uses =
+        EnvironmentItem { Name = name; Uses = uses }
 
     let createInventoryItem name description uses =
         InventoryItem { Name = name; Description = description; Uses = uses }
 
-    let createEnvironmentItem name uses =
-        EnvironmentItem { Name = name; Uses = uses }
-
-    let createEncounter description monsters state =
-        Encounter { Description = description; Monsters = monsters;  EncounterState = state; }
+    let addItem item gamestate =
+        { gamestate with Inventory = item :: gamestate.Inventory }
 
     let removeItemFromEnvironment item gamestate =
         let environment = {gamestate.Environment with InventoryItems = gamestate.Environment.InventoryItems |> List.filter (fun i -> i <> item) }
@@ -27,25 +27,6 @@ module Environment =
     let addItemToEnvironment item gamestate =
         let environment = {gamestate.Environment with InventoryItems = item :: gamestate.Environment.InventoryItems }
         { gamestate with Environment = environment}
-
-    let findEnvironment id gamestate =
-        gamestate.World.Map
-        |> Array.find (fun env -> env.Id = id)
-
-    let removeEncounter gamestate =
-        let items = 
-            gamestate.Environment.EnvironmentItems 
-            |> List.filter (fun i -> 
-                match i with 
-                | Encounter _ -> false
-                | _ -> true)
-
-        let environment = {gamestate.Environment with EnvironmentItems = items }
-        {gamestate with Environment = environment }
-
-module Inventory =
-    let addItem item gamestate =
-        { gamestate with Inventory = item :: gamestate.Inventory }
 
     let inventoryItemName item =
         match item with
@@ -61,6 +42,10 @@ module Inventory =
         | _ -> ""
 
 module Exit =
+    let create id environmentId exitState direction distance description =
+        { Id = ExitId id; Target = EnvironmentId environmentId; ExitState = exitState; Direction = direction; 
+            Distance = distance; Description = description }
+
     let updateEnvironment exit gamestate =
         let exits = gamestate.Environment.Exits |> List.map (fun e -> if e.Id = exit.Id then exit else e)
         let environment = {gamestate.Environment with Exits = exits }
@@ -94,6 +79,9 @@ module Uses =
         |> List.tryHead
 
 module Encounter =
+    let create description monsters state =
+        Encounter { Description = description; Monsters = monsters;  EncounterState = state; }
+
     let find environment =
         environment.EnvironmentItems
         |> List.map (fun i ->
@@ -102,6 +90,17 @@ module Encounter =
             | _ -> None)
         |> List.choose id
         |> List.tryHead
+
+    let remove gamestate =
+        let items = 
+            gamestate.Environment.EnvironmentItems 
+            |> List.filter (fun i -> 
+                match i with 
+                | Encounter _ -> false
+                | _ -> true)
+
+        let environment = {gamestate.Environment with EnvironmentItems = items }
+        {gamestate with Environment = environment }
 
     let checkEncounter gamestate =  
         match find gamestate.Environment with
@@ -113,10 +112,12 @@ module Encounter =
 
     let endEncounter gamestate =
         gamestate
-        |> removeEncounter
+        |> remove
         |> updateWorldEnvironment
 
 module Monster =
     let create id name level health experience =
         { Id = MonsterId id; Name = name; Level = level; Health = health; ExperiencePoints = experience}
-    
+
+    let isAlive monster =
+        monster.Health |> Domain.isAlive

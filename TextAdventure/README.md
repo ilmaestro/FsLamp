@@ -39,3 +39,8 @@ Categories
 ## Encounters
 
 An encounter is a separate game loop in which the player engages with a monster.  The gamstate should keep track whether the player is in an encounter or not.
+
+player actions (initial attempt)
+
+- attack: automatically wins
+- run: always run away

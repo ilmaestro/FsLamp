@@ -1,4 +1,4 @@
-module Combinators
+module Actions
 open Domain
 open GameState
 open Environment
@@ -64,7 +64,7 @@ module Explore =
             | Some exit ->
                 match exit.ExitState with
                 | Open ->
-                    let nextEnvironment = findEnvironment exit.Target gamestate
+                    let nextEnvironment = Environment.findById exit.Target gamestate
                     gamestate
                     |> updateWorldTravelTime exit.Distance
                     |> setEnvironment nextEnvironment
@@ -82,7 +82,7 @@ module Explore =
             let exitHelper = sprintf "%s to the %A"
             let itemHelper = sprintf "%s %s"
             let exits = gamestate.Environment.Exits |> List.filter (fun e -> e.ExitState <> Hidden) |> List.map (fun p -> exitHelper p.Description p.Direction)
-            let items = gamestate.Environment.InventoryItems |> List.map (Inventory.inventoryItemProps >> (fun prop -> itemHelper prop.Name prop.Description))
+            let items = gamestate.Environment.InventoryItems |> List.map (Item.inventoryItemProps >> (fun prop -> itemHelper prop.Name prop.Description))
             let log = [
                 yield "There's a..."; yield! exits; 
                 match items with [] -> () | _ -> yield ""; yield "You see a..."; yield! items ]
@@ -94,14 +94,14 @@ module Explore =
             // find item
             let itemOption = 
                 gamestate.Environment.InventoryItems 
-                |> List.tryFind (fun i -> ((Inventory.inventoryItemName i).ToLower()) = itemName.ToLower())
+                |> List.tryFind (fun i -> ((Item.inventoryItemName i).ToLower()) = itemName.ToLower())
             match itemOption with
             | Some item ->
                 gamestate
-                |> removeItemFromEnvironment item
-                |> Inventory.addItem item
+                |> Item.removeItemFromEnvironment item
+                |> Item.addItem item
                 |> updateWorldEnvironment
-                |> setOutput (Output [sprintf "You took %s." (Inventory.inventoryItemName item)])
+                |> setOutput (Output [sprintf "You took %s." (Item.inventoryItemName item)])
             | None ->    
                 let output = [sprintf "Couldn't find %s." itemName]
                 {gamestate with Output = Output output }
@@ -111,13 +111,13 @@ module Explore =
             // find item
             let itemOption = 
                 gamestate.Inventory
-                |> List.tryFind (fun i -> ((Inventory.inventoryItemName i).ToLower()) = itemName.ToLower())
+                |> List.tryFind (fun i -> ((Item.inventoryItemName i).ToLower()) = itemName.ToLower())
             match itemOption with
             | Some item ->
                 gamestate
-                |> addItemToEnvironment item
+                |> Item.addItemToEnvironment item
                 |> updateWorldEnvironment
-                |> setOutput (Output [sprintf "You dropped %s." (Inventory.inventoryItemName item)])
+                |> setOutput (Output [sprintf "You dropped %s." (Item.inventoryItemName item)])
             | None ->    
                 let output = [sprintf "Couldn't find %s." itemName]
                 {gamestate with Output = Output output }
@@ -139,11 +139,11 @@ module Explore =
             // find item
             let itemOption =
                 gamestate.Inventory
-                |> List.tryFind (fun i -> ((Inventory.inventoryItemName i).ToLower()) = itemName.ToLower())
+                |> List.tryFind (fun i -> ((Item.inventoryItemName i).ToLower()) = itemName.ToLower())
 
             let environmentItemOption =
                 gamestate.Environment.EnvironmentItems
-                |> List.tryFind (fun i -> ((Inventory.environmentItemDescription i).ToLower()) = itemName.ToLower())
+                |> List.tryFind (fun i -> ((Item.environmentItemDescription i).ToLower()) = itemName.ToLower())
 
             // use item
             match itemOption, environmentItemOption with
@@ -185,6 +185,7 @@ module InEncounter =
     let summarizeEncounter monsterPoints oldLevel : GamePart =
         fun gamestate ->
             let (points, level) = Player.getExperience gamestate
+
             let outputs = [
                 yield "You attack and win!";
                 yield sprintf "You gained %i experience points. Total: %i" monsterPoints points;
