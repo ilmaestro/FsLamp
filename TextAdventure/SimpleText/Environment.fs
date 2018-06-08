@@ -78,6 +78,13 @@ module Uses =
         |> List.choose id
         |> List.tryHead
 
+module Monster =
+    let create id name level health experience =
+        { Id = MonsterId id; Name = name; Level = level; Health = health; ExperiencePoints = experience}
+
+    let isAlive (monster: Monster) =
+        monster.Health |> Domain.isAlive
+
 module Encounter =
     let create description monsters state =
         Encounter { Description = description; Monsters = monsters;  EncounterState = state; }
@@ -102,6 +109,15 @@ module Encounter =
         let environment = {gamestate.Environment with EnvironmentItems = items }
         {gamestate with Environment = environment }
 
+    let getNextEncounterState encounter =
+        //in order to win the encounter, all monsters must not be alive
+        let noMonstersAlive = not <| (encounter.Monsters |> List.forall Monster.isAlive)
+
+        match encounter.EncounterState with
+        | NotStarted -> InProgress
+        | InProgress when noMonstersAlive -> Complete
+        | _ -> InProgress
+
     let checkEncounter gamestate =  
         match find gamestate.Environment with
         | Some encounter ->
@@ -115,9 +131,3 @@ module Encounter =
         |> remove
         |> updateWorldEnvironment
 
-module Monster =
-    let create id name level health experience =
-        { Id = MonsterId id; Name = name; Level = level; Health = health; ExperiencePoints = experience}
-
-    let isAlive monster =
-        monster.Health |> Domain.isAlive

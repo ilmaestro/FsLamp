@@ -44,3 +44,8 @@ player actions (initial attempt)
 
 - attack: automatically wins
 - run: always run away
+
+2nd attempt - must keep track of encounter state, in order to win the encounter, all monsters must not be alive.
+
+- attack: does damage against monsters
+- run: may succeed or fail
