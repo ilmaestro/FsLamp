@@ -61,7 +61,7 @@ let move dir: GamePart =
                 let world = {gamestate.World with Time = gamestate.World.Time + time }
 
                 // log outputs
-                let log = [exit.Description; nextEnvironment.Description]
+                let log = [nextEnvironment.Description]
                 { gamestate with Environment = nextEnvironment; World = world; Output = Output log }
             | Locked ->
                 { gamestate with Output = Output ["The exit is locked."]}
@@ -73,8 +73,8 @@ let move dir: GamePart =
 let look : GamePart =
     fun gamestate ->
         let exitHelper = sprintf "%s to the %A"
-        let exits = gamestate.Environment.Exits |> List.map (fun p -> exitHelper p.Description p.Direction)
-        let items = gamestate.Environment.Items |> List.map itemDescription
+        let exits = gamestate.Environment.Exits |> List.filter (fun e -> e.ExitState <> Hidden) |> List.map (fun p -> exitHelper p.Description p.Direction)
+        let items = gamestate.Environment.InventoryItems |> List.map inventoryItemDescription
         let log = [
             yield "Exits:"; yield! exits; 
             match items with [] -> () | _ -> yield ""; yield "Items:"; yield! items ]
@@ -88,17 +88,17 @@ let take (itemName: string) : GamePart =
     fun gamestate ->
         // find item
         let itemOption = 
-            gamestate.Environment.Items 
-            |> List.tryFind (fun i -> ((itemDescription i).ToLower()) = itemName.ToLower())
+            gamestate.Environment.InventoryItems 
+            |> List.tryFind (fun i -> ((inventoryItemDescription i).ToLower()) = itemName.ToLower())
         match itemOption with
         | Some item ->
             gamestate
             |> removeItemFromEnvironment item
             |> addItemToInventory item
             |> updateWorldEnvironment
-            |> setOutput (Output [sprintf "You took %s" (itemDescription item)])
+            |> setOutput (Output [sprintf "You took %s." (inventoryItemDescription item)])
         | None ->    
-            let output = [sprintf "Couldn't find %s" itemName]
+            let output = [sprintf "Couldn't find %s." itemName]
             {gamestate with Output = Output output }
 
 let drop (itemName: string) : GamePart =
@@ -106,54 +106,53 @@ let drop (itemName: string) : GamePart =
         // find item
         let itemOption = 
             gamestate.Inventory
-            |> List.tryFind (fun i -> ((itemDescription i).ToLower()) = itemName.ToLower())
+            |> List.tryFind (fun i -> ((inventoryItemDescription i).ToLower()) = itemName.ToLower())
         match itemOption with
         | Some item ->
             gamestate
             |> addItemToEnvironment item
             |> updateWorldEnvironment
-            |> setOutput (Output [sprintf "You dropped %s" (itemDescription item)])
+            |> setOutput (Output [sprintf "You dropped %s." (inventoryItemDescription item)])
         | None ->    
-            let output = [sprintf "Couldn't find %s" itemName]
+            let output = [sprintf "Couldn't find %s." itemName]
             {gamestate with Output = Output output }
+
+let tryUseItem uses name gamestate =
+    match findUseInEnvironment uses gamestate.Environment with
+    | Some (Unlock (exitId, desc))
+    | Some (Unhide (exitId, desc)) ->
+        let exit = findExit exitId gamestate.Environment
+        gamestate
+        |> updateEnvironmentExit { exit with ExitState = Open}
+        |> updateWorldEnvironment
+        |> setOutput (Output [desc; sprintf "%s opened with %s." exit.Description name;])
+    | None ->
+        gamestate
+        |> setOutput (Output [sprintf "Can't use %s here." name])
 
 let useItem (itemName: string) : GamePart =
-    let tryOpenExit id env =
-        env.Exits 
-        |> List.tryFind (fun e -> e.Id = id)
-        |> Option.map (fun e -> { e with ExitState = Open })
-
     fun gamestate ->
         // find item
-        let itemOption = 
+        let itemOption =
             gamestate.Inventory
-            |> List.tryFind (fun i -> ((itemDescription i).ToLower()) = itemName.ToLower())
-        match itemOption with
-        | Some (Item item) ->
-            let firstOpenExitOption = 
-                item.Uses
-                |> List.map(fun u -> 
-                    match u with
-                    | Unlock exitId
-                    | Unhide exitId ->
-                        tryOpenExit exitId gamestate.Environment
-                )
-                |> List.choose id
-                |> List.tryHead
-                
-            match firstOpenExitOption with
-            | Some openExit ->
-                gamestate
-                |> updateEnvironmentExit openExit
-                |> updateWorldEnvironment
-                |> setOutput (Output [sprintf "%s opened with %s" openExit.Description item.Name])
-            | None ->
-                gamestate
-                |> setOutput (Output [sprintf "Can't use %s here." (item.Name)])
-        | None ->    
-            let output = [sprintf "Couldn't find %s" itemName]
-            {gamestate with Output = Output output }
+            |> List.tryFind (fun i -> ((inventoryItemDescription i).ToLower()) = itemName.ToLower())
 
+        let environmentItemOption =
+            gamestate.Environment.EnvironmentItems
+            |> List.tryFind (fun i -> ((environmentItemDescription i).ToLower()) = itemName.ToLower())
+
+        // use item
+        match itemOption, environmentItemOption with
+        | Some item', _ ->
+            match item' with
+            | InventoryItem item -> tryUseItem item.Uses item.Name gamestate
+        | None, Some item' ->
+            match item' with
+            | EnvironmentItem item -> tryUseItem item.Uses item.Name gamestate
+        | None, _ ->
+            gamestate
+            |> setOutput (Output [sprintf "What's a %s?" itemName])
+        
 let save filename : GamePart =
     fun gamestate ->
         saveGameState filename gamestate

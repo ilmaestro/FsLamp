@@ -6,7 +6,7 @@ type GameState = {
     Player: Player
     Health: Health
     Experience: Experience
-    Inventory: Item list
+    Inventory: InventoryItem list
     Environment: Environment
     World: World
     LastCommand: Command
@@ -22,11 +22,11 @@ let addItemToInventory item gamestate =
 
 // Environment
 let removeItemFromEnvironment item gamestate =
-    let environment = {gamestate.Environment with Items = gamestate.Environment.Items |> List.filter (fun i -> i <> item) }
+    let environment = {gamestate.Environment with InventoryItems = gamestate.Environment.InventoryItems |> List.filter (fun i -> i <> item) }
     { gamestate with Environment = environment}
 
 let addItemToEnvironment item gamestate =
-    let environment = {gamestate.Environment with Items = item :: gamestate.Environment.Items }
+    let environment = {gamestate.Environment with InventoryItems = item :: gamestate.Environment.InventoryItems }
     { gamestate with Environment = environment}
 
 // Exits
@@ -56,3 +56,23 @@ let saveGameState filename gamestate =
 let loadGameState filename =
     let json = System.IO.File.ReadAllText(filename)
     JsonConvert.DeserializeObject<GameState>(json)
+
+// compositions
+let openExitWithItem openExit itemName gamestate =
+    gamestate
+    |> updateEnvironmentExit openExit
+    |> updateWorldEnvironment
+    |> setOutput (Output [sprintf "%s opened with %s" openExit.Description itemName])
+
+let findUseInEnvironment uses environment =
+    uses
+    |> List.map(fun u -> 
+        match u with
+        | Unlock (exitId, _)
+        | Unhide (exitId, _) ->
+            environment.Exits 
+            |> List.tryFind (fun e -> e.Id = exitId && e.ExitState <> Open)
+            |> Option.map (fun _ -> u)
+    )
+    |> List.choose id
+    |> List.tryHead

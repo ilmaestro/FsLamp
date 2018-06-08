@@ -12,3 +12,9 @@ Input -> Parser -> Command -> Result -> Output
 ### dispatcher
 
 dispatcher is takes a command and dispatches to the correct handler, returning a Result.
+
+### Interactions
+
+Goal: interact with non-inventory things
+
+- "use handle": if there's something in the room that matches the name, call it's uses
