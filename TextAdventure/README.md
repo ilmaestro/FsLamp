@@ -13,8 +13,11 @@ Input -> Parser -> Command -> Result -> Output
 
 dispatcher is takes a command and dispatches to the correct handler, returning a Result.
 
-### Interactions
+### Items
 
-Goal: interact with non-inventory things
+#### Uses
 
-- "use handle": if there's something in the room that matches the name, call it's uses
+- Unlock: changes a locked exit into an open exit.
+- Unhide: changes a hidden exit into an open exit.
+- Add Experience: adds experience points to player.
+- Add Item: adds an item to players inventory.

@@ -73,11 +73,12 @@ let move dir: GamePart =
 let look : GamePart =
     fun gamestate ->
         let exitHelper = sprintf "%s to the %A"
+        let itemHelper = sprintf "%s %s"
         let exits = gamestate.Environment.Exits |> List.filter (fun e -> e.ExitState <> Hidden) |> List.map (fun p -> exitHelper p.Description p.Direction)
-        let items = gamestate.Environment.InventoryItems |> List.map inventoryItemDescription
+        let items = gamestate.Environment.InventoryItems |> List.map (inventoryItemProps >> (fun prop -> itemHelper prop.Name prop.Description))
         let log = [
-            yield "Exits:"; yield! exits; 
-            match items with [] -> () | _ -> yield ""; yield "Items:"; yield! items ]
+            yield "There's a..."; yield! exits; 
+            match items with [] -> () | _ -> yield ""; yield "You see a..."; yield! items ]
         { gamestate with Output = Output log }
 
 let message s : GamePart =
@@ -89,14 +90,14 @@ let take (itemName: string) : GamePart =
         // find item
         let itemOption = 
             gamestate.Environment.InventoryItems 
-            |> List.tryFind (fun i -> ((inventoryItemDescription i).ToLower()) = itemName.ToLower())
+            |> List.tryFind (fun i -> ((inventoryItemName i).ToLower()) = itemName.ToLower())
         match itemOption with
         | Some item ->
             gamestate
             |> removeItemFromEnvironment item
             |> addItemToInventory item
             |> updateWorldEnvironment
-            |> setOutput (Output [sprintf "You took %s." (inventoryItemDescription item)])
+            |> setOutput (Output [sprintf "You took %s." (inventoryItemName item)])
         | None ->    
             let output = [sprintf "Couldn't find %s." itemName]
             {gamestate with Output = Output output }
@@ -106,13 +107,13 @@ let drop (itemName: string) : GamePart =
         // find item
         let itemOption = 
             gamestate.Inventory
-            |> List.tryFind (fun i -> ((inventoryItemDescription i).ToLower()) = itemName.ToLower())
+            |> List.tryFind (fun i -> ((inventoryItemName i).ToLower()) = itemName.ToLower())
         match itemOption with
         | Some item ->
             gamestate
             |> addItemToEnvironment item
             |> updateWorldEnvironment
-            |> setOutput (Output [sprintf "You dropped %s." (inventoryItemDescription item)])
+            |> setOutput (Output [sprintf "You dropped %s." (inventoryItemName item)])
         | None ->    
             let output = [sprintf "Couldn't find %s." itemName]
             {gamestate with Output = Output output }
@@ -135,7 +136,7 @@ let useItem (itemName: string) : GamePart =
         // find item
         let itemOption =
             gamestate.Inventory
-            |> List.tryFind (fun i -> ((inventoryItemDescription i).ToLower()) = itemName.ToLower())
+            |> List.tryFind (fun i -> ((inventoryItemName i).ToLower()) = itemName.ToLower())
 
         let environmentItemOption =
             gamestate.Environment.EnvironmentItems

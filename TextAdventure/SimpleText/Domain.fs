@@ -24,6 +24,7 @@ type InventoryItem =
 
 and InventoryItemProperties = {
     Name: string
+    Description: string
     Uses: ItemUse list // list of uses for this item.
 }
 
@@ -131,15 +132,19 @@ let createExit id environmentId exitState direction distance description =
     { Id = ExitId id; Target = EnvironmentId environmentId; ExitState = exitState; Direction = direction; 
         Distance = distance; Description = description }
 
-let createInventoryItem name uses =
-    InventoryItem { Name = name; Uses = uses }
+let createInventoryItem name description uses =
+    InventoryItem { Name = name; Description = description; Uses = uses }
 
 let createEnvironmentItem name uses =
     EnvironmentItem { Name = name; Uses = uses }
 
-let inventoryItemDescription item =
+let inventoryItemName item =
     match item with
     | InventoryItem props -> props.Name
+
+let inventoryItemProps item =
+    match item with
+    | InventoryItem props -> props
 
 let environmentItemDescription item =
     match item with
