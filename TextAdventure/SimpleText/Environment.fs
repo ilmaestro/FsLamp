@@ -2,34 +2,49 @@ module Environment
 open Domain
 open GameState
 
-// constructors
-let createEnvironment id name description exits items environmentItems =
-    { Id = EnvironmentId id; Name = name; Description = description; Exits = exits; InventoryItems = items; EnvironmentItems = environmentItems }
-
-let createExit id environmentId exitState direction distance description =
-    { Id = ExitId id; Target = EnvironmentId environmentId; ExitState = exitState; Direction = direction; 
-        Distance = distance; Description = description }
-
-let createInventoryItem name description uses =
-    InventoryItem { Name = name; Description = description; Uses = uses }
-
-let createEnvironmentItem name uses =
-    EnvironmentItem { Name = name; Uses = uses }
-
-let createEncounter description monsters =
-    Encounter { Description = description; Monsters = monsters; }
-
-let removeItemFromEnvironment item gamestate =
-    let environment = {gamestate.Environment with InventoryItems = gamestate.Environment.InventoryItems |> List.filter (fun i -> i <> item) }
-    { gamestate with Environment = environment}
-
-let addItemToEnvironment item gamestate =
-    let environment = {gamestate.Environment with InventoryItems = item :: gamestate.Environment.InventoryItems }
-    { gamestate with Environment = environment}
-
 [<AutoOpen>]
+module Environment =
+    let createEnvironment id name description exits items environmentItems =
+        { Id = EnvironmentId id; Name = name; Description = description; Exits = exits; InventoryItems = items; EnvironmentItems = environmentItems }
+
+    let createExit id environmentId exitState direction distance description =
+        { Id = ExitId id; Target = EnvironmentId environmentId; ExitState = exitState; Direction = direction; 
+            Distance = distance; Description = description }
+
+    let createInventoryItem name description uses =
+        InventoryItem { Name = name; Description = description; Uses = uses }
+
+    let createEnvironmentItem name uses =
+        EnvironmentItem { Name = name; Uses = uses }
+
+    let createEncounter description monsters state =
+        Encounter { Description = description; Monsters = monsters;  EncounterState = state; }
+
+    let removeItemFromEnvironment item gamestate =
+        let environment = {gamestate.Environment with InventoryItems = gamestate.Environment.InventoryItems |> List.filter (fun i -> i <> item) }
+        { gamestate with Environment = environment}
+
+    let addItemToEnvironment item gamestate =
+        let environment = {gamestate.Environment with InventoryItems = item :: gamestate.Environment.InventoryItems }
+        { gamestate with Environment = environment}
+
+    let findEnvironment id gamestate =
+        gamestate.World.Map
+        |> Array.find (fun env -> env.Id = id)
+
+    let removeEncounter gamestate =
+        let items = 
+            gamestate.Environment.EnvironmentItems 
+            |> List.filter (fun i -> 
+                match i with 
+                | Encounter _ -> false
+                | _ -> true)
+
+        let environment = {gamestate.Environment with EnvironmentItems = items }
+        {gamestate with Environment = environment }
+
 module Inventory =
-    let addItemToInventory item gamestate =
+    let addItem item gamestate =
         { gamestate with Inventory = item :: gamestate.Inventory }
 
     let inventoryItemName item =
@@ -77,6 +92,29 @@ module Uses =
         )
         |> List.choose id
         |> List.tryHead
+
+module Encounter =
+    let find environment =
+        environment.EnvironmentItems
+        |> List.map (fun i ->
+            match i with
+            | Encounter e -> Some e
+            | _ -> None)
+        |> List.choose id
+        |> List.tryHead
+
+    let checkEncounter gamestate =  
+        match find gamestate.Environment with
+        | Some encounter ->
+            gamestate
+            |> addOutput (sprintf "!! %s !!" encounter.Description)
+            |> setScene (InEncounter encounter)
+        | None -> gamestate
+
+    let endEncounter gamestate =
+        gamestate
+        |> removeEncounter
+        |> updateWorldEnvironment
 
 module Monster =
     let create id name level health experience =

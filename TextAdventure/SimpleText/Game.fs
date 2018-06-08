@@ -6,6 +6,18 @@ open Combinators
 open Parser
 open System
 
+
+let title = """
+,d88~~\ ,e,                         888                 ~~~888~~~                      d8   
+8888     "  888-~88e-~88e 888-~88e  888  e88~~8e           888     e88~~8e  Y88b  /  _d88__ 
+`Y88b   888 888  888  888 888  888b 888 d888  88b          888    d888  88b  Y88b/    888   
+ `Y88b, 888 888  888  888 888  8888 888 8888__888          888    8888__888   Y88b    888   
+   8888 888 888  888  888 888  888P 888 Y888    ,          888    Y888    ,   /Y88b   888   
+\__88P' 888 888  888  888 888-_88"  888  "88___/           888     "88___/   /  Y88b  "88_/ 
+                          888                                                               
+"""
+
+
 let defaultMap =
     [|
         (createEnvironment 1 "Origin"
@@ -22,7 +34,7 @@ let defaultMap =
             []
             [createEncounter "Green Slime appears and is attacking you!" [
                 Monster.create 1 "Green Slime" 1 (Health (5.0, 5.0)) 10
-            ]]
+            ] NotStarted]
         );
         (createEnvironment 3 "Long Hallway, North End"
             "It gets so dark you have to feel your way around. Thankfully there's nothing too dangerous in your path."
@@ -61,9 +73,9 @@ let defaultGamestate map =
         Inventory = [];
         World = { Time = DateTime.Parse("1971-01-01 06:01:42"); Map = map };
         Environment = map.[0];
+        GameScene = MainMenu;
         LastCommand = NoCommand;
-        Output = Empty}
-
+        Output = Header [title; "Type GO to start the game, or LOAD to start from saved game."]}
 
 let getCommand (parseInput: CommandParser) =
     Console.Write("\n$> ")
@@ -72,31 +84,51 @@ let getCommand (parseInput: CommandParser) =
     | Some command -> command
     | None -> 
         printfn "I don't understand %s." readline
-        NoCommand
+        Command.NoCommand
 
-let handleOutput = function
-    | Empty -> ()
-    | Output log -> log |> List.iter (printfn "%s")
+let getAction gameScene (dispatcher: Command -> GamePart) = 
+    let parser = 
+        match gameScene with
+        | MainMenu -> mainMenuParser
+        | OpenExplore -> exploreParser
+        | InEncounter _ -> encounterParser
+    getCommand parser |> dispatcher
 
-let RunInConsole (parseInput: CommandParser) (dispatcher: Command -> GamePart) initialState =
-    let rec gameLoop gamestate history command =
-        if command = Exit then ()
-        else
-            let (nextState, nextHistory) = 
-                // crudely rewind history
-                if command = Undo then
-                    let (oldState, newHistory) =
-                        match history with
-                        | _ :: old :: tail -> 
-                            (old, tail)
-                        | _ -> (gamestate, history)
+let handleHeader : GamePart =
+    fun gamestate ->
+        match gamestate.Output with
+        | Header log -> log |> List.iter (printfn "%s")
+        | _ -> ()
+        gamestate
 
-                    ((command |> dispatcher) <| oldState, newHistory)
-                else 
-                    ((command |> dispatcher) <| gamestate, history)
+// loop: Read -> Parse -> Command -> Action -> Print -> Loop
+let RunGame
+    (dispatcher: Command -> GamePart)
+    initialState =
+    let rec loop history gamestate =
+        // print header
+        gamestate |> handleHeader |> ignore
 
-            nextState.Output |> handleOutput
-            
-            getCommand parseInput |> gameLoop nextState (nextState :: nextHistory)
+        // get action from dispatcher based on input
+        let action = getAction gamestate.GameScene dispatcher
 
-    gameLoop initialState [] StartGame
+        // execute the action to get next gamestate
+        let nextGameState = gamestate |> action
+
+        // handle output
+        match nextGameState.Output with
+        | Output log ->
+            log |> List.iter (printfn "%s")
+            loop (nextGameState :: history) nextGameState
+        | Header _ | DoNothing ->
+            loop (nextGameState :: history) nextGameState
+        | Rollback ->
+            printfn "Rolling back..."
+            let (oldState, newHistory) =
+                match history with
+                | _ :: old :: tail  -> (old, tail)
+                | _                 -> (gamestate, history)
+            loop newHistory oldState
+        | ExitGame -> ()
+    
+    loop [] initialState

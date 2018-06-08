@@ -49,6 +49,7 @@ and EnvironmentItemProperties = {
 and EncounterProperties = {
     Description: string
     Monsters: Monster list
+    EncounterState: EncounterState
 }
 
 and Monster = {
@@ -58,6 +59,11 @@ and Monster = {
     Health: Health
     ExperiencePoints: ExperiencePoint
 }
+
+and EncounterState =
+| NotStarted
+| InProgress
+| Complete
 
 
 // the player's immediate location/environment
@@ -102,8 +108,8 @@ type World = {
 and Map = Environment []
 
 type Command =
+// open explore
 | NoCommand
-| StartGame
 | Wait of TimeSpan
 | Move of Direction
 | Look
@@ -114,11 +120,20 @@ type Command =
 | Take of ItemName: string
 | Drop of ItemName: string
 | Use of ItemName: string
-| Save
+| SaveGame
+// main menu
+| NewGame
+| LoadGame
+// in encounter
+| Attack
+| Run
 
 type Output = 
+| Header of string list
 | Output of string list
-| Empty
+| DoNothing
+| ExitGame
+| Rollback
 
 // extensions
 type Direction

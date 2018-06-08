@@ -10,18 +10,24 @@ let dispatch command : GamePart =
     fun gamestate ->
         let action = 
             match command with
-            | Wait ts -> wait ts
-            | Status -> status
-            | Exit -> noOp
-            | Help -> help
-            | NoCommand -> message "Nothing to do."
-            | Move dir -> move dir
-            | Look -> look
-            | StartGame -> message (gamestate.Environment.Description)
-            | Undo -> noOp
-            | Take itemName -> take itemName
-            | Drop itemName -> drop itemName
-            | Use itemName -> useItem itemName
-            | Save -> save getSaveDataFilename
+            // open explore
+            | NoCommand     -> message "Nothing to do."
+            | Status        -> status
+            | Wait ts       -> Explore.wait ts
+            | Exit          -> Explore.exitGame
+            | Help          -> Explore.help
+            | Move dir      -> Explore.move dir
+            | Look          -> Explore.look
+            | Undo          -> Explore.undo
+            | Take itemName -> Explore.take itemName
+            | Drop itemName -> Explore.drop itemName
+            | Use itemName  -> Explore.useItem itemName
+            | SaveGame      -> Explore.save getSaveDataFilename
+            // main menu
+            | NewGame       -> MainMenu.startGame
+            | LoadGame      -> MainMenu.loadGame >> MainMenu.startGame
+            // in encounter
+            | Attack        -> InEncounter.attack
+            | Run           -> InEncounter.run
 
         {gamestate with LastCommand = command } |> action

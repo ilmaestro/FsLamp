@@ -7,8 +7,9 @@
     <Compile Include="Domain.fs" />
     <Compile Include="GameState.fs" />
     <Compile Include="Environment.fs" />
-    <Compile Include="Actions.fs" />
+    <Compile Include="Player.fs" />
     <Compile Include="Parser.fs" />
+    <Compile Include="Actions.fs" />
     <Compile Include="Dispatcher.fs" />
     <Compile Include="Game.fs" />
     <Compile Include="Program.fs" />

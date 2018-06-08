@@ -4,7 +4,7 @@ open System
 
 type CommandParser = string -> Command option
 
-let simpleParser : CommandParser =
+let exploreParser : CommandParser =
     fun input ->
         match input.ToLower().Split(" ") with
         | [| "status" |] -> Some Status
@@ -22,5 +22,19 @@ let simpleParser : CommandParser =
         | [| "take"; itemName |] -> Some (Take itemName)
         | [| "drop"; itemName |] -> Some (Drop itemName)
         | [| "use"; itemName |] -> Some (Use itemName)
-        | [| "save" |] -> Some Save
+        | [| "save" |] -> Some SaveGame
+        | _ -> None
+
+let encounterParser : CommandParser =
+    fun input ->
+        match input.ToLower().Split(" ") with
+        | [| "attack" |] -> Some Attack
+        | [| "run" |] -> Some Run
+        | _ -> None
+
+let mainMenuParser : CommandParser =
+    fun input ->
+        match input.ToLower().Split(" ") with
+        | [| "go" |] -> Some NewGame
+        | [| "load" |] -> Some LoadGame
         | _ -> None

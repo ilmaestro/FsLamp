@@ -35,3 +35,7 @@ Categories
 - Environment Item: something the player can interact with in the current environment
 - Monster Encounter: something the player will encounter in the current environment
 - NPC Encounter: something the player can talk to in the current environment
+
+## Encounters
+
+An encounter is a separate game loop in which the player engages with a monster.  The gamstate should keep track whether the player is in an encounter or not.
