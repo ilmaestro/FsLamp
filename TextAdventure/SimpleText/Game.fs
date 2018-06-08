@@ -1,6 +1,7 @@
 module Game
 open Domain
 open GameState
+open Environment
 open Combinators
 open Parser
 open System
@@ -19,7 +20,9 @@ let defaultMap =
                 createExit 2 1 Open South (Steps 2) "Creaky Door";
                 createExit 3 3 Open North (Steps 6) "Dark hallway";]
             []
-            []
+            [createEncounter "Green Slime appears and is attacking you!" [
+                Monster.create 1 "Green Slime" 1 (Health (5.0, 5.0)) 10
+            ]]
         );
         (createEnvironment 3 "Long Hallway, North End"
             "It gets so dark you have to feel your way around. Thankfully there's nothing too dangerous in your path."

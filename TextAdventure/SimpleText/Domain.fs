@@ -13,11 +13,15 @@ type Undefined = exn
 // primitives
 type EnvironmentId = EnvironmentId of int
 type ExitId = ExitId of int
+type MonsterId = MonsterId of int
+type ExperiencePoint = int
+type ExperienceLevel = int
+type AttackPoint = int
 
 // basic player status
 type Player = Player of string
 type Health = Health of current: float * max: float
-type Experience = Experience of total: int * level: int
+type Experience = Experience of total: ExperiencePoint * level: ExperienceLevel
 
 type InventoryItem =
 | InventoryItem of InventoryItemProperties
@@ -34,11 +38,27 @@ and ItemUse =
 
 type EnvironmentItem =
 | EnvironmentItem of EnvironmentItemProperties
+| Encounter of EncounterProperties
+// | Interaction of NPC
 
 and EnvironmentItemProperties = {
     Name: string
     Uses: ItemUse list
 }
+
+and EncounterProperties = {
+    Description: string
+    Monsters: Monster list
+}
+
+and Monster = {
+    Id: MonsterId
+    Name: string
+    Level: ExperienceLevel
+    Health: Health
+    ExperiencePoints: ExperiencePoint
+}
+
 
 // the player's immediate location/environment
 // environments are connected by paths
@@ -122,39 +142,3 @@ with
 let timespanFromDistance = function
     | Steps s -> TimeSpan.FromSeconds(float s)
     | Distance d -> TimeSpan.FromSeconds(float (time d))
-
-
-// constructors
-let createEnvironment id name description exits items environmentItems =
-    { Id = EnvironmentId id; Name = name; Description = description; Exits = exits; InventoryItems = items; EnvironmentItems = environmentItems }
-
-let createExit id environmentId exitState direction distance description =
-    { Id = ExitId id; Target = EnvironmentId environmentId; ExitState = exitState; Direction = direction; 
-        Distance = distance; Description = description }
-
-let createInventoryItem name description uses =
-    InventoryItem { Name = name; Description = description; Uses = uses }
-
-let createEnvironmentItem name uses =
-    EnvironmentItem { Name = name; Uses = uses }
-
-let inventoryItemName item =
-    match item with
-    | InventoryItem props -> props.Name
-
-let inventoryItemProps item =
-    match item with
-    | InventoryItem props -> props
-
-let environmentItemDescription item =
-    match item with
-    | EnvironmentItem props -> props.Name
-
-
-let tryOpenExit id env =
-    env.Exits 
-    |> List.tryFind (fun e -> e.Id = id && e.ExitState <> Open)
-    |> Option.map (fun e -> { e with ExitState = Open })
-
-let findExit id env =
-    env.Exits |> List.find (fun e -> e.Id = id)

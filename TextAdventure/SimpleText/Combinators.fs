@@ -1,6 +1,7 @@
 module Combinators
 open Domain
 open GameState
+open Environment
 
 type GamePart = GameState -> GameState
 
@@ -118,14 +119,13 @@ let drop (itemName: string) : GamePart =
             let output = [sprintf "Couldn't find %s." itemName]
             {gamestate with Output = Output output }
 
-let tryUseItem uses name gamestate =
-    match findUseInEnvironment uses gamestate.Environment with
+let private tryUseItem uses name gamestate =
+    match Uses.find uses gamestate.Environment with
     | Some (Unlock (exitId, desc))
     | Some (Unhide (exitId, desc)) ->
-        let exit = findExit exitId gamestate.Environment
+        let exit = Exit.find exitId gamestate.Environment
         gamestate
-        |> updateEnvironmentExit { exit with ExitState = Open}
-        |> updateWorldEnvironment
+        |> Exit.openExit exit
         |> setOutput (Output [desc; sprintf "%s opened with %s." exit.Description name;])
     | None ->
         gamestate
@@ -150,6 +150,9 @@ let useItem (itemName: string) : GamePart =
         | None, Some item' ->
             match item' with
             | EnvironmentItem item -> tryUseItem item.Uses item.Name gamestate
+            | _ ->
+                gamestate 
+                |> setOutput (Output ["Can't use that here."])
         | None, _ ->
             gamestate
             |> setOutput (Output [sprintf "What's a %s?" itemName])
