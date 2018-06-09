@@ -16,13 +16,39 @@ let title = """
                           888                                                               
 """
 
+let keyItem = Item.createInventoryItem "Key" "in a pile of debris and trash" [Unlock (ExitId 5, "After a few minutes of getting the key to fit correctly, the lock releases and the door creakily opens.")]
+let keyObject = GameObject (keyItem, id)
+
+let key' =
+    { Properties = Item.createInventoryItem "Key" "in a pile of debris and trash" [Unlock (ExitId 5, "After a few minutes of getting the key to fit correctly, the lock releases and the door creakily opens.")];
+        Update = id; 
+        GetOutput = fun _ _ -> DoNothing; }
+
+// lantern is an item you can take that allows you to see in dark places.
+// it can be turned on & off
+// it consumes battery life when it's turned on
+let lantern =
+    { Properties = Item.createTemporaryItem "lantern" "uses battery" [] 100;
+        Update = fun lantern ->
+            match lantern with
+            | (TemporaryItem (props, life)) -> TemporaryItem (props, life - 1)
+            | _ -> lantern
+        ;
+        GetOutput = fun lantern gs ->
+            match lantern with
+            | (TemporaryItem (_, life)) ->
+                if life < 1 then Output ["Battery has run out."]
+                else if life < 5 then Output ["Light is getting dim."]
+                else DoNothing
+            | _ -> DoNothing
+        ; }
 
 let defaultMap =
     [|
         (Environment.create 1 "Origin"
             "A moment ago you were just in bed floating above your mind, dreaming about how to add zebras to spreadsheets.  Now it appears you've awakened in a dimlit room. Many unfamiliar smells lurk around you."
             [Exit.create 1 2 Open North (Steps 2) "Creaky Door"]
-            [Item.createInventoryItem "Key" "in a pile of debris and trash" [Unlock (ExitId 5, "After a few minutes of getting the key to fit correctly, the lock releases and the door creakily opens.")]]
+            [keyItem]
             []
         );
         (Environment.create 2 "Long Hallway, South End"

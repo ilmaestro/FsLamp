@@ -19,6 +19,13 @@ type GameState = {
     Output: Output
 }
 
+type GameObject<'a> = GameObject of 'a * (GameState -> GameState)
+type GameObject'<'a> = {
+    Properties: 'a
+    Update: ('a -> 'a)
+    GetOutput: ('a -> GameState -> Output)
+}
+
 type GameHistory = GameState list
 
 

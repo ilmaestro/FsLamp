@@ -17,6 +17,10 @@ module Item =
     let createInventoryItem name description uses =
         InventoryItem { Name = name; Description = description; Uses = uses }
 
+    let createTemporaryItem name description uses lifetime =
+        TemporaryItem ({ Name = name; Description = description; Uses = uses }, lifetime)
+
+
     let addItem item gamestate =
         { gamestate with Inventory = item :: gamestate.Inventory }
 
@@ -31,10 +35,12 @@ module Item =
     let inventoryItemName item =
         match item with
         | InventoryItem props -> props.Name
+        | _ -> failwith "not an inventory item."
 
     let inventoryItemProps item =
         match item with
         | InventoryItem props -> props
+        | _ -> failwith "not an inventory item."
 
     let environmentItemDescription item =
         match item with

@@ -25,6 +25,7 @@ type Experience = Experience of total: ExperiencePoint * level: ExperienceLevel
 
 type InventoryItem =
 | InventoryItem of InventoryItemProperties
+| TemporaryItem of InventoryItemProperties * Lifetime: int
 
 and InventoryItemProperties = {
     Name: string
