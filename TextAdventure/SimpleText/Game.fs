@@ -16,39 +16,25 @@ let title = """
                           888                                                               
 """
 
-let keyItem = Item.createInventoryItem "Key" "in a pile of debris and trash" [Unlock (ExitId 5, "After a few minutes of getting the key to fit correctly, the lock releases and the door creakily opens.")]
-let keyObject = GameObject (keyItem, id)
 
-let key' =
-    { Properties = Item.createInventoryItem "Key" "in a pile of debris and trash" [Unlock (ExitId 5, "After a few minutes of getting the key to fit correctly, the lock releases and the door creakily opens.")];
-        Update = id; 
-        GetOutput = fun _ _ -> DoNothing; }
+let keyItem = Item.createInventoryItem "Key" "in a pile of debris and trash" [Unlock (ExitId 5, "After a few minutes of getting the key to fit correctly, the lock releases and the door creakily opens.")]
 
 // lantern is an item you can take that allows you to see in dark places.
 // it can be turned on & off
 // it consumes battery life when it's turned on
-let lantern =
-    { Properties = Item.createTemporaryItem "lantern" "uses battery" [] 100;
-        Update = fun lantern ->
-            match lantern with
-            | (TemporaryItem (props, life)) -> TemporaryItem (props, life - 1)
-            | _ -> lantern
-        ;
-        GetOutput = fun lantern gs ->
-            match lantern with
-            | (TemporaryItem (_, life)) ->
-                if life < 1 then Output ["Battery has run out."]
-                else if life < 5 then Output ["Light is getting dim."]
-                else DoNothing
-            | _ -> DoNothing
-        ; }
+let lanternBehaviors = [
+    GameBehaviors.add GameBehaviors.Temporary.decrementLifeOnUpdateBehavior;
+    GameBehaviors.add (GameBehaviors.Temporary.rangedOutputBehavior [(0,0,"Lantern's batteries are dead."); (5,5,"Lantern is getting extremely dim."); (10,10, "Lantern is getting dim.");]);
+]
+
+let lanternItem = Item.createTemporaryItem "lantern" "uses battery" [] 15 lanternBehaviors
 
 let defaultMap =
     [|
         (Environment.create 1 "Origin"
             "A moment ago you were just in bed floating above your mind, dreaming about how to add zebras to spreadsheets.  Now it appears you've awakened in a dimlit room. Many unfamiliar smells lurk around you."
             [Exit.create 1 2 Open North (Steps 2) "Creaky Door"]
-            [keyItem]
+            [keyItem; lanternItem]
             []
         );
         (Environment.create 2 "Long Hallway, South End"
@@ -103,7 +89,7 @@ let defaultGamestate map =
         Output = Header [title; "Type GO to start the game, or LOAD to start from saved game."]}
 
 let getCommand (parseInput: CommandParser) =
-    Console.Write("\n$> ")
+    Console.Write("\n> ")
     let readline = Console.ReadLine()
     match readline |> parseInput with
     | Some command -> command
@@ -126,6 +112,41 @@ let handleHeader : GamePart =
         | _ -> ()
         gamestate
 
+let updateGameObjects : GamePart =
+    fun gamestate ->
+        gamestate.Inventory
+        |> List.collect (fun i -> (Item.inventoryItemProps i).Behaviors |> List.map (fun b -> (i, b)))
+        |> List.map (fun (i, b) -> (i, GameBehaviors.find b))
+        |> List.filter (fun (_, b) -> b.IsSome)
+        // thread gamestate through all the update functions
+        |> List.fold (fun gs (item, behavior) ->
+            match behavior.Value with
+            | UpdateBehavior update ->
+                let (item', gs') = update item gs
+                // update item in gamestate
+                let inventory' = updateInventory item' gs.Inventory
+                gs' |> setInventory inventory'
+            | _ -> gs
+        ) gamestate
+
+let getGameObjectOutputs : GamePart =
+    fun gamestate ->
+        gamestate.Inventory
+        |> List.collect (fun i -> (Item.inventoryItemProps i).Behaviors |> List.map (fun b -> (i, b)))
+        |> List.map (fun (i, b) -> (i, GameBehaviors.find b))
+        |> List.filter (fun (_, b) -> b.IsSome)
+        // collect all the outputs
+        |> List.collect (fun (item, behavior) ->
+            match behavior.Value with
+            | OutputBehavior getOutputs ->
+                getOutputs item gamestate
+            | _ -> []
+        )
+        // append all the outputs
+        |> List.fold (fun gs s -> addOutput s gs) gamestate      
+        // |> List.iter (printfn "%s")
+        // gamestate
+
 // loop: Read -> Parse -> Command -> Action -> Print -> Loop
 let RunGame
     (dispatcher: Command -> GamePart)
@@ -138,7 +159,7 @@ let RunGame
         let action = getAction gamestate.GameScene dispatcher
 
         // execute the action to get next gamestate
-        let nextGameState = gamestate |> action
+        let nextGameState = gamestate |> updateGameObjects |> action  |> getGameObjectOutputs
 
         // handle output
         match nextGameState.Output with

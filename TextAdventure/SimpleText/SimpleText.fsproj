@@ -11,6 +11,7 @@
     <Compile Include="Parser.fs" />
     <Compile Include="Actions.fs" />
     <Compile Include="Dispatcher.fs" />
+    <Compile Include="GameBehaviors.fs" />
     <Compile Include="Game.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>

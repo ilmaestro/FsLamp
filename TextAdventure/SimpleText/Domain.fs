@@ -17,6 +17,7 @@ type MonsterId = MonsterId of int
 type ExperiencePoint = int
 type ExperienceLevel = int
 type AttackPoint = int
+type BehaviorId = BehaviorId of int
 
 // basic player status
 type Player = Player of string
@@ -31,6 +32,7 @@ and InventoryItemProperties = {
     Name: string
     Description: string
     Uses: ItemUse list // list of uses for this item.
+    Behaviors: BehaviorId list
 }
 
 and ItemUse =

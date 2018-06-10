@@ -49,3 +49,11 @@ player actions (initial attempt)
 
 - attack: does damage against monsters
 - run: may succeed or fail
+
+## Game Objects
+
+What's the best way to seperate the data from the behaviors. In order to be able to serialize and persist the entire gamestate, any logic must be kept seperate from the data.  Objects can have state and behavior, but its' the state that can be persisted. So what's the best way to match the two together.
+
+### Behaviors
+
+Behaviors are essentially pieces of game logic that can be assigned to game objects through a BehaviorId. Behaviors are kept in a runtime cache and are used in the gameloop.  Update behaviors are called just before the main action takes place, Output behaviors occur just before the game displays output.

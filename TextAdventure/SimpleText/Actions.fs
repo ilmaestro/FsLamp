@@ -150,6 +150,8 @@ module Explore =
             | Some item', _ ->
                 match item' with
                 | InventoryItem item -> tryUseItem item.Uses item.Name gamestate
+                | _ -> gamestate
+                
             | None, Some item' ->
                 match item' with
                 | EnvironmentItem item -> tryUseItem item.Uses item.Name gamestate

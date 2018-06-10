@@ -19,19 +19,14 @@ type GameState = {
     Output: Output
 }
 
-type GameObject<'a> = GameObject of 'a * (GameState -> GameState)
-type GameObject'<'a> = {
-    Properties: 'a
-    Update: ('a -> 'a)
-    GetOutput: ('a -> GameState -> Output)
-}
+type GameBehavior<'a> = 
+| UpdateBehavior of ('a -> GameState -> ('a * GameState))
+| OutputBehavior of ('a -> GameState -> string list)
 
 type GameHistory = GameState list
 
-
 let setScene scene gamestate =
     { gamestate with GameScene = scene }
-
 
 let setExperience experience gamestate =
     { gamestate with Experience = experience }
@@ -53,6 +48,20 @@ let updateWorldTravelTime distance gamestate =
 
 let setEnvironment environment gamestate =
     { gamestate with Environment = environment }
+
+let setInventory inventory gamestate =
+    { gamestate with Inventory = inventory }
+
+// inventory
+let updateInventory (item: InventoryItem) (inventory: InventoryItem list) =
+    inventory
+    |> List.map (fun i -> 
+        match i, item with
+        | TemporaryItem (props, _), TemporaryItem (props', _)
+            // only match on the properties
+            when props = props' -> item
+        | _ -> i
+    )
 
 // Output
 let setOutput output gamestate =

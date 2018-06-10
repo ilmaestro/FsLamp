@@ -15,10 +15,10 @@ module Item =
         EnvironmentItem { Name = name; Uses = uses }
 
     let createInventoryItem name description uses =
-        InventoryItem { Name = name; Description = description; Uses = uses }
+        InventoryItem { Name = name; Description = description; Uses = uses; Behaviors = [] }
 
-    let createTemporaryItem name description uses lifetime =
-        TemporaryItem ({ Name = name; Description = description; Uses = uses }, lifetime)
+    let createTemporaryItem name description uses lifetime behaviors =
+        TemporaryItem ({ Name = name; Description = description; Uses = uses;  Behaviors = behaviors }, lifetime)
 
 
     let addItem item gamestate =
@@ -35,12 +35,14 @@ module Item =
     let inventoryItemName item =
         match item with
         | InventoryItem props -> props.Name
-        | _ -> failwith "not an inventory item."
+        | TemporaryItem (props, _) -> props.Name
+        //| _ -> failwith "not an inventory item."
 
     let inventoryItemProps item =
         match item with
         | InventoryItem props -> props
-        | _ -> failwith "not an inventory item."
+        | TemporaryItem (props, _) -> props
+        //| _ -> failwith "not an inventory item."
 
     let environmentItemDescription item =
         match item with
