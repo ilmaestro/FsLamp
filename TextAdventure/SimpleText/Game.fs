@@ -16,31 +16,37 @@ let title = """
                           888                                                               
 """
 
-
-let keyItem = Item.createInventoryItem "Key" "in a pile of debris and trash" [Unlock (ExitId 5, "After a few minutes of getting the key to fit correctly, the lock releases and the door creakily opens.")]
+// this key is used to open
+let keyItem = Item.createInventoryItem "key" "laying in a pile of debris" [Unlock (ExitId 5, "After a few minutes of getting the key to fit correctly, the lock releases and the door creakily opens.")]
 
 // lantern is an item you can take that allows you to see in dark places.
 // it can be turned on & off
 // it consumes battery life when it's turned on
-let lanternBehaviors = [
-    GameBehaviors.add GameBehaviors.Temporary.decrementLifeOnUpdateBehavior;
-    GameBehaviors.add (GameBehaviors.Temporary.rangedOutputBehavior [(0,0,"Lantern's batteries are dead."); (5,5,"Lantern is getting extremely dim."); (10,10, "Lantern is getting dim.");]);
-]
-
-let lanternItem = Item.createTemporaryItem "lantern" "uses battery" [] 15 lanternBehaviors
+let lanternItem =
+    Item.createTemporaryItem 
+        "lantern" "with a full battery" [] 15 
+            [
+            GameBehaviors.add GameBehaviors.Temporary.decrementLifeOnUpdateBehavior;
+            GameBehaviors.add 
+                (GameBehaviors.Temporary.rangedOutputBehavior 
+                    [
+                        (0,0, "Lantern's batteries are dead.");
+                        (5,5, "Lantern is getting extremely dim.");
+                        (10,10, "Lantern is getting dim.");]);
+                    ]
 
 let defaultMap =
     [|
         (Environment.create 1 "Origin"
-            "A moment ago you were just in bed floating above your mind, dreaming about how to add zebras to spreadsheets.  Now it appears you've awakened in a dimlit room. Many unfamiliar smells lurk around you."
-            [Exit.create 1 2 Open North (Steps 2) "Creaky Door"]
+            "A moment ago you were just in bed floating above your mind, dreaming about how to add zebras to spreadsheets.  Now it appears you've awakened in a dimlit room. Many unfamiliar smells lurk around you. There's an old creaky door to the north."
+            [Exit.create 1 2 Open North (Steps 2) "Creaky door"]
             [keyItem; lanternItem]
             []
         );
         (Environment.create 2 "Long Hallway, South End"
             "The door opens into what appears to be a really long hallway continuing North. There's no light at the other end."
             [
-                Exit.create 2 1 Open South (Steps 2) "Creaky Door";
+                Exit.create 2 1 Open South (Steps 2) "Creaky door";
                 Exit.create 3 3 Open North (Steps 6) "Dark hallway";]
             []
             [Encounter.create "Green Slime appears and is attacking you!" [

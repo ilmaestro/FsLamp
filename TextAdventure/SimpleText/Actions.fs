@@ -79,15 +79,15 @@ module Explore =
 
     let look : GamePart =
         fun gamestate ->
-            let exitHelper = sprintf "%s to the %A"
-            let itemHelper = sprintf "%s %s"
+            let exitHelper = sprintf "\tA %s to the %A"
+            let itemHelper = sprintf "\tA %s %s"
             let exits = gamestate.Environment.Exits |> List.filter (fun e -> e.ExitState <> Hidden) |> List.map (fun p -> exitHelper p.Description p.Direction)
             let items = gamestate.Environment.InventoryItems |> List.map (Item.inventoryItemProps >> (fun prop -> itemHelper prop.Name prop.Description))
             let log = [
-                yield "There's a..."; yield! exits; 
-                match items with [] -> () | _ -> yield ""; yield "You see a..."; yield! items ]
+                yield gamestate.Environment.Description
+                yield "Exits"; yield! exits; 
+                match items with [] -> () | _ -> yield ""; yield "You see"; yield! items ]
             { gamestate with Output = Output log }
-
 
     let take (itemName: string) : GamePart =
         fun gamestate ->
