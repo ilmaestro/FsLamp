@@ -23,23 +23,40 @@ let rec unification pattern input acc =
     | [],[] ->
         acc |> List.rev |> Some
     | Wildcard :: prest, (Word i) :: irest ->
-        // option 1: end the wildcard, start a new group
-        let continueWithoutWildcard = unification prest irest (Word i :: acc)
+        match acc with
+        | [] ->
+            // option 1: end the wildcard, start a new group
+            let continueWithoutWildcard = unification prest irest ([Word (i + ".")] :: acc)
 
-        // option 2: continue the wildcard and group
-        let continueWithWildcard = unification (Wildcard :: prest) irest (Word i :: acc)
+            if continueWithoutWildcard.IsSome then continueWithoutWildcard
+            else
+                // option 2: continue the wildcard and group
+                unification pattern irest ([Word (i + "..")] :: acc)
+        | grp :: grpRest ->
+            // option 1: end the wildcard, continue group, start a new group
+            let continueWithoutWildcard = unification prest irest ([] :: (grp @ [Word (i + "...")]) :: grpRest)
 
-        if continueWithoutWildcard.IsSome then continueWithoutWildcard else continueWithWildcard
+            if continueWithoutWildcard.IsSome then continueWithoutWildcard
+            else
+                // option 2: continue the wildcard, new group
+                unification pattern irest ((grp @ [Word (i + "....")]) :: grpRest)
+
     | (Word p) :: prest, (Word i) :: irest  when p = i ->
         unification prest irest acc
     | _ -> None
 
+let matchPattern (pattern : Sentence) (input : Sentence) = 
+    if pattern.IsQuestion <> input.IsQuestion then None
+    else unification pattern.Contents input.Contents []
+(matchPattern (makeSentence "open * with * or *") (makeSentence "open the bork creaky door with rusty key or the snarky wrench"))
 
-(unification (parseText "a *") (parseText "a b") []) = Some [Word "b"]
+
+
+(unification (parseText "a *") (parseText "a b") []) = Some [[Word "b"]]
 (unification (parseText "a *") (parseText "b b") []) = None
-(unification (parseText "a *") (parseText "a b c") []) = Some [Word "b"; Word "c"]
-(unification (parseText "* a *") (parseText "a a b c") []) = Some [Word "a"; Word "b"; Word "c"]
-(unification (parseText "* a") (parseText "a") []) = Some []
+(unification (parseText "a *") (parseText "a b c") []) = Some [[Word "b"; Word "c"]]
+(unification (parseText "* a *") (parseText "a a b c") []) = Some [[Word "a";]; [Word "b"; Word "c"]]
+//(unification (parseText "* a") (parseText "a") []) = Some []
 
 
 // -------------------------------------------------
@@ -58,9 +75,6 @@ let rec unification pattern input acc =
 // satisfied, or if no unification could be found. Otherwise return
 // Some with the identified substitution.
 // -------------------------------------------------
-let matchPattern (pattern : Sentence) (input : Sentence) : Answer option = 
-    if pattern.IsQuestion <> input.IsQuestion then None
-    else unification pattern.Contents input.Contents []
 
 (matchPattern (makeSentence "Hello, is * there?") (makeSentence "Hello, is Ryan there?"))
 
@@ -79,8 +93,7 @@ let fillAnswer (text : string) (pattern : Answer) =
         | Wildcard -> result + " " + text
         | Word w -> result + " " + w ) ""
 
-
-let doorAnswer = (matchPattern (makeSentence "open the *") (makeSentence "open the creaky door")) |> Option.get 
+let doorAnswer = (matchPattern (makeSentence "open * with * or *") (makeSentence "open the bork creaky door with rusty key or the snarky wrench")) |> Option.get 
 
 doorAnswer |> extractText
 
