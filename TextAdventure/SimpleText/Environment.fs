@@ -95,15 +95,18 @@ module Uses =
         |> List.tryHead
 
 module Monster =
-    let create id name level health experience =
-        { Id = MonsterId id; Name = name; Level = level; Health = health; ExperiencePoints = experience}
+    let create id name defense attack damage health experience =
+        { Id = MonsterId id; Name = name; Defense = defense; Attack = attack; Damage = damage; Health = health; ExperiencePoints = experience}
 
     let isAlive (monster: Monster) =
         monster.Health |> Domain.isAlive
 
+    let setHealth health (monster: Monster) =
+        {monster with Health = health}
+
 module Encounter =
-    let create description monsters state =
-        Encounter { Description = description; Monsters = monsters;  EncounterState = state; }
+    let create description monsters =
+        Encounter { Description = description; Monsters = monsters; }
 
     let find environment =
         environment.EnvironmentItems
@@ -125,14 +128,19 @@ module Encounter =
         let environment = {gamestate.Environment with EnvironmentItems = items }
         {gamestate with Environment = environment }
 
-    let getNextEncounterState encounter =
-        //in order to win the encounter, all monsters must not be alive
-        let noMonstersAlive = not <| (encounter.Monsters |> List.forall Monster.isAlive)
+    let updateMonster (encounter: EncounterProperties) (monster: Monster) =
+        let monsters = encounter.Monsters |> List.map (fun m -> if m.Name = monster.Name then monster else m)
+        {encounter with Monsters = monsters}
 
-        match encounter.EncounterState with
-        | NotStarted -> InProgress
-        | InProgress when noMonstersAlive -> Complete
-        | _ -> InProgress
+    let updateEncounter (encounter: EncounterProperties) gamestate =
+        let environmentItems = 
+            gamestate.Environment.EnvironmentItems 
+            |> List.map (fun i ->
+                match i with
+                | Encounter e when e.Description = encounter.Description -> Encounter encounter
+                | _ -> i)
+        let environment = { gamestate.Environment with EnvironmentItems = environmentItems}
+        gamestate |> setEnvironment environment
 
     let checkEncounter gamestate =  
         match find gamestate.Environment with

@@ -51,8 +51,8 @@ let defaultMap =
                 Exit.create 3 3 Open North (Steps 6) "Dark hallway";]
             []
             [Encounter.create "Green Slime appears and is attacking you!" [
-                Monster.create 1 "Green Slime" 1 (Health (5.0, 5.0)) 100
-            ] NotStarted]
+                Monster.create 1 "Green Slime" (DefenseStat 4) (AttackStat 3) (Damage 2) (Health (5.0, 5.0)) 100
+            ]]
         );
         (Environment.create 3 "Long Hallway, North End"
             "It gets so dark you have to feel your way around. Thankfully there's nothing too dangerous in your path."
@@ -84,10 +84,10 @@ A few seconds pass, finally a response... 'die!'.  As you fall backward you stum
         );
     |]
 
+let player1 = Player.create "P1" (AttackStat 2) (DefenseStat 4) 12.
+
 let defaultGamestate map =
-    { Player = Player "one";
-        Health = Health (12.,12.);
-        Experience = Experience (0, 1);
+    { Player = player1;
         Inventory = [];
         World = { Time = DateTime.Parse("1971-01-01 06:01:42"); Map = map };
         Environment = map.[0];

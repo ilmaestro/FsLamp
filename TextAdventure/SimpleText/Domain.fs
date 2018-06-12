@@ -16,13 +16,23 @@ type ExitId = ExitId of int
 type MonsterId = MonsterId of int
 type ExperiencePoint = int
 type ExperienceLevel = int
-type AttackPoint = int
+type AttackStat = AttackStat of int
+type Damage = Damage of int
+type DefenseStat = DefenseStat of int
 type BehaviorId = BehaviorId of int
+type Power = Power of int
 
 // basic player status
-type Player = Player of string
 type Health = Health of current: float * max: float
 type Experience = Experience of total: ExperiencePoint * level: ExperienceLevel
+
+type Player = {
+    Name: string
+    Health: Health
+    Experience: Experience
+    Attack: AttackStat
+    Defense: DefenseStat
+}
 
 type InventoryItem =
 | InventoryItem of InventoryItemProperties
@@ -60,22 +70,17 @@ and EnvironmentItemProperties = {
 and EncounterProperties = {
     Description: string
     Monsters: Monster list
-    EncounterState: EncounterState
 }
 
 and Monster = {
     Id: MonsterId
     Name: string
-    Level: ExperienceLevel
+    Attack: AttackStat
+    Defense: DefenseStat
+    Damage: Damage
     Health: Health
     ExperiencePoints: ExperiencePoint
 }
-
-and EncounterState =
-| NotStarted
-| InProgress
-| Complete
-
 
 // the player's immediate location/environment
 // environments are connected by paths
@@ -171,3 +176,13 @@ let timespanFromDistance = function
 
 let isAlive (Health (current, _)) =
     current > 0.
+
+let damage (Damage d) (Health (life, total)) =
+    let newLife = if life - (float d) > 0. then (life - (float d)) else 0.
+    Health (newLife, total)
+
+let power (AttackStat attack) (Damage damage) =
+    Power (attack + damage)
+   
+let attackRoll (DefenseStat targetDefense) (Power sourcePower) (roll: unit -> int) =
+    (roll() + sourcePower) >= targetDefense

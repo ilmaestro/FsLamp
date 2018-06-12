@@ -9,8 +9,6 @@ type GameScene =
 
 type GameState = {
     Player: Player
-    Health: Health
-    Experience: Experience
     Inventory: InventoryItem list
     Environment: Environment
     World: World
@@ -28,8 +26,8 @@ type GameHistory = GameState list
 let setScene scene gamestate =
     { gamestate with GameScene = scene }
 
-let setExperience experience gamestate =
-    { gamestate with Experience = experience }
+let setPlayer player gamestate =
+    { gamestate with Player = player}
 
 // World
 let updateWorldEnvironment gamestate =
@@ -71,6 +69,13 @@ let addOutput s gamestate =
     match gamestate.Output with
     | Output output ->
         { gamestate with Output = Output (output @ [s]) }
+    | _ -> 
+        gamestate
+
+let appendOutputs outputs gamestate =
+    match gamestate.Output with
+    | Output output ->
+        { gamestate with Output = Output (output @ outputs) }
     | _ -> 
         gamestate
 
