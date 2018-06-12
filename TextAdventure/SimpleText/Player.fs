@@ -16,9 +16,10 @@ let create name attack defense totalHealth =
 let createExperience points =
     Experience (points, points |> getLevel )
 
-let setExperience experience player =
+let setExperience experience (player: Player) =
     {player with Experience = experience }
-let addExperience points player =
+
+let addExperience points (player: Player) =
     let (Experience(current, _)) = player.Experience
     player 
     |> setExperience (createExperience (current + points))
@@ -32,9 +33,7 @@ let checkGameOver gamestate =
     else
         gamestate
         |> setScene MainMenu
-        |> setOutput (Header [
-            "Game over!"
-        ])
+        |> setOutput (Header ["Game over!"])
 
 module Rolls =
     let private rnd = System.Random()

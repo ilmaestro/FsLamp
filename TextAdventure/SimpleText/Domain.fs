@@ -23,7 +23,7 @@ type BehaviorId = BehaviorId of int
 type Power = Power of int
 
 // basic player status
-type Health = Health of current: float * max: float
+type Health = Health of current: int * max: int
 type Experience = Experience of total: ExperiencePoint * level: ExperienceLevel
 
 type Player = {
@@ -175,10 +175,10 @@ let timespanFromDistance = function
     | Distance d -> TimeSpan.FromSeconds(float (time d))
 
 let isAlive (Health (current, _)) =
-    current > 0.
+    (int current) > 0
 
 let damage (Damage d) (Health (life, total)) =
-    let newLife = if life - (float d) > 0. then (life - (float d)) else 0.
+    let newLife = if life - d > 0 then (life - d) else 0
     Health (newLife, total)
 
 let power (AttackStat attack) (Damage damage) =
@@ -186,3 +186,6 @@ let power (AttackStat attack) (Damage damage) =
    
 let attackRoll (DefenseStat targetDefense) (Power sourcePower) (roll: unit -> int) =
     (roll() + sourcePower) >= targetDefense
+
+let healthDescription (Health (life, total)) =
+    sprintf "%i/%i" life total

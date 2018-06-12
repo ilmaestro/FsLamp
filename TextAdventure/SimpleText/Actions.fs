@@ -3,6 +3,7 @@ open Domain
 open GameState
 open Environment
 open Player
+open System
 
 type GamePart = GameState -> GameState
 
@@ -186,17 +187,15 @@ module InEncounter =
     let summarizeEncounter monsterPoints oldLevel : GamePart =
         fun gamestate ->
             let (Experience (points, level)) = gamestate.Player.Experience
-            let outputs = [
-                yield "You attack and win!";
+            gamestate
+            |> appendOutputs [
+                yield "The battle is over.";
                 yield sprintf "You gained %i experience points. Total: %i" monsterPoints points;
                 if level > oldLevel then yield sprintf "You are now level %i" level;                
             ]
-            gamestate
-            |> setOutput (Output outputs)
 
     let finishEncounter experience : GamePart =
         fun gamestate ->
-            
             let player' = gamestate.Player |> Player.addExperience experience
             let (Experience (_, oldLevel)) = gamestate.Player.Experience
             gamestate
@@ -205,31 +204,34 @@ module InEncounter =
             |> Encounter.endEncounter
             |> setScene OpenExplore
 
-    let playerAttack monster encounter : GamePart =
+    let playerAttack monster encounter =
         fun gamestate ->
-            let playerDamage = (Damage 5) // TODO: use a weapon!!
+            let playerDamage = (Damage 3) // TODO: use a weapon!!
             let playerPower = power gamestate.Player.Attack playerDamage
             if attackRoll monster.Defense playerPower Player.Rolls.d20Roll
             then
                 // attack succeeds, update monster
                 let health' = damage playerDamage monster.Health
-                let encounter' =
-                    monster
-                    |> Environment.Monster.setHealth health'
-                    |> Encounter.updateMonster encounter
-                gamestate
-                |> Encounter.updateEncounter encounter'
-                |> appendOutputs [
-                    sprintf "You hit %s with %A" monster.Name playerDamage
-                ]
+                let monster' = monster |> Environment.Monster.setHealth health'
+                let encounter' = monster' |> Encounter.updateMonster encounter
+                let gamestate' =
+                    gamestate
+                    |> Encounter.updateEncounter encounter'
+                    |> setScene (InEncounter encounter') // make sure to update the encounter in the scene
+                    |> appendOutputs [
+                        sprintf "You hit %s with %A. %s" monster.Name playerDamage (healthDescription health')
+                    ]
+                (monster', encounter', gamestate')
             else
                 // attack fails
-                gamestate
-                |> appendOutputs [
-                    sprintf "You miss %s!" monster.Name
-                ]
+                let gamestate' =
+                    gamestate
+                    |> appendOutputs [
+                        sprintf "You miss %s!" monster.Name
+                    ]
+                (monster, encounter, gamestate')
 
-    let monsterAttack monster _ : GamePart =
+    let monsterAttack monster =
         fun gamestate ->
             if monster.Health |> isAlive then
                 let monsterPower = power monster.Attack monster.Damage
@@ -240,36 +242,46 @@ module InEncounter =
                     let player' =
                         gamestate.Player
                         |> Player.setHealth health'
-
-                    gamestate
-                    |> setPlayer player'
-                    |> appendOutputs [
-                        sprintf "%s is attacking you." monster.Name
-                        sprintf "%s hits you with %A." monster.Name monster.Damage
-                    ]
+                    let gamestate' =
+                        gamestate
+                        |> setPlayer player'
+                        |> appendOutputs [
+                            sprintf "%s hits you with %A. %s" monster.Name monster.Damage (healthDescription health')
+                        ]
+                    (player', gamestate')
                 else
                     // attack fails
-                    gamestate
-                    |> appendOutputs [
-                        sprintf "%s is attacking you." monster.Name
-                        sprintf "%s misses you!" monster.Name
-                    ]
+                    let gamestate' =
+                        gamestate
+                        |> appendOutputs [
+                            sprintf "%s misses you!" monster.Name
+                        ]
+                    (gamestate.Player, gamestate')
             else
-                gamestate
+                (gamestate.Player, gamestate)
 
     let attack : GamePart =
         fun gamestate ->
             match gamestate.GameScene with
             | InEncounter encounter ->
-                let monsterOption = encounter.Monsters |> List.filter (fun m -> m.Health |> isAlive) |> List.tryHead
+                let monsterOption = encounter |> Environment.Encounter.findAMonster
                 match monsterOption with
                 | Some monster ->
                     // TODO: figure out initiative, who goes first.
-                    gamestate
-                    |> setOutput (Output ["You begin your attack"])
-                    |> playerAttack monster encounter
-                    |> monsterAttack monster encounter
-                    |> Player.checkGameOver
+                    let (monster', encounter', gamestate') =
+                        gamestate
+                        |> setOutput (Output ["You attack!"])
+                        |> playerAttack monster encounter
+
+                    let (player', gamestate'') =
+                        gamestate'
+                        |> monsterAttack monster'
+
+                    if Environment.Encounter.checkForMonsters encounter' then
+                        gamestate'' |> Player.checkGameOver
+                    else
+                        let monsterPoints = encounter.Monsters |> List.sumBy (fun {ExperiencePoints = points} -> points)
+                        gamestate'' |> finishEncounter monsterPoints    
                 | None ->
                     let monsterPoints = encounter.Monsters |> List.sumBy (fun {ExperiencePoints = points} -> points)
                     gamestate |> finishEncounter monsterPoints

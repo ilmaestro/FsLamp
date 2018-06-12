@@ -146,7 +146,7 @@ module Encounter =
         match find gamestate.Environment with
         | Some encounter ->
             gamestate
-            |> addOutput (sprintf "!! %s !!" encounter.Description)
+            |> addOutput (sprintf "*** %s ***" encounter.Description)
             |> setScene (InEncounter encounter)
         | None -> gamestate
 
@@ -155,3 +155,8 @@ module Encounter =
         |> remove
         |> updateWorldEnvironment
 
+    let findAMonster encounter =
+        encounter.Monsters |> List.filter (fun m -> m.Health |> isAlive) |> List.tryHead
+
+    let checkForMonsters encounter =
+        encounter.Monsters |> List.exists (fun m -> m.Health |> isAlive)

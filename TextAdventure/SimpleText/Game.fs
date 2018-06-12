@@ -51,7 +51,7 @@ let defaultMap =
                 Exit.create 3 3 Open North (Steps 6) "Dark hallway";]
             []
             [Encounter.create "Green Slime appears and is attacking you!" [
-                Monster.create 1 "Green Slime" (DefenseStat 4) (AttackStat 3) (Damage 2) (Health (5.0, 5.0)) 100
+                Monster.create 1 "Green Slime" (DefenseStat 10) (AttackStat 1) (Damage 2) (Health (10, 10)) 100
             ]]
         );
         (Environment.create 3 "Long Hallway, North End"
@@ -60,7 +60,9 @@ let defaultMap =
                 Exit.create 4 2 Open South (Steps 6) "The south end of the hallway";
                 Exit.create 5 4 Locked East (Steps 6) "A door with no features, labeled 'Private'"]
             []
-            []
+            [Encounter.create "A gruet jumps out from the darkness." [
+                Monster.create 2 "Gruet" (DefenseStat 14) (AttackStat 1) (Damage 3) (Health (12, 12)) 200
+            ]]
         );
         (Environment.create 4 "Office"
             "As the door opens, you begin to see the remnants of an old dusty office.  This place hasn't been used in years. An old typewriter on the desk is missing most of its keys."
@@ -84,7 +86,7 @@ A few seconds pass, finally a response... 'die!'.  As you fall backward you stum
         );
     |]
 
-let player1 = Player.create "P1" (AttackStat 2) (DefenseStat 4) 12.
+let player1 = Player.create "P1" (AttackStat 2) (DefenseStat 14) 15
 
 let defaultGamestate map =
     { Player = player1;
