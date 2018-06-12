@@ -26,15 +26,16 @@ let lanternItem =
     Item.createTemporaryItem 
         "lantern" "with a full battery" [] 15 
             [
-            GameBehaviors.add GameBehaviors.Temporary.decrementLifeOnUpdateBehavior;
-            GameBehaviors.add 
-                (GameBehaviors.Temporary.rangedOutputBehavior 
+            GameBehaviors.Inventory.add GameBehaviors.Inventory.decrementLifeOnUpdateBehavior;
+            GameBehaviors.Inventory.add 
+                (GameBehaviors.Inventory.rangedOutputBehavior 
                     [
                         (0,0, "Lantern's batteries are dead.");
                         (5,5, "Lantern is getting extremely dim.");
                         (10,10, "Lantern is getting dim.");]);
                     ]
-
+let swordItem =
+    Item.createAttackItem 
 let defaultMap =
     [|
         (Environment.create 1 "Origin"
@@ -121,8 +122,8 @@ let handleHeader : GamePart =
 let updateGameObjects : GamePart =
     fun gamestate ->
         gamestate.Inventory
-        |> List.collect (fun i -> (Item.inventoryItemProps i).Behaviors |> List.map (fun b -> (i, b)))
-        |> List.map (fun (i, b) -> (i, GameBehaviors.find b))
+        |> List.collect (fun i -> Item.inventoryItemBehaviors i |> List.map (fun b -> (i, b)))
+        |> List.map (fun (i, b) -> (i, GameBehaviors.Inventory.find b))
         |> List.filter (fun (_, b) -> b.IsSome)
         // thread gamestate through all the update functions
         |> List.fold (fun gs (item, behavior) ->
@@ -138,8 +139,8 @@ let updateGameObjects : GamePart =
 let getGameObjectOutputs : GamePart =
     fun gamestate ->
         gamestate.Inventory
-        |> List.collect (fun i -> (Item.inventoryItemProps i).Behaviors |> List.map (fun b -> (i, b)))
-        |> List.map (fun (i, b) -> (i, GameBehaviors.find b))
+        |> List.collect (fun i -> Item.inventoryItemBehaviors i |> List.map (fun b -> (i, b)))
+        |> List.map (fun (i, b) -> (i, GameBehaviors.Inventory.find b))
         |> List.filter (fun (_, b) -> b.IsSome)
         // collect all the outputs
         |> List.collect (fun (item, behavior) ->

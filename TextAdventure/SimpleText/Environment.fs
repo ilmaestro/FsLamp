@@ -20,6 +20,8 @@ module Item =
     let createTemporaryItem name description uses lifetime behaviors =
         TemporaryItem ({ Name = name; Description = description; Uses = uses;  Behaviors = behaviors }, lifetime)
 
+    let createAttackItem name description damage behaviors =
+        AttackItem { Name = name; Description = description; Damage = damage; Behaviors = behaviors }
 
     let addItem item gamestate =
         { gamestate with Inventory = item :: gamestate.Inventory }
@@ -36,13 +38,19 @@ module Item =
         match item with
         | InventoryItem props -> props.Name
         | TemporaryItem (props, _) -> props.Name
-        //| _ -> failwith "not an inventory item."
+        | AttackItem props -> props.Name
 
     let inventoryItemProps item =
         match item with
-        | InventoryItem props -> props
-        | TemporaryItem (props, _) -> props
-        //| _ -> failwith "not an inventory item."
+        | InventoryItem props -> (props.Name, props.Description)
+        | TemporaryItem (props, _) -> (props.Name, props.Description)
+        | AttackItem props -> (props.Name, props.Description)
+
+    let inventoryItemBehaviors item =
+        match item with
+        | InventoryItem props -> props.Behaviors
+        | TemporaryItem (props, _) -> props.Behaviors
+        | AttackItem props -> props.Behaviors
 
     let environmentItemDescription item =
         match item with

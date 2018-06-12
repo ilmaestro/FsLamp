@@ -82,7 +82,7 @@ module Explore =
             let exitHelper = sprintf "\tA %s to the %A"
             let itemHelper = sprintf "\tA %s %s"
             let exits = gamestate.Environment.Exits |> List.filter (fun e -> e.ExitState <> Hidden) |> List.map (fun p -> exitHelper p.Description p.Direction)
-            let items = gamestate.Environment.InventoryItems |> List.map (Item.inventoryItemProps >> (fun prop -> itemHelper prop.Name prop.Description))
+            let items = gamestate.Environment.InventoryItems |> List.map (Item.inventoryItemProps >> (fun (name, description) -> itemHelper name description))
             let log = [
                 yield gamestate.Environment.Description
                 yield "Exits"; yield! exits; 

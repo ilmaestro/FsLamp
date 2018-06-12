@@ -3,17 +3,19 @@ module GameBehaviors
 open Domain
 open GameState
 
-let private cache : Map<BehaviorId, GameBehavior<InventoryItem>> ref = ref Map.empty
 
-let add b =
-    let id = BehaviorId ((!cache).Count + 1)
-    cache := (!cache).Add(id, b)
-    id
+module Inventory =
 
-let find id =
-    (!cache).TryFind(id)
+    let private cache : Map<BehaviorId, GameBehavior<InventoryItem>> ref = ref Map.empty
 
-module Temporary =
+    let add b =
+        let id = BehaviorId ((!cache).Count + 1)
+        cache := (!cache).Add(id, b)
+        id
+
+    let find id =
+        (!cache).TryFind(id)
+
     let decrementLifeOnUpdateBehavior = 
         UpdateBehavior (
             fun (item: InventoryItem) gs ->
