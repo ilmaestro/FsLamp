@@ -1,6 +1,6 @@
 # Text Adventure
 
-## Steps
+## first Steps
 
 1. create a simple bot
 2. design game state machine
@@ -57,3 +57,12 @@ What's the best way to seperate the data from the behaviors. In order to be able
 ### Behaviors
 
 Behaviors are essentially pieces of game logic that can be assigned to game objects through a BehaviorId. Behaviors are kept in a runtime cache and are used in the gameloop.  Update behaviors are called just before the main action takes place, Output behaviors occur just before the game displays output.
+
+## Start to organize
+
+- [ ] turn lantern on/off
+- [ ] environments have no light, unless lantern is turned on
+- [ ] containers that open/close and allow you to put items inside them
+- [ ] NPC conversations
+  - buy/sell
+  - unlock parts of the story

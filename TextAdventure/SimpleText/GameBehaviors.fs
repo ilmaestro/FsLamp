@@ -1,5 +1,5 @@
 module GameBehaviors
-
+open Primitives
 open Domain
 open GameState
 
@@ -34,9 +34,26 @@ module Inventory =
                     match ranges |> List.tryFind (fun (min, max, _) -> min <= life && life <= max) with
                     | Some (_,_,output) -> [output]
                     | None -> []
-                    // if life < 1 then ["Battery has run out."]
-                    // else if life < 5 then ["Light is getting dim."]
-                    // else []
                 | _ -> []
         )
+    
 
+module ItemUses =
+    let private cache : Map<BehaviorId, GameBehavior<InventoryItem * ItemUse>> ref = ref Map.empty
+
+    let add b =
+        let id = BehaviorId ((!cache).Count + 1)
+        cache := (!cache).Add(id, b)
+        id
+
+    let find id =
+        (!cache).TryFind(id)
+
+    let toggleOnOffBehavior =
+        UpdateBehavior (
+            fun (item: InventoryItem, usage: ItemUse) gs ->
+                match item, usage with
+                | OnOffItem (props, onOff), Switch OnOff ->
+                    ((OnOffItem (props, not onOff), usage), gs)
+                | _ -> ((item, usage), gs)
+        )

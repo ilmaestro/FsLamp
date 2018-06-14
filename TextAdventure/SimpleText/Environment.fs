@@ -1,4 +1,5 @@
 module Environment
+open Primitives
 open Domain
 open GameState
 
@@ -146,7 +147,7 @@ module Encounter =
         match find gamestate.Environment with
         | Some encounter ->
             gamestate
-            |> addOutput (sprintf "*** %s ***" encounter.Description)
+            |> addOutput (sprintf "\n*** %s ***" encounter.Description)
             |> setScene (InEncounter encounter)
         | None -> gamestate
 

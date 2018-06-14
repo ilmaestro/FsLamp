@@ -1,30 +1,6 @@
 module Domain
 open System
-
-[<Measure>] type meter
-
-[<Measure>] type second
-
-let defaultSpeed = 0.1<meter/second>
-let time dist : float<second> = dist / defaultSpeed
-
-type Undefined = exn
-
-// primitives
-type EnvironmentId = EnvironmentId of int
-type ExitId = ExitId of int
-type MonsterId = MonsterId of int
-type ExperiencePoint = int
-type ExperienceLevel = int
-type AttackStat = AttackStat of int
-type Damage = Damage of int
-type DefenseStat = DefenseStat of int
-type BehaviorId = BehaviorId of int
-type Power = Power of int
-
-// basic player status
-type Health = Health of current: int * max: int
-type Experience = Experience of total: ExperiencePoint * level: ExperienceLevel
+open Primitives
 
 type Player = {
     Name: string
@@ -37,6 +13,7 @@ type Player = {
 type InventoryItem =
 | InventoryItem of InventoryItemProperties
 | TemporaryItem of InventoryItemProperties * Lifetime: int
+| OnOffItem of InventoryItemProperties * OnOff: bool
 | AttackItem of AttackItemProperties
 
 and InventoryItemProperties = {
@@ -56,6 +33,20 @@ and AttackItemProperties = {
 and ItemUse =
 | Unlock of ExitId * Description: string
 | Unhide of ExitId * Description: string
+| Put of PutUse * id: string
+| Contain of ContainUse
+| Switch of SwitchType
+
+and PutUse =
+| PutOn
+| PutIn
+
+and ContainUse =
+| ContainOn
+| ConainIn
+
+and SwitchType =
+| OnOff
 
 type EnvironmentItem =
 | EnvironmentItem of EnvironmentItemProperties
