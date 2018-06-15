@@ -1,11 +1,14 @@
 module Game
 open Primitives
 open Domain
+open ItemUse
 open GameState
 open Actions
 open Environment
+open GameBehaviors
 open Parser
 open System
+open GameBehaviors
 
 let title = """
 ,d88~~\ ,e,                         888                 ~~~888~~~                      d8   
@@ -17,33 +20,6 @@ let title = """
                           888                                                               
 """
 
-// some behaviors
-let openExit description exitId =
-    ItemUse.addGameStateBehavior 
-        (Description description, (Items.OpenExit exitId))
-        GameBehaviors.ItemUses.OpenExitBehavior
-
-let openSecretPassage description exitId =
-    ItemUse.addGameStateBehavior
-        (Description description, (Items.UseOnExit exitId))
-        GameBehaviors.ItemUses.OpenExitBehavior
-
-let loseBattery amount =
-    ItemUse.addItemUseBehavior
-        (Description "Batter Life", Items.LoseLifeOnUpdate)
-        (GameBehaviors.ItemUses.updateHealthBehavior (fun (Health (life,total)) -> Health(life - amount,total)))
-
-let batteryWarnings (ranges: (int * int * string) list) =
-    ItemUse.addGameStateBehavior
-        (Description "Battery Warning", Items.GetOutputs)
-        (GameBehaviors.ItemUses.outputBehavior (fun item -> 
-            match item.Health with
-            | Some (Health(life, _)) ->
-                match ranges |> List.tryFind (fun (min, max, _) -> min <= life && life <= max) with
-                | Some (_,_,output) -> [output]
-                | None -> []
-            | None -> []    
-        ))
 
 // this key is used to open
 let keyItem = 
@@ -53,15 +29,17 @@ let keyItem =
         None // no health
         None
         None
-        [openExit "After a few minutes of getting the key to fit correctly, the lock releases and the door creakily opens." (ExitId 5)]
+        [Behaviors.openExit "After a few minutes of getting the key to fit correctly, the lock releases and the door creakily opens." (ExitId 5);
+            Behaviors.takeItem "You pickup a small, crusty key." true]
 
 let typewriter =
     Items.createInventoryItem (ItemId 4) "typewriter" "collecting dust" None None None 
-        [openSecretPassage "As you press down hard on one of the keys. The air begins to move around you. Suddenly, a secret passage opens up from within the wall." (ExitId 7)]
+        [Behaviors.openSecretPassage "As you press down hard on one of the keys. The air begins to move around you. Suddenly, a secret passage opens up from within the wall." (ExitId 7);
+            Behaviors.takeItem "After several attempts of trying to pick up the typewriter, you realize you don't actually want to carry this thing around." false]
 
 let rock =
     Items.createInventoryItem (ItemId 5) "rock" "just lying around" None None None
-        [openSecretPassage "You throw the rock directly at the voice and hear a terrible scream.  Moments later you can hear footsteps running to the east away from you." (ExitId 8)]
+        [Behaviors.openSecretPassage "You throw the rock directly at the voice and hear a terrible scream.  Moments later you can hear footsteps running to the east away from you." (ExitId 8);]
 
 // lantern is an item you can take that allows you to see in dark places.
 // it can be turned on & off
@@ -74,12 +52,13 @@ let lanternItem =
         (Some Items.SwitchOff)
         None
         [
-            loseBattery 1;
-            batteryWarnings
+            Behaviors.loseBattery "Batter Life" 1;
+            Behaviors.batteryWarnings "Battery Warning"
                 [
                     (0,0, "Lantern's batteries are dead.");
                     (5,5, "Lantern is getting extremely dim.");
                     (10,10, "Lantern is getting dim.");]
+            Behaviors.takeItem "You pick up the lantern" true;
         ]
 
 let gold =
@@ -174,27 +153,21 @@ let handleHeader : GamePart =
         gamestate
 
 let isUpdateItemUse (_, itemUse) =
-    match itemUse with
-    | Items.LoseLifeOnUpdate -> true
-    | _ -> false
+    itemUse == Items.LoseLifeOnUpdate
 
 let isOutputItemUse (_, itemUse) =
-    match itemUse with
-    | Items.GetOutputs -> true
-    | _ -> false
+    itemUse == Items.GetOutputs
 
 let getUses f g (list: Items.InventoryItem list) =
     list 
     |> List.collect (fun i -> i.Behaviors |> List.filter f |> List.map (fun b -> (i, b)))
     |> List.map (fun (i, b) -> (i, b, g b))
 
-
-
 let updateGameObjects : GamePart =
     fun gamestate ->
         gamestate.Inventory
         // get all the updatable item uses
-        |> getUses isUpdateItemUse ItemUse.findItemUseBehavior
+        |> getUses isUpdateItemUse findItemUseBehavior
             
         |> List.filter (fun (_, _, update) -> update.IsSome)
         |> List.map (fun (i, (_, itemUse), update) -> ((itemUse,i), update.Value))

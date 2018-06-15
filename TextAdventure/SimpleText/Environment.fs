@@ -12,7 +12,6 @@ type Environment = {
     EnvironmentItems: EnvironmentItem list
 }
 
-
 module Environment =
     let create id name description exits items environmentItems =
         { Id = EnvironmentId id; Name = name; Description = description; Exits = exits; InventoryItems = items; EnvironmentItems = environmentItems }
@@ -20,23 +19,6 @@ module Environment =
     let updateInventory (item: InventoryItem) (inventory: InventoryItem list) =
         inventory
         |> List.map (fun i -> if i.Id = item.Id then item else i)
-
-module Item =
-
-
-
-    // let createTemporaryItem name description uses lifetime behaviors =
-    //     TemporaryItem ({ Name = name; Description = description; Uses = uses;  Behaviors = behaviors }, lifetime)
-
-    // let createAttackItem name description damage behaviors =
-    //     AttackItem { Name = name; Description = description; Damage = damage; Behaviors = behaviors }
-
-    let environmentItemDescription item =
-        match item with
-        | EnvironmentItem props -> props.Name
-        | _ -> ""
-
-    
 
 module Exit =
     let create id environmentId exitState direction distance description =

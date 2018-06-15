@@ -5,6 +5,7 @@ open GameState
 open Environment
 open Player
 open System
+open ItemUse
 
 type GamePart = GameState -> GameState
 
@@ -24,6 +25,27 @@ module Common =
     let message s : GamePart =
         fun gamestate ->
             {gamestate with Output = Output [s]}
+
+    let tryUseItemFromInventory (itemName: string) itemUse gamestate =
+            let itemOption = 
+                gamestate.Environment.InventoryItems 
+                |> List.tryFind (fun i ->
+                    (i.Name.ToLower()) = itemName.ToLower())
+
+            match itemOption with
+            | Some item ->
+                let takeableUse = 
+                    item 
+                    |> tryFindItemUse itemUse //(ItemUse.Defaults.CanTake) 
+                    |> Option.map (fun itemUse -> (itemUse, findGameStateBehavior itemUse))
+
+                match takeableUse with
+                | Some ((_, itemUse), Some update) ->
+                    Ok (update (itemUse, item, gamestate))
+                | _ ->
+                    Error Items.CantUse
+            | None ->
+                Error Items.CantFind
 
 module Explore =
     let wait ts : GamePart =
@@ -95,15 +117,23 @@ module Explore =
             // find item
             let itemOption = 
                 gamestate.Environment.InventoryItems 
-                |> List.tryFind (fun i -> (i.Name.ToLower()) = itemName.ToLower())
+                |> List.tryFind (fun i ->
+                    (i.Name.ToLower()) = itemName.ToLower())
+
             match itemOption with
             | Some item ->
-                gamestate
-                |> Environment.removeItemFromEnvironment item
-                |> Inventory.addItem item
-                |> World.updateWorldEnvironment
-                |> Output.setOutput (Output [sprintf "You took %s." item.Name])
-            | None ->    
+                let takeableUse = 
+                    item 
+                    |> tryFindItemUse (ItemUse.Defaults.CanTake) 
+                    |> Option.map (fun itemUse -> (itemUse, findGameStateBehavior itemUse))
+
+                match takeableUse with
+                | Some ((_, itemUse), Some update) ->
+                    update (itemUse, item, gamestate)
+                | _ ->
+                    gamestate
+                    |> Output.setOutput (Output [sprintf "You try to take %s, but it own't budge." item.Name])
+            | None ->
                 let output = [sprintf "Couldn't find %s." itemName]
                 {gamestate with Output = Output output }
 

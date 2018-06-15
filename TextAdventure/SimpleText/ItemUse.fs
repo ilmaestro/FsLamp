@@ -24,6 +24,31 @@ let findGameStateBehavior id =
     (!gameStateBehaviorCache).TryFind id
 
 
+let inline (==) (a: ItemUse) (b: ItemUse) = 
+    match a,b with
+        // special cases, ignore discriminator
+        | OpenExit _, OpenExit _
+        | UseOnExit _, UseOnExit _
+        | PutOn _, PutOn _
+        | PutIn _, PutIn _
+        | TakeFrom _, TakeFrom _
+        | AttackWith _, AttackWith _
+        | CanTake _, CanTake _
+            -> true
+
+        // all other cases
+        | x,y 
+            -> x = y
+
+let tryFindItemUse (itemUse: ItemUse) item =
+    item.Behaviors
+    |> List.tryFind (fun (_, i) -> i == itemUse)
+
+let itemHasUse (itemUse: ItemUse) item =
+    item.Behaviors
+    |> List.exists (fun (_, i) -> i == itemUse)
+
+
 module Defaults =
     // Empty / defaults
     let Open = OpenExit (ExitId 0)
@@ -32,4 +57,4 @@ module Defaults =
     let PutIn = PutIn (ItemId 0)
     let TakeFrom = TakeFrom (ItemId 0)
     let AttackWith = AttackWith (MonsterId 0)
-    let TurnOnOff = TurnOnOff
+    let CanTake = CanTake true

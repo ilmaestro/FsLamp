@@ -60,6 +60,7 @@ Behaviors are essentially pieces of game logic that can be assigned to game obje
 
 ## Start to organize
 
+- [ ] items can be taken
 - [ ] turn lantern on/off
 - [ ] environments have no light, unless lantern is turned on
 - [ ] containers that open/close and allow you to put items inside them

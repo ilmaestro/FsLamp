@@ -1,68 +1,20 @@
 module GameBehaviors
+open Primitives
 open Domain
 open ItemUse
 open Items
 open Environment
 open GameState
+open Actions
 
-// module Inventory =
-
-    // let private cache : Map<BehaviorId, GameBehavior<InventoryItem>> ref = ref Map.empty
-
-    // let add b =
-    //     let id = BehaviorId ((!cache).Count + 1)
-    //     cache := (!cache).Add(id, b)
-    //     id
-
-    // let find id =
-    //     (!cache).TryFind(id)
-
-    // let decrementLifeOnUpdateBehavior = 
-    //     UpdateBehavior (
-    //         fun (item: InventoryItem) gs ->
-    //             match item with
-    //             | TemporaryItem (props, life) ->
-    //                 let newItem = TemporaryItem (props, life - 1)
-    //                 (newItem, gs)
-    //             | _ ->
-    //                 (item, gs))
-
-    // let rangedOutputBehavior (ranges: (int * int * string) list) =
-    //     OutputBehavior (
-    //         fun (item: InventoryItem) _ ->
-    //             match item with
-    //             | (TemporaryItem (_, life)) ->
-    //                 match ranges |> List.tryFind (fun (min, max, _) -> min <= life && life <= max) with
-    //                 | Some (_,_,output) -> [output]
-    //                 | None -> []
-    //             | _ -> []
-    //     )
-    
-
-module ItemUses =
-    // let private cache : Map<BehaviorId, GameBehavior<InventoryItem * ItemUse>> ref = ref Map.empty
-
-    // let add b =
-    //     let id = BehaviorId ((!cache).Count + 1)
-    //     cache := (!cache).Add(id, b)
-    //     id
-
-    // let find id =
-    //     (!cache).TryFind(id)
-
-    // let toggleOnOffBehavior =
-    //     UpdateBehavior (
-    //         fun (item: InventoryItem, usage: ItemUse) gs ->
-    //             match item, usage with
-    //             | OnOffItem (props, onOff), Switch OnOff ->
-    //                 ((OnOffItem (props, not onOff), usage), gs)
-    //             | _ -> ((item, usage), gs)
-    //     )
+module Common =
 
     let updateHealthBehavior f : UpdateItemBehavior=
         fun (itemUse: ItemUse, item: InventoryItem) ->
-            match itemUse, item.Health with
-            | LoseLifeOnUpdate, Some h ->
+            match itemUse, item.Health, item.SwitchState with
+            | LoseLifeOnUpdate, Some h, Some switch ->
+                if switch = SwitchOn then { item with Health = Some (f h)} else item
+            | LoseLifeOnUpdate, Some h, None ->
                 { item with Health = Some (f h)}
             | _ -> item
 
@@ -91,3 +43,56 @@ module ItemUses =
                 gamestate |> Output.appendOutputs (f item)
             | _ ->
                 gamestate
+
+    let addToInventoryBehavior getSuccessOutputs getFailureOutputs: UpdateGameStateBehavior =
+        fun (itemuse, item, gamestate) ->
+            match itemuse with
+            | CanTake true ->
+                gamestate
+                |> Environment.removeItemFromEnvironment item
+                |> Inventory.addItem item
+                |> World.updateWorldEnvironment
+                |> Output.setOutput (Output (getSuccessOutputs item))
+            | _ ->
+                gamestate
+                |> Output.setOutput (Output (getFailureOutputs item))
+
+module Behaviors =
+    open Common
+    // some behaviors
+    let openExit description exitId =
+        ItemUse.addGameStateBehavior 
+            (Description description, (Items.OpenExit exitId))
+            OpenExitBehavior
+
+    let openSecretPassage description exitId =
+        ItemUse.addGameStateBehavior
+            (Description description, (Items.UseOnExit exitId))
+            OpenExitBehavior
+
+    let loseBattery description amount =
+        ItemUse.addItemUseBehavior
+            (Description description, Items.LoseLifeOnUpdate)
+            (updateHealthBehavior (fun (Health (life,total)) -> Health(life - amount,total)))
+
+    let batteryWarnings description (ranges: (int * int * string) list) =
+        ItemUse.addGameStateBehavior
+            (Description description, Items.GetOutputs)
+            (outputBehavior (fun item -> 
+                match item.Health with
+                | Some (Health(life, _)) ->
+                    match ranges |> List.tryFind (fun (min, max, _) -> min <= life && life <= max) with
+                    | Some (_,_,output) -> [output]
+                    | None -> []
+                | None -> []    
+            ))
+
+    let takeItem description canTake =
+        ItemUse.addGameStateBehavior
+            (Description description, Items.CanTake canTake)
+            (addToInventoryBehavior (fun item -> [sprintf "%s taken." item.Name]) (fun _ -> [sprintf "%s" description]))
+
+    // the item can provide light in rooms where no light exists.
+    let providesLight =
+        //TODO: need something in the gamestate to keep a lightsource state
+        ()
