@@ -21,7 +21,7 @@ let dispatch command : GamePart =
             | Undo          -> Explore.undo
             | Take itemName -> Explore.take itemName
             | Drop itemName -> Explore.drop itemName
-            | Use itemName  -> Explore.useItem itemName
+            | Use itemName  -> message "not supported at this moment" //Explore.useItem itemName
             | SaveGame      -> Explore.save getSaveDataFilename
             // main menu
             | NewGame       -> MainMenu.startGame

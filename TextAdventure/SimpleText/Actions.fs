@@ -67,23 +67,23 @@ module Explore =
                 | Open ->
                     let nextEnvironment = Environment.findById exit.Target gamestate
                     gamestate
-                    |> updateWorldTravelTime exit.Distance
+                    |> World.updateWorldTravelTime exit.Distance
                     |> setEnvironment nextEnvironment
-                    |> setOutput (Output [nextEnvironment.Description])
+                    |> Output.setOutput (Output [nextEnvironment.Description])
                     |> Encounter.checkEncounter
                 | Locked ->
-                    gamestate |> setOutput (Output ["The exit is locked."])
+                    gamestate |> Output.setOutput (Output ["The exit is locked."])
                 | Hidden -> 
-                    gamestate |> setOutput (Output [sprintf "There are no exits to the %A." dir])
+                    gamestate |> Output.setOutput (Output [sprintf "There are no exits to the %A." dir])
             | None ->
-                gamestate |> setOutput (Output [sprintf "There are no exits to the %A." dir])
+                gamestate |> Output.setOutput (Output [sprintf "There are no exits to the %A." dir])
 
     let look : GamePart =
         fun gamestate ->
             let exitHelper = sprintf "\tA %s to the %A"
             let itemHelper = sprintf "\tA %s %s"
             let exits = gamestate.Environment.Exits |> List.filter (fun e -> e.ExitState <> Hidden) |> List.map (fun p -> exitHelper p.Description p.Direction)
-            let items = gamestate.Environment.InventoryItems |> List.map (Item.inventoryItemProps >> (fun (name, description) -> itemHelper name description))
+            let items = gamestate.Environment.InventoryItems |> List.map (fun {Name = name; Description = description } -> itemHelper name description)
             let log = [
                 yield gamestate.Environment.Description
                 yield "Exits"; yield! exits; 
@@ -95,14 +95,14 @@ module Explore =
             // find item
             let itemOption = 
                 gamestate.Environment.InventoryItems 
-                |> List.tryFind (fun i -> ((Item.inventoryItemName i).ToLower()) = itemName.ToLower())
+                |> List.tryFind (fun i -> (i.Name.ToLower()) = itemName.ToLower())
             match itemOption with
             | Some item ->
                 gamestate
-                |> Item.removeItemFromEnvironment item
-                |> Item.addItem item
-                |> updateWorldEnvironment
-                |> setOutput (Output [sprintf "You took %s." (Item.inventoryItemName item)])
+                |> Environment.removeItemFromEnvironment item
+                |> Inventory.addItem item
+                |> World.updateWorldEnvironment
+                |> Output.setOutput (Output [sprintf "You took %s." item.Name])
             | None ->    
                 let output = [sprintf "Couldn't find %s." itemName]
                 {gamestate with Output = Output output }
@@ -112,84 +112,84 @@ module Explore =
             // find item
             let itemOption = 
                 gamestate.Inventory
-                |> List.tryFind (fun i -> ((Item.inventoryItemName i).ToLower()) = itemName.ToLower())
+                |> List.tryFind (fun i -> (i.Name.ToLower()) = itemName.ToLower())
             match itemOption with
             | Some item ->
                 gamestate
-                |> Item.addItemToEnvironment item
-                |> updateWorldEnvironment
-                |> setOutput (Output [sprintf "You dropped %s." (Item.inventoryItemName item)])
+                |> Environment.addItemToEnvironment item
+                |> World.updateWorldEnvironment
+                |> Output.setOutput (Output [sprintf "You dropped %s." item.Name])
             | None ->    
                 let output = [sprintf "Couldn't find %s." itemName]
                 {gamestate with Output = Output output }
 
-    let private tryUseItem uses name gamestate =
-        match Uses.find uses gamestate.Environment with
-        | Some (Unlock (exitId, desc))
-        | Some (Unhide (exitId, desc)) ->
-            let exit = Exit.find exitId gamestate.Environment
-            gamestate
-            |> Exit.openExit exit
-            |> setOutput (Output [desc; sprintf "%s opened with %s." exit.Description name;])
-        | None ->
-            gamestate
-            |> setOutput (Output [sprintf "Can't use %s here." name])
+    // let private tryUseItem uses name gamestate =
+    //     match Uses.find uses gamestate.Environment with
+    //     | Some (Unlock (exitId, desc))
+    //     | Some (Unhide (exitId, desc)) ->
+    //         let exit = Exit.find exitId gamestate.Environment
+    //         gamestate
+    //         |> Exit.openExit exit
+    //         |> Output.setOutput (Output [desc; sprintf "%s opened with %s." exit.Description name;])
+    //     | None ->
+    //         gamestate
+    //         |> Output.setOutput (Output [sprintf "Can't use %s here." name])
 
-    let useItem (itemName: string) : GamePart =
-        fun gamestate ->
-            // find item
-            let itemOption =
-                gamestate.Inventory
-                |> List.tryFind (fun i -> ((Item.inventoryItemName i).ToLower()) = itemName.ToLower())
+    // let useItem (itemName: string) : GamePart =
+    //     fun gamestate ->
+    //         // find item
+    //         let itemOption =
+    //             gamestate.Inventory
+    //             |> List.tryFind (fun i -> ((Item.inventoryItemName i).ToLower()) = itemName.ToLower())
 
-            let environmentItemOption =
-                gamestate.Environment.EnvironmentItems
-                |> List.tryFind (fun i -> ((Item.environmentItemDescription i).ToLower()) = itemName.ToLower())
+    //         let environmentItemOption =
+    //             gamestate.Environment.EnvironmentItems
+    //             |> List.tryFind (fun i -> ((Item.environmentItemDescription i).ToLower()) = itemName.ToLower())
 
-            // use item
-            match itemOption, environmentItemOption with
-            | Some item', _ ->
-                match item' with
-                | InventoryItem item -> tryUseItem item.Uses item.Name gamestate
-                | _ -> gamestate
+    //         // use item
+    //         match itemOption, environmentItemOption with
+    //         | Some item', _ ->
+    //             match item' with
+    //             | InventoryItem item -> tryUseItem item.Uses item.Name gamestate
+    //             | _ -> gamestate
                 
-            | None, Some item' ->
-                match item' with
-                | EnvironmentItem item -> tryUseItem item.Uses item.Name gamestate
-                | _ ->
-                    gamestate 
-                    |> setOutput (Output ["Can't use that here."])
-            | None, _ ->
-                gamestate
-                |> setOutput (Output [sprintf "What's a %s?" itemName])
+    //         | None, Some item' ->
+    //             match item' with
+    //             | EnvironmentItem item -> tryUseItem item.Uses item.Name gamestate
+    //             | _ ->
+    //                 gamestate 
+    //                 |> Output.setOutput (Output ["Can't use that here."])
+    //         | None, _ ->
+    //             gamestate
+    //             |> Output.setOutput (Output [sprintf "What's a %s?" itemName])
             
     let save filename : GamePart =
         fun gamestate ->
-            saveGameState filename gamestate
-            gamestate |> setOutput (Output ["Game saved."])
+            IO.saveGameState filename gamestate
+            gamestate |> Output.setOutput (Output ["Game saved."])
 
     let undo : GamePart =
         fun gamestate ->
             gamestate
-            |> setOutput Rollback
+            |> Output.setOutput Rollback
 
 module MainMenu =
     let startGame : GamePart =
         fun gamestate ->
             gamestate
-            |> setScene OpenExplore
-            |> setOutput (Output [gamestate.Environment.Description])
+            |> Scene.setScene OpenExplore
+            |> Output.setOutput (Output [gamestate.Environment.Description])
 
     let loadGame : GamePart =
         fun _ ->
-            loadGameState "./SaveData/GameSave.json"
+            IO.loadGameState "./SaveData/GameSave.json"
 
 module InEncounter =
     let summarizeEncounter monsterPoints oldLevel : GamePart =
         fun gamestate ->
             let (Experience (points, level)) = gamestate.Player.Experience
             gamestate
-            |> appendOutputs [
+            |> Output.appendOutputs [
                 yield "The battle is over.";
                 yield sprintf "You gained %i experience points. Total: %i" monsterPoints points;
                 if level > oldLevel then yield sprintf "You are now level %i" level;                
@@ -200,16 +200,16 @@ module InEncounter =
             let player' = gamestate.Player |> Player.addExperience experience
             let (Experience (_, oldLevel)) = gamestate.Player.Experience
             gamestate
-            |> setPlayer player'
+            |> Player.setPlayer player'
             |> summarizeEncounter experience oldLevel
             |> Encounter.endEncounter
-            |> setScene OpenExplore
+            |> Scene.setScene OpenExplore
 
     let playerAttack monster encounter =
         fun gamestate ->
             let playerDamage = (Damage 3) // TODO: use a weapon!!
-            let playerPower = power gamestate.Player.Attack playerDamage
-            if attackRoll monster.Defense playerPower Player.Rolls.d20Roll
+            let playerPower = power gamestate.Player.Stats.Attack playerDamage
+            if attackRoll monster.Stats.Defense playerPower Player.Rolls.d20Roll
             then
                 // attack succeeds, update monster
                 let health' = damage playerDamage monster.Health
@@ -218,8 +218,8 @@ module InEncounter =
                 let gamestate' =
                     gamestate
                     |> Encounter.updateEncounter encounter'
-                    |> setScene (InEncounter encounter') // make sure to update the encounter in the scene
-                    |> appendOutputs [
+                    |> Scene.setScene (InEncounter encounter') // make sure to update the encounter in the scene
+                    |> Output.appendOutputs [
                         sprintf "You hit %s with %A. %s" monster.Name playerDamage (healthDescription health')
                     ]
                 (monster', encounter', gamestate')
@@ -227,7 +227,7 @@ module InEncounter =
                 // attack fails
                 let gamestate' =
                     gamestate
-                    |> appendOutputs [
+                    |> Output.appendOutputs [
                         sprintf "You miss %s!" monster.Name
                     ]
                 (monster, encounter, gamestate')
@@ -235,26 +235,26 @@ module InEncounter =
     let monsterAttack monster =
         fun gamestate ->
             if monster.Health |> isAlive then
-                let monsterPower = power monster.Attack monster.Damage
-                if attackRoll gamestate.Player.Defense monsterPower Player.Rolls.d20Roll
+                let monsterPower = power monster.Stats.Attack monster.Stats.Damage
+                if attackRoll gamestate.Player.Stats.Defense monsterPower Player.Rolls.d20Roll
                 then
                     // attack succeeds, update player
-                    let health' = damage monster.Damage gamestate.Player.Health
+                    let health' = damage monster.Stats.Damage gamestate.Player.Health
                     let player' =
                         gamestate.Player
                         |> Player.setHealth health'
                     let gamestate' =
                         gamestate
                         |> setPlayer player'
-                        |> appendOutputs [
-                            sprintf "%s hits you with %A. %s" monster.Name monster.Damage (healthDescription health')
+                        |> Output.appendOutputs [
+                            sprintf "%s hits you with %A. %s" monster.Name monster.Stats.Damage (healthDescription health')
                         ]
                     (player', gamestate')
                 else
                     // attack fails
                     let gamestate' =
                         gamestate
-                        |> appendOutputs [
+                        |> Output.appendOutputs [
                             sprintf "%s misses you!" monster.Name
                         ]
                     (gamestate.Player, gamestate')
@@ -271,7 +271,7 @@ module InEncounter =
                     // TODO: figure out initiative, who goes first.
                     let (monster', encounter', gamestate') =
                         gamestate
-                        |> setOutput (Output ["You attack!"])
+                        |> Output.setOutput (Output ["You attack!"])
                         |> playerAttack monster encounter
 
                     let (player', gamestate'') =
@@ -288,15 +288,15 @@ module InEncounter =
                     gamestate |> finishEncounter monsterPoints
             | _ ->
                 gamestate
-                |> setScene OpenExplore
+                |> Scene.setScene OpenExplore
     
     let run : GamePart =
         fun gamestate ->
             match gamestate.GameScene with
             | InEncounter _ ->
                 gamestate
-                |> setOutput (Output ["You ran away."])
-                |> setScene OpenExplore
+                |> Output.setOutput (Output ["You ran away."])
+                |> Scene.setScene OpenExplore
             | _ ->
                 gamestate
-                |> setScene OpenExplore
+                |> Scene.setScene OpenExplore

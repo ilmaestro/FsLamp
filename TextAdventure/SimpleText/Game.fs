@@ -17,26 +17,48 @@ let title = """
                           888                                                               
 """
 
+// some behaviors
+let openExit5 =
+    ItemUse.addGameStateBehavior 
+        (Description "After a few minutes of getting the key to fit correctly, the lock releases and the door creakily opens.", (Items.OpenExit (ExitId 5)))
+        GameBehaviors.ItemUses.OpenExitBehavior
+
+let loseBattery =
+    ItemUse.addItemUseBehavior
+        (Description "Batter Life", Items.LoseLifeOnUpdate)
+        (GameBehaviors.ItemUses.updateHealthBehavior (fun (Health (life,total)) -> Health(life,total)))
+
 // this key is used to open
-let keyItem = Item.createInventoryItem "key" "laying in a pile of debris" [Unlock (ExitId 5, "After a few minutes of getting the key to fit correctly, the lock releases and the door creakily opens.")]
+let keyItem = 
+    Items.createInventoryItem
+        (ItemId 1)
+        "key" "laying in a pile of debris"
+        None // no health
+        None
+        None
+        [openExit5]
 
 // lantern is an item you can take that allows you to see in dark places.
 // it can be turned on & off
 // it consumes battery life when it's turned on
 let lanternItem =
-    Item.createTemporaryItem 
-        "lantern" "with a full battery" [] 15 
-            [
-            GameBehaviors.Inventory.add GameBehaviors.Inventory.decrementLifeOnUpdateBehavior;
-            GameBehaviors.Inventory.add 
-                (GameBehaviors.Inventory.rangedOutputBehavior 
-                    [
-                        (0,0, "Lantern's batteries are dead.");
-                        (5,5, "Lantern is getting extremely dim.");
-                        (10,10, "Lantern is getting dim.");]);
-                    ]
-let swordItem =
-    Item.createAttackItem 
+    Items.createInventoryItem
+        (ItemId 2) 
+        "lantern" "with a full battery"
+        (Some (Health(15,15)))
+        (Some Items.SwitchOff)
+        None
+        [loseBattery]
+            // [
+            // GameBehaviors.Inventory.add GameBehaviors.Inventory.decrementLifeOnUpdateBehavior;
+            // GameBehaviors.Inventory.add 
+            //     (GameBehaviors.Inventory.rangedOutputBehavior 
+            //         [
+            //             (0,0, "Lantern's batteries are dead.");
+            //             (5,5, "Lantern is getting extremely dim.");
+            //             (10,10, "Lantern is getting dim.");]);
+            //         ]
+
 let defaultMap =
     [|
         (Environment.create 1 "Origin"

@@ -11,8 +11,8 @@ let getLevel points =
     | p when p >= 900 && p < 2700 -> 4
     | _ -> 5
 
-let create name attack defense totalHealth =
-    { Name = name; Attack = attack; Defense = defense; Health = Health (totalHealth,totalHealth); Experience = Experience (0, 1);  }
+let create name stats totalHealth =
+    { Name = name; Stats = stats; Health = Health (totalHealth,totalHealth); Experience = Experience (0, 1);  }
 
 let createExperience points =
     Experience (points, points |> getLevel )
@@ -33,8 +33,8 @@ let checkGameOver gamestate =
         gamestate
     else
         gamestate
-        |> setScene MainMenu
-        |> setOutput (Header ["Game over!"])
+        |> Scene.setScene MainMenu
+        |> Output.setOutput (Header ["Game over!"])
 
 module Rolls =
     let private rnd = System.Random()

@@ -2,89 +2,69 @@ module Domain
 open System
 open Primitives
 
+type Stats = {
+    Attack: AttackStat
+    Defense: DefenseStat
+    Damage: Damage
+}
+
 type Player = {
     Name: string
     Health: Health
     Experience: Experience
-    Attack: AttackStat
-    Defense: DefenseStat
+    Stats: Stats
 }
 
-type InventoryItem =
-| InventoryItem of InventoryItemProperties
-| TemporaryItem of InventoryItemProperties * Lifetime: int
-| OnOffItem of InventoryItemProperties * OnOff: bool
-| AttackItem of AttackItemProperties
-
-and InventoryItemProperties = {
-    Name: string
-    Description: string
-    Uses: ItemUse list // list of uses for this item.
-    Behaviors: BehaviorId list
-}
-
-and AttackItemProperties = {
-    Name: string
-    Description: string
-    Damage: int
-    Behaviors: BehaviorId list
-}
-
-and ItemUse =
-| Unlock of ExitId * Description: string
-| Unhide of ExitId * Description: string
-| Put of PutUse * id: string
-| Contain of ContainUse
-| Switch of SwitchType
-
-and PutUse =
-| PutOn
-| PutIn
-
-and ContainUse =
-| ContainOn
-| ConainIn
-
-and SwitchType =
-| OnOff
-
-type EnvironmentItem =
-| EnvironmentItem of EnvironmentItemProperties
-| Encounter of EncounterProperties
-// | Interaction of NPC
-
-and EnvironmentItemProperties = {
-    Name: string
-    Uses: ItemUse list
-}
-
-and EncounterProperties = {
-    Description: string
-    Monsters: Monster list
-}
-
-and Monster = {
+type Monster = {
     Id: MonsterId
     Name: string
-    Attack: AttackStat
-    Defense: DefenseStat
-    Damage: Damage
     Health: Health
     ExperiencePoints: ExperiencePoint
+    Stats: Stats
 }
+
+// type InventoryItem =
+// | InventoryItem of InventoryItemProperties
+// | TemporaryItem of InventoryItemProperties * Lifetime: int
+// | OnOffItem of InventoryItemProperties * OnOff: bool
+// | AttackItem of AttackItemProperties
+
+// and InventoryItemProperties = {
+//     Name: string
+//     Description: string
+//     Uses: ItemUse list // list of uses for this item.
+//     Behaviors: BehaviorId list
+// }
+
+// and AttackItemProperties = {
+//     Name: string
+//     Description: string
+//     Damage: int
+//     Behaviors: BehaviorId list
+// }
+
+// and ItemUse =
+// | Unlock of ExitId * Description: string
+// | Unhide of ExitId * Description: string
+// | Put of PutUse * id: string
+// | Contain of ContainUse
+// | Switch of SwitchType
+
+// and PutUse =
+// | PutOn
+// | PutIn
+
+// and ContainUse =
+// | ContainOn
+// | ConainIn
+
+// and SwitchType =
+// | OnOff
+
 
 // the player's immediate location/environment
 // environments are connected by paths
-type Environment = {
-    Id: EnvironmentId
-    Name: string
-    Description: string
-    Exits: Exit list
-    InventoryItems: InventoryItem list
-    EnvironmentItems: EnvironmentItem list
-}
-
-and Exit = {
+type Exit = {
     Id: ExitId
     Target: EnvironmentId
     Direction: Direction
@@ -108,11 +88,8 @@ and ExitState =
 | Locked
 | Hidden
 
-type World = {
-    Time: DateTime
-    Map: Map
-}
-and Map = Environment []
+
+
 
 type Command =
 // open explore

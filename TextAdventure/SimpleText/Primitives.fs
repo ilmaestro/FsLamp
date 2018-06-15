@@ -12,6 +12,7 @@ type Undefined = exn
 // wrappers / primitives
 type EnvironmentId = EnvironmentId of int
 type ExitId = ExitId of int
+type ItemId = ItemId of int
 type MonsterId = MonsterId of int
 type ExperiencePoint = int
 type ExperienceLevel = int
