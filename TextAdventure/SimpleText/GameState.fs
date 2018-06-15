@@ -1,4 +1,5 @@
 module GameState
+open Primitives
 open Domain
 open Items
 open Environment
@@ -34,6 +35,9 @@ type GameHistory = GameState list
 module Player =
     let setPlayer player gamestate =
         { gamestate with Player = player}
+
+    let createStats attack defense damage =
+        { Attack = (AttackStat attack); Defense = DefenseStat defense; Damage = Damage damage }
 
 module Scene =
     let setScene scene gamestate =

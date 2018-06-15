@@ -18,15 +18,32 @@ let title = """
 """
 
 // some behaviors
-let openExit5 =
+let openExit description exitId =
     ItemUse.addGameStateBehavior 
-        (Description "After a few minutes of getting the key to fit correctly, the lock releases and the door creakily opens.", (Items.OpenExit (ExitId 5)))
+        (Description description, (Items.OpenExit exitId))
         GameBehaviors.ItemUses.OpenExitBehavior
 
-let loseBattery =
+let openSecretPassage description exitId =
+    ItemUse.addGameStateBehavior
+        (Description description, (Items.UseOnExit exitId))
+        GameBehaviors.ItemUses.OpenExitBehavior
+
+let loseBattery amount =
     ItemUse.addItemUseBehavior
         (Description "Batter Life", Items.LoseLifeOnUpdate)
-        (GameBehaviors.ItemUses.updateHealthBehavior (fun (Health (life,total)) -> Health(life,total)))
+        (GameBehaviors.ItemUses.updateHealthBehavior (fun (Health (life,total)) -> Health(life - amount,total)))
+
+let batteryWarnings (ranges: (int * int * string) list) =
+    ItemUse.addGameStateBehavior
+        (Description "Battery Warning", Items.GetOutputs)
+        (GameBehaviors.ItemUses.outputBehavior (fun item -> 
+            match item.Health with
+            | Some (Health(life, _)) ->
+                match ranges |> List.tryFind (fun (min, max, _) -> min <= life && life <= max) with
+                | Some (_,_,output) -> [output]
+                | None -> []
+            | None -> []    
+        ))
 
 // this key is used to open
 let keyItem = 
@@ -36,7 +53,15 @@ let keyItem =
         None // no health
         None
         None
-        [openExit5]
+        [openExit "After a few minutes of getting the key to fit correctly, the lock releases and the door creakily opens." (ExitId 5)]
+
+let typewriter =
+    Items.createInventoryItem (ItemId 4) "typewriter" "collecting dust" None None None 
+        [openSecretPassage "As you press down hard on one of the keys. The air begins to move around you. Suddenly, a secret passage opens up from within the wall." (ExitId 7)]
+
+let rock =
+    Items.createInventoryItem (ItemId 5) "rock" "just lying around" None None None
+        [openSecretPassage "You throw the rock directly at the voice and hear a terrible scream.  Moments later you can hear footsteps running to the east away from you." (ExitId 8)]
 
 // lantern is an item you can take that allows you to see in dark places.
 // it can be turned on & off
@@ -45,20 +70,28 @@ let lanternItem =
     Items.createInventoryItem
         (ItemId 2) 
         "lantern" "with a full battery"
-        (Some (Health(15,15)))
+        (Some (Health(15, 15)))
         (Some Items.SwitchOff)
         None
-        [loseBattery]
-            // [
-            // GameBehaviors.Inventory.add GameBehaviors.Inventory.decrementLifeOnUpdateBehavior;
-            // GameBehaviors.Inventory.add 
-            //     (GameBehaviors.Inventory.rangedOutputBehavior 
-            //         [
-            //             (0,0, "Lantern's batteries are dead.");
-            //             (5,5, "Lantern is getting extremely dim.");
-            //             (10,10, "Lantern is getting dim.");]);
-            //         ]
+        [
+            loseBattery 1;
+            batteryWarnings
+                [
+                    (0,0, "Lantern's batteries are dead.");
+                    (5,5, "Lantern is getting extremely dim.");
+                    (10,10, "Lantern is getting dim.");]
+        ]
 
+let gold =
+    Items.createInventoryItem (ItemId 3) "Gold" "that probably fell out of someones pocket" None None None []
+
+let greenSlime =
+    let stats = Player.createStats 1 10 2
+    Monster.create 1 "Green Slime" stats (Health (10, 10)) 100
+let gruet =
+    let stats = Player.createStats 1 14 3
+    Monster.create 2 "Gruet" stats (Health (12, 12)) 200
+   
 let defaultMap =
     [|
         (Environment.create 1 "Origin"
@@ -73,9 +106,7 @@ let defaultMap =
                 Exit.create 2 1 Open South (Steps 2) "Creaky door";
                 Exit.create 3 3 Open North (Steps 6) "Dark hallway";]
             []
-            [Encounter.create "Green Slime appears and is attacking you!" [
-                Monster.create 1 "Green Slime" (DefenseStat 10) (AttackStat 1) (Damage 2) (Health (10, 10)) 100
-            ]]
+            [Encounter.create "Green Slime appears and is attacking you!" [greenSlime]]
         );
         (Environment.create 3 "Long Hallway, North End"
             "It gets so dark you have to feel your way around. Thankfully there's nothing too dangerous in your path."
@@ -83,33 +114,31 @@ let defaultMap =
                 Exit.create 4 2 Open South (Steps 6) "The south end of the hallway";
                 Exit.create 5 4 Locked East (Steps 6) "A door with no features, labeled 'Private'"]
             []
-            [Encounter.create "A gruet jumps out from the darkness." [
-                Monster.create 2 "Gruet" (DefenseStat 14) (AttackStat 1) (Damage 3) (Health (12, 12)) 200
-            ]]
+            [Encounter.create "A gruet jumps out from the darkness." [gruet]]
         );
         (Environment.create 4 "Office"
             "As the door opens, you begin to see the remnants of an old dusty office.  This place hasn't been used in years. An old typewriter on the desk is missing most of its keys."
             [ Exit.create 6 3 Open West (Steps 6) "Door with no features"; Exit.create 7 5 Hidden East (Steps 2) "Secret Passage"]
+            [typewriter]
             []
-            [Item.createEnvironmentItem "typewriter" [Unhide (ExitId 7, "As you press down hard on one of the keys. The air begins to move around you. Suddenly, a secret passage opens up from within the wall.")]]
         );
         (Environment.create 5 "Secret Passage"
             """The path leads downward with considerable gradient. Things turn cold as you hear a voice... 'stoi impul chani, mario.' Frozen, but unable to make out any figures ahead of you, you shout back 'Who's there?'
 A few seconds pass, finally a response... 'die!'.  As you fall backward you stumble over a rock.            
             """
             [ Exit.create 7 4 Open West (Steps 2) "Secret entrance"; Exit.create 8 6 Hidden East (Steps 10) "Dark Passage towards the footsteps"]
+            [rock]
             []
-            [Item.createEnvironmentItem "rock" [Unhide (ExitId 8, "You throw the rock directly at the voice and hear a terrible scream.  Moments later you can hear footsteps running to the east away from you.")]]
         );
         (Environment.create 6 "Dark Passage"
             """Is it really a good idea to go chasing after such a terrible, unknown, thing? Probably not, but that hasn't stopped you so far."""
             [ Exit.create 9 5 Open West (Steps 10) "Secret Passage"]
-            [Item.createInventoryItem "Gold" "that probably fell out of someones pocket" []]
+            [gold]
             []
         );
     |]
 
-let player1 = Player.create "P1" (AttackStat 2) (DefenseStat 14) 15
+let player1 = Player.create "P1" (Player.createStats 2 14 3) 15
 
 let defaultGamestate map =
     { Player = player1;
@@ -144,40 +173,49 @@ let handleHeader : GamePart =
         | _ -> ()
         gamestate
 
+let isUpdateItemUse (_, itemUse) =
+    match itemUse with
+    | Items.LoseLifeOnUpdate -> true
+    | _ -> false
+
+let isOutputItemUse (_, itemUse) =
+    match itemUse with
+    | Items.GetOutputs -> true
+    | _ -> false
+
+let getUses f g (list: Items.InventoryItem list) =
+    list 
+    |> List.collect (fun i -> i.Behaviors |> List.filter f |> List.map (fun b -> (i, b)))
+    |> List.map (fun (i, b) -> (i, b, g b))
+
+
+
 let updateGameObjects : GamePart =
     fun gamestate ->
         gamestate.Inventory
-        |> List.collect (fun i -> Item.inventoryItemBehaviors i |> List.map (fun b -> (i, b)))
-        |> List.map (fun (i, b) -> (i, GameBehaviors.Inventory.find b))
-        |> List.filter (fun (_, b) -> b.IsSome)
+        // get all the updatable item uses
+        |> getUses isUpdateItemUse ItemUse.findItemUseBehavior
+            
+        |> List.filter (fun (_, _, update) -> update.IsSome)
+        |> List.map (fun (i, (_, itemUse), update) -> ((itemUse,i), update.Value))
         // thread gamestate through all the update functions
-        |> List.fold (fun gs (item, behavior) ->
-            match behavior.Value with
-            | UpdateBehavior update ->
-                let (item', gs') = update item gs
-                // update item in gamestate
-                let inventory' = updateInventory item' gs.Inventory
-                gs' |> setInventory inventory'
-            | _ -> gs
+        |> List.fold (fun gs (item, update) ->
+            // get updated item
+            let item' = update item
+            // update item in gamestate
+            let inventory' = Environment.updateInventory item' gs.Inventory
+            gs |> Inventory.setInventory inventory'
         ) gamestate
 
 let getGameObjectOutputs : GamePart =
     fun gamestate ->
         gamestate.Inventory
-        |> List.collect (fun i -> Item.inventoryItemBehaviors i |> List.map (fun b -> (i, b)))
-        |> List.map (fun (i, b) -> (i, GameBehaviors.Inventory.find b))
-        |> List.filter (fun (_, b) -> b.IsSome)
-        // collect all the outputs
-        |> List.collect (fun (item, behavior) ->
-            match behavior.Value with
-            | OutputBehavior getOutputs ->
-                getOutputs item gamestate
-            | _ -> []
-        )
-        // append all the outputs
-        |> List.fold (fun gs s -> addOutput s gs) gamestate      
-        // |> List.iter (printfn "%s")
-        // gamestate
+        |> getUses isOutputItemUse ItemUse.findGameStateBehavior
+        |> List.filter (fun (_, _, update) -> update.IsSome)
+        |> List.map (fun (i, (_, itemUse), update) -> ((itemUse,i), update.Value))
+        |> List.fold (fun gs ((itemUse, item), update) ->
+            update (itemUse, item, gs)
+        ) gamestate
 
 // loop: Read -> Parse -> Command -> Action -> Print -> Loop
 let RunGame

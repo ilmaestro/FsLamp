@@ -75,10 +75,19 @@ module ItemUses =
     let OpenExitBehavior : UpdateGameStateBehavior =
         fun (itemUse, _, gamestate) ->
             match itemUse with
+            | UseOnExit exitId
             | OpenExit exitId ->
                 let exit = Exit.find exitId gamestate.Environment
 
                 gamestate
                 |> Environment.openExit exit
+            | _ ->
+                gamestate
+
+    let outputBehavior f : UpdateGameStateBehavior =
+        fun (itemUse, item, gamestate) ->
+            match itemUse with
+            | GetOutputs ->
+                gamestate |> Output.appendOutputs (f item)
             | _ ->
                 gamestate

@@ -26,6 +26,7 @@ and  ItemUse =
 | TurnOnOff // turn (me) on/off
 | ApplyStats // apply my stats to whom holds me (player or monster)
 | LoseLifeOnUpdate
+| GetOutputs
 
 type EnvironmentItem =
 | EnvironmentItem of EnvironmentItemProperties
@@ -47,9 +48,6 @@ let createInventoryItem id name description health switchState stats behaviors=
 
 let createEnvironmentItem name uses =
     EnvironmentItem { Name = name; Uses = uses }
-
-
-
 
 
 // All items have all the states optionally, but only specific behaviors can be defined to change those states.
