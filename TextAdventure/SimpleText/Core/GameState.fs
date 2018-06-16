@@ -36,8 +36,6 @@ module Player =
     let setPlayer player gamestate =
         { gamestate with Player = player}
 
-    let createStats attack defense damage =
-        { Attack = (AttackStat attack); Defense = DefenseStat defense; Damage = Damage damage }
 
 module Scene =
     let setScene scene gamestate =

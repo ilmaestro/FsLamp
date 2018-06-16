@@ -14,8 +14,10 @@
     <Compile Include="Core/Parser.fs" />
     <Compile Include="Core/Actions.fs" />
     <Compile Include="Game/Dispatcher.fs" />
-    <Compile Include="Game/Behaviors.fs" />
-    <Compile Include="Game/Items.fs" />
+    <Compile Include="Game/GameBehaviors.fs" />
+    <Compile Include="Game/GameItems.fs" />
+    <Compile Include="Game/GameMonsters.fs" />
+    <Compile Include="Game/GameMap.fs" />
     <Compile Include="Game/Game.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>

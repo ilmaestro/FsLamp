@@ -8,7 +8,6 @@ open GameState
 open Actions
 
 module Common =
-
     let updateHealthBehavior f : UpdateItemBehavior=
         fun (itemUse: ItemUse, item: InventoryItem) ->
             match itemUse, item.Health, item.SwitchState with

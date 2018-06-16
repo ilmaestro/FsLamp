@@ -157,3 +157,6 @@ let attackRoll (DefenseStat targetDefense) (Power sourcePower) (roll: unit -> in
 
 let healthDescription (Health (life, total)) =
     sprintf "%i/%i" life total
+
+let createStats attack defense damage =
+    { Attack = (AttackStat attack); Defense = DefenseStat defense; Damage = Damage damage }
