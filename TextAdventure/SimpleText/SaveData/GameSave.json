@@ -1,1 +1,835 @@
-{"Player":{"Case":"Player","Fields":["one"]},"Health":{"Case":"Health","Fields":[12.0,12.0]},"Experience":{"Case":"Experience","Fields":[10,1]},"Inventory":[],"Environment":{"Id":{"Case":"EnvironmentId","Fields":[2]},"Name":"Long Hallway, South End","Description":"The door opens into what appears to be a really long hallway continuing North. There's no light at the other end.","Exits":[{"Id":{"Case":"ExitId","Fields":[2]},"Target":{"Case":"EnvironmentId","Fields":[1]},"Direction":{"Case":"South"},"Distance":{"Case":"Steps","Fields":[2]},"Description":"Creaky Door","ExitState":{"Case":"Open"}},{"Id":{"Case":"ExitId","Fields":[3]},"Target":{"Case":"EnvironmentId","Fields":[3]},"Direction":{"Case":"North"},"Distance":{"Case":"Steps","Fields":[6]},"Description":"Dark hallway","ExitState":{"Case":"Open"}}],"InventoryItems":[],"EnvironmentItems":[]},"World":{"Time":"1971-01-01T06:01:48","Map":[{"Id":{"Case":"EnvironmentId","Fields":[1]},"Name":"Origin","Description":"A moment ago you were just in bed floating above your mind, dreaming about how to add zebras to spreadsheets.  Now it appears you've awakened in a dimlit room. Many unfamiliar smells lurk around you.","Exits":[{"Id":{"Case":"ExitId","Fields":[1]},"Target":{"Case":"EnvironmentId","Fields":[2]},"Direction":{"Case":"North"},"Distance":{"Case":"Steps","Fields":[2]},"Description":"Creaky Door","ExitState":{"Case":"Open"}}],"InventoryItems":[{"Case":"InventoryItem","Fields":[{"Name":"Key","Description":"in a pile of debris and trash","Uses":[{"Case":"Unlock","Fields":[{"Case":"ExitId","Fields":[5]},"After a few minutes of getting the key to fit correctly, the lock releases and the door creakily opens."]}]}]}],"EnvironmentItems":[]},{"Id":{"Case":"EnvironmentId","Fields":[2]},"Name":"Long Hallway, South End","Description":"The door opens into what appears to be a really long hallway continuing North. There's no light at the other end.","Exits":[{"Id":{"Case":"ExitId","Fields":[2]},"Target":{"Case":"EnvironmentId","Fields":[1]},"Direction":{"Case":"South"},"Distance":{"Case":"Steps","Fields":[2]},"Description":"Creaky Door","ExitState":{"Case":"Open"}},{"Id":{"Case":"ExitId","Fields":[3]},"Target":{"Case":"EnvironmentId","Fields":[3]},"Direction":{"Case":"North"},"Distance":{"Case":"Steps","Fields":[6]},"Description":"Dark hallway","ExitState":{"Case":"Open"}}],"InventoryItems":[],"EnvironmentItems":[]},{"Id":{"Case":"EnvironmentId","Fields":[3]},"Name":"Long Hallway, North End","Description":"It gets so dark you have to feel your way around. Thankfully there's nothing too dangerous in your path.","Exits":[{"Id":{"Case":"ExitId","Fields":[4]},"Target":{"Case":"EnvironmentId","Fields":[2]},"Direction":{"Case":"South"},"Distance":{"Case":"Steps","Fields":[6]},"Description":"The south end of the hallway","ExitState":{"Case":"Open"}},{"Id":{"Case":"ExitId","Fields":[5]},"Target":{"Case":"EnvironmentId","Fields":[4]},"Direction":{"Case":"East"},"Distance":{"Case":"Steps","Fields":[6]},"Description":"A door with no features, labeled 'Private'","ExitState":{"Case":"Locked"}}],"InventoryItems":[],"EnvironmentItems":[]},{"Id":{"Case":"EnvironmentId","Fields":[4]},"Name":"Office","Description":"As the door opens, you begin to see the remnants of an old dusty office.  This place hasn't been used in years. An old typewriter on the desk is missing most of its keys.","Exits":[{"Id":{"Case":"ExitId","Fields":[6]},"Target":{"Case":"EnvironmentId","Fields":[3]},"Direction":{"Case":"West"},"Distance":{"Case":"Steps","Fields":[6]},"Description":"Door with no features","ExitState":{"Case":"Open"}},{"Id":{"Case":"ExitId","Fields":[7]},"Target":{"Case":"EnvironmentId","Fields":[5]},"Direction":{"Case":"East"},"Distance":{"Case":"Steps","Fields":[2]},"Description":"Secret Passage","ExitState":{"Case":"Hidden"}}],"InventoryItems":[],"EnvironmentItems":[{"Case":"EnvironmentItem","Fields":[{"Name":"typewriter","Uses":[{"Case":"Unhide","Fields":[{"Case":"ExitId","Fields":[7]},"As you press down hard on one of the keys. The air begins to move around you. Suddenly, a secret passage opens up from within the wall."]}]}]}]},{"Id":{"Case":"EnvironmentId","Fields":[5]},"Name":"Secret Passage","Description":"The path leads downward with considerable gradient. Things turn cold as you hear a voice... 'stoi impul chani, mario.' Frozen, but unable to make out any figures ahead of you, you shout back 'Who's there?'\r\nA few seconds pass, finally a response... 'die!'.  As you fall backward you stumble over a rock.            \r\n            ","Exits":[{"Id":{"Case":"ExitId","Fields":[7]},"Target":{"Case":"EnvironmentId","Fields":[4]},"Direction":{"Case":"West"},"Distance":{"Case":"Steps","Fields":[2]},"Description":"Secret entrance","ExitState":{"Case":"Open"}},{"Id":{"Case":"ExitId","Fields":[8]},"Target":{"Case":"EnvironmentId","Fields":[6]},"Direction":{"Case":"East"},"Distance":{"Case":"Steps","Fields":[10]},"Description":"Dark Passage towards the footsteps","ExitState":{"Case":"Hidden"}}],"InventoryItems":[],"EnvironmentItems":[{"Case":"EnvironmentItem","Fields":[{"Name":"rock","Uses":[{"Case":"Unhide","Fields":[{"Case":"ExitId","Fields":[8]},"You throw the rock directly at the voice and hear a terrible scream.  Moments later you can hear footsteps running to the east away from you."]}]}]}]},{"Id":{"Case":"EnvironmentId","Fields":[6]},"Name":"Dark Passage","Description":"Is it really a good idea to go chasing after such a terrible, unknown, thing? Probably not, but that hasn't stopped you so far.","Exits":[{"Id":{"Case":"ExitId","Fields":[9]},"Target":{"Case":"EnvironmentId","Fields":[5]},"Direction":{"Case":"West"},"Distance":{"Case":"Steps","Fields":[10]},"Description":"Secret Passage","ExitState":{"Case":"Open"}}],"InventoryItems":[{"Case":"InventoryItem","Fields":[{"Name":"Gold","Description":"that probably fell out of someones pocket","Uses":[]}]}],"EnvironmentItems":[]}]},"GameScene":{"Case":"OpenExplore"},"LastCommand":{"Case":"SaveGame"},"Output":{"Case":"Output","Fields":[["Player \"one\"","Health (12.0,12.0)","Experience (10,1)","1/1/1971 6:01:48 AM","[]"]]}}
+{
+    "Player": {
+        "Name": "P1",
+        "Health": {
+            "Case": "Health",
+            "Fields": [
+                15,
+                15
+            ]
+        },
+        "Experience": {
+            "Case": "Experience",
+            "Fields": [
+                0,
+                1
+            ]
+        },
+        "Stats": {
+            "Attack": {
+                "Case": "AttackStat",
+                "Fields": [
+                    2
+                ]
+            },
+            "Defense": {
+                "Case": "DefenseStat",
+                "Fields": [
+                    14
+                ]
+            },
+            "Damage": {
+                "Case": "Damage",
+                "Fields": [
+                    3
+                ]
+            }
+        }
+    },
+    "Inventory": [
+        {
+            "Id": {
+                "Case": "ItemId",
+                "Fields": [
+                    2
+                ]
+            },
+            "Name": "lantern",
+            "Description": "with a full battery",
+            "Health": {
+                "Case": "Some",
+                "Fields": [
+                    {
+                        "Case": "Health",
+                        "Fields": [
+                            8,
+                            15
+                        ]
+                    }
+                ]
+            },
+            "SwitchState": {
+                "Case": "Some",
+                "Fields": [
+                    {
+                        "Case": "SwitchOff"
+                    }
+                ]
+            },
+            "Stats": null,
+            "Behaviors": [
+                {
+                    "Item1": {
+                        "Case": "Description",
+                        "Fields": [
+                            "Batter Life"
+                        ]
+                    },
+                    "Item2": {
+                        "Case": "LoseLifeOnUpdate"
+                    }
+                },
+                {
+                    "Item1": {
+                        "Case": "Description",
+                        "Fields": [
+                            "Battery Warning"
+                        ]
+                    },
+                    "Item2": {
+                        "Case": "GetOutputs"
+                    }
+                },
+                {
+                    "Item1": {
+                        "Case": "Description",
+                        "Fields": [
+                            "You pick up the lantern"
+                        ]
+                    },
+                    "Item2": {
+                        "Case": "CanTake",
+                        "Fields": [
+                            true
+                        ]
+                    }
+                },
+                {
+                    "Item1": {
+                        "Case": "Description",
+                        "Fields": [
+                            "Turns the light on and off"
+                        ]
+                    },
+                    "Item2": {
+                        "Case": "TurnOnOff",
+                        "Fields": [
+                            {
+                                "Case": "SwitchOn"
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    ],
+    "Environment": {
+        "Id": {
+            "Case": "EnvironmentId",
+            "Fields": [
+                1
+            ]
+        },
+        "Name": "Origin",
+        "Description": "A moment ago you were just in bed floating above your mind, dreaming about how to add zebras to spreadsheets.  Now it appears you've awakened in a dimlit room. Many unfamiliar smells lurk around you. There's an old creaky door to the north.",
+        "Exits": [
+            {
+                "Id": {
+                    "Case": "ExitId",
+                    "Fields": [
+                        1
+                    ]
+                },
+                "Target": {
+                    "Case": "EnvironmentId",
+                    "Fields": [
+                        2
+                    ]
+                },
+                "Direction": {
+                    "Case": "North"
+                },
+                "Distance": {
+                    "Case": "Steps",
+                    "Fields": [
+                        2
+                    ]
+                },
+                "Description": "Creaky door",
+                "ExitState": {
+                    "Case": "Open"
+                }
+            }
+        ],
+        "InventoryItems": [
+            {
+                "Id": {
+                    "Case": "ItemId",
+                    "Fields": [
+                        1
+                    ]
+                },
+                "Name": "key",
+                "Description": "laying in a pile of debris",
+                "Health": null,
+                "SwitchState": null,
+                "Stats": null,
+                "Behaviors": [
+                    {
+                        "Item1": {
+                            "Case": "Description",
+                            "Fields": [
+                                "After a few minutes of getting the key to fit correctly, the lock releases and the door creakily opens."
+                            ]
+                        },
+                        "Item2": {
+                            "Case": "OpenExit",
+                            "Fields": [
+                                {
+                                    "Case": "ExitId",
+                                    "Fields": [
+                                        5
+                                    ]
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "Item1": {
+                            "Case": "Description",
+                            "Fields": [
+                                "You pickup a small, crusty key."
+                            ]
+                        },
+                        "Item2": {
+                            "Case": "CanTake",
+                            "Fields": [
+                                true
+                            ]
+                        }
+                    }
+                ]
+            }
+        ],
+        "EnvironmentItems": []
+    },
+    "World": {
+        "Time": "1971-01-01T06:01:50",
+        "Map": [
+            {
+                "Id": {
+                    "Case": "EnvironmentId",
+                    "Fields": [
+                        1
+                    ]
+                },
+                "Name": "Origin",
+                "Description": "A moment ago you were just in bed floating above your mind, dreaming about how to add zebras to spreadsheets.  Now it appears you've awakened in a dimlit room. Many unfamiliar smells lurk around you. There's an old creaky door to the north.",
+                "Exits": [
+                    {
+                        "Id": {
+                            "Case": "ExitId",
+                            "Fields": [
+                                1
+                            ]
+                        },
+                        "Target": {
+                            "Case": "EnvironmentId",
+                            "Fields": [
+                                2
+                            ]
+                        },
+                        "Direction": {
+                            "Case": "North"
+                        },
+                        "Distance": {
+                            "Case": "Steps",
+                            "Fields": [
+                                2
+                            ]
+                        },
+                        "Description": "Creaky door",
+                        "ExitState": {
+                            "Case": "Open"
+                        }
+                    }
+                ],
+                "InventoryItems": [
+                    {
+                        "Id": {
+                            "Case": "ItemId",
+                            "Fields": [
+                                1
+                            ]
+                        },
+                        "Name": "key",
+                        "Description": "laying in a pile of debris",
+                        "Health": null,
+                        "SwitchState": null,
+                        "Stats": null,
+                        "Behaviors": [
+                            {
+                                "Item1": {
+                                    "Case": "Description",
+                                    "Fields": [
+                                        "After a few minutes of getting the key to fit correctly, the lock releases and the door creakily opens."
+                                    ]
+                                },
+                                "Item2": {
+                                    "Case": "OpenExit",
+                                    "Fields": [
+                                        {
+                                            "Case": "ExitId",
+                                            "Fields": [
+                                                5
+                                            ]
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "Item1": {
+                                    "Case": "Description",
+                                    "Fields": [
+                                        "You pickup a small, crusty key."
+                                    ]
+                                },
+                                "Item2": {
+                                    "Case": "CanTake",
+                                    "Fields": [
+                                        true
+                                    ]
+                                }
+                            }
+                        ]
+                    }
+                ],
+                "EnvironmentItems": []
+            },
+            {
+                "Id": {
+                    "Case": "EnvironmentId",
+                    "Fields": [
+                        2
+                    ]
+                },
+                "Name": "Long Hallway, South End",
+                "Description": "The door opens into what appears to be a really long hallway continuing North. There's no light at the other end.",
+                "Exits": [
+                    {
+                        "Id": {
+                            "Case": "ExitId",
+                            "Fields": [
+                                2
+                            ]
+                        },
+                        "Target": {
+                            "Case": "EnvironmentId",
+                            "Fields": [
+                                1
+                            ]
+                        },
+                        "Direction": {
+                            "Case": "South"
+                        },
+                        "Distance": {
+                            "Case": "Steps",
+                            "Fields": [
+                                2
+                            ]
+                        },
+                        "Description": "Creaky door",
+                        "ExitState": {
+                            "Case": "Open"
+                        }
+                    },
+                    {
+                        "Id": {
+                            "Case": "ExitId",
+                            "Fields": [
+                                3
+                            ]
+                        },
+                        "Target": {
+                            "Case": "EnvironmentId",
+                            "Fields": [
+                                3
+                            ]
+                        },
+                        "Direction": {
+                            "Case": "North"
+                        },
+                        "Distance": {
+                            "Case": "Steps",
+                            "Fields": [
+                                6
+                            ]
+                        },
+                        "Description": "Dark hallway",
+                        "ExitState": {
+                            "Case": "Open"
+                        }
+                    }
+                ],
+                "InventoryItems": [],
+                "EnvironmentItems": [
+                    {
+                        "Case": "Encounter",
+                        "Fields": [
+                            {
+                                "Description": "Green Slime appears and is attacking you!",
+                                "Monsters": [
+                                    {
+                                        "Id": {
+                                            "Case": "MonsterId",
+                                            "Fields": [
+                                                1
+                                            ]
+                                        },
+                                        "Name": "Green Slime",
+                                        "Health": {
+                                            "Case": "Health",
+                                            "Fields": [
+                                                10,
+                                                10
+                                            ]
+                                        },
+                                        "ExperiencePoints": 100,
+                                        "Stats": {
+                                            "Attack": {
+                                                "Case": "AttackStat",
+                                                "Fields": [
+                                                    1
+                                                ]
+                                            },
+                                            "Defense": {
+                                                "Case": "DefenseStat",
+                                                "Fields": [
+                                                    10
+                                                ]
+                                            },
+                                            "Damage": {
+                                                "Case": "Damage",
+                                                "Fields": [
+                                                    2
+                                                ]
+                                            }
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "Id": {
+                    "Case": "EnvironmentId",
+                    "Fields": [
+                        3
+                    ]
+                },
+                "Name": "Long Hallway, North End",
+                "Description": "It gets so dark you have to feel your way around. Thankfully there's nothing too dangerous in your path.",
+                "Exits": [
+                    {
+                        "Id": {
+                            "Case": "ExitId",
+                            "Fields": [
+                                4
+                            ]
+                        },
+                        "Target": {
+                            "Case": "EnvironmentId",
+                            "Fields": [
+                                2
+                            ]
+                        },
+                        "Direction": {
+                            "Case": "South"
+                        },
+                        "Distance": {
+                            "Case": "Steps",
+                            "Fields": [
+                                6
+                            ]
+                        },
+                        "Description": "The south end of the hallway",
+                        "ExitState": {
+                            "Case": "Open"
+                        }
+                    },
+                    {
+                        "Id": {
+                            "Case": "ExitId",
+                            "Fields": [
+                                5
+                            ]
+                        },
+                        "Target": {
+                            "Case": "EnvironmentId",
+                            "Fields": [
+                                4
+                            ]
+                        },
+                        "Direction": {
+                            "Case": "East"
+                        },
+                        "Distance": {
+                            "Case": "Steps",
+                            "Fields": [
+                                6
+                            ]
+                        },
+                        "Description": "A door with no features, labeled 'Private'",
+                        "ExitState": {
+                            "Case": "Locked"
+                        }
+                    }
+                ],
+                "InventoryItems": [],
+                "EnvironmentItems": [
+                    {
+                        "Case": "Encounter",
+                        "Fields": [
+                            {
+                                "Description": "A gruet jumps out from the darkness.",
+                                "Monsters": [
+                                    {
+                                        "Id": {
+                                            "Case": "MonsterId",
+                                            "Fields": [
+                                                2
+                                            ]
+                                        },
+                                        "Name": "Gruet",
+                                        "Health": {
+                                            "Case": "Health",
+                                            "Fields": [
+                                                12,
+                                                12
+                                            ]
+                                        },
+                                        "ExperiencePoints": 200,
+                                        "Stats": {
+                                            "Attack": {
+                                                "Case": "AttackStat",
+                                                "Fields": [
+                                                    1
+                                                ]
+                                            },
+                                            "Defense": {
+                                                "Case": "DefenseStat",
+                                                "Fields": [
+                                                    14
+                                                ]
+                                            },
+                                            "Damage": {
+                                                "Case": "Damage",
+                                                "Fields": [
+                                                    3
+                                                ]
+                                            }
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "Id": {
+                    "Case": "EnvironmentId",
+                    "Fields": [
+                        4
+                    ]
+                },
+                "Name": "Office",
+                "Description": "As the door opens, you begin to see the remnants of an old dusty office.  This place hasn't been used in years. An old typewriter on the desk is missing most of its keys.",
+                "Exits": [
+                    {
+                        "Id": {
+                            "Case": "ExitId",
+                            "Fields": [
+                                6
+                            ]
+                        },
+                        "Target": {
+                            "Case": "EnvironmentId",
+                            "Fields": [
+                                3
+                            ]
+                        },
+                        "Direction": {
+                            "Case": "West"
+                        },
+                        "Distance": {
+                            "Case": "Steps",
+                            "Fields": [
+                                6
+                            ]
+                        },
+                        "Description": "Door with no features",
+                        "ExitState": {
+                            "Case": "Open"
+                        }
+                    },
+                    {
+                        "Id": {
+                            "Case": "ExitId",
+                            "Fields": [
+                                7
+                            ]
+                        },
+                        "Target": {
+                            "Case": "EnvironmentId",
+                            "Fields": [
+                                5
+                            ]
+                        },
+                        "Direction": {
+                            "Case": "East"
+                        },
+                        "Distance": {
+                            "Case": "Steps",
+                            "Fields": [
+                                2
+                            ]
+                        },
+                        "Description": "Secret Passage",
+                        "ExitState": {
+                            "Case": "Hidden"
+                        }
+                    }
+                ],
+                "InventoryItems": [
+                    {
+                        "Id": {
+                            "Case": "ItemId",
+                            "Fields": [
+                                4
+                            ]
+                        },
+                        "Name": "typewriter",
+                        "Description": "collecting dust",
+                        "Health": null,
+                        "SwitchState": null,
+                        "Stats": null,
+                        "Behaviors": [
+                            {
+                                "Item1": {
+                                    "Case": "Description",
+                                    "Fields": [
+                                        "As you press down hard on one of the keys. The air begins to move around you. Suddenly, a secret passage opens up from within the wall."
+                                    ]
+                                },
+                                "Item2": {
+                                    "Case": "UseOnExit",
+                                    "Fields": [
+                                        {
+                                            "Case": "ExitId",
+                                            "Fields": [
+                                                7
+                                            ]
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "Item1": {
+                                    "Case": "Description",
+                                    "Fields": [
+                                        "After several attempts of trying to pick up the typewriter, you realize you don't actually want to carry this thing around."
+                                    ]
+                                },
+                                "Item2": {
+                                    "Case": "CanTake",
+                                    "Fields": [
+                                        false
+                                    ]
+                                }
+                            }
+                        ]
+                    }
+                ],
+                "EnvironmentItems": []
+            },
+            {
+                "Id": {
+                    "Case": "EnvironmentId",
+                    "Fields": [
+                        5
+                    ]
+                },
+                "Name": "Secret Passage",
+                "Description": "The path leads downward with considerable gradient. Things turn cold as you hear a voice... 'stoi impul chani, mario.' Frozen, but unable to make out any figures ahead of you, you shout back 'Who's there?'\nA few seconds pass, finally a response... 'die!'.  As you fall backward you stumble over a rock.            \n            ",
+                "Exits": [
+                    {
+                        "Id": {
+                            "Case": "ExitId",
+                            "Fields": [
+                                7
+                            ]
+                        },
+                        "Target": {
+                            "Case": "EnvironmentId",
+                            "Fields": [
+                                4
+                            ]
+                        },
+                        "Direction": {
+                            "Case": "West"
+                        },
+                        "Distance": {
+                            "Case": "Steps",
+                            "Fields": [
+                                2
+                            ]
+                        },
+                        "Description": "Secret entrance",
+                        "ExitState": {
+                            "Case": "Open"
+                        }
+                    },
+                    {
+                        "Id": {
+                            "Case": "ExitId",
+                            "Fields": [
+                                8
+                            ]
+                        },
+                        "Target": {
+                            "Case": "EnvironmentId",
+                            "Fields": [
+                                6
+                            ]
+                        },
+                        "Direction": {
+                            "Case": "East"
+                        },
+                        "Distance": {
+                            "Case": "Steps",
+                            "Fields": [
+                                10
+                            ]
+                        },
+                        "Description": "Dark Passage towards the footsteps",
+                        "ExitState": {
+                            "Case": "Hidden"
+                        }
+                    }
+                ],
+                "InventoryItems": [
+                    {
+                        "Id": {
+                            "Case": "ItemId",
+                            "Fields": [
+                                5
+                            ]
+                        },
+                        "Name": "rock",
+                        "Description": "just lying around",
+                        "Health": null,
+                        "SwitchState": null,
+                        "Stats": null,
+                        "Behaviors": [
+                            {
+                                "Item1": {
+                                    "Case": "Description",
+                                    "Fields": [
+                                        "You throw the rock directly at the voice and hear a terrible scream.  Moments later you can hear footsteps running to the east away from you."
+                                    ]
+                                },
+                                "Item2": {
+                                    "Case": "UseOnExit",
+                                    "Fields": [
+                                        {
+                                            "Case": "ExitId",
+                                            "Fields": [
+                                                8
+                                            ]
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    }
+                ],
+                "EnvironmentItems": []
+            },
+            {
+                "Id": {
+                    "Case": "EnvironmentId",
+                    "Fields": [
+                        6
+                    ]
+                },
+                "Name": "Dark Passage",
+                "Description": "Is it really a good idea to go chasing after such a terrible, unknown, thing? Probably not, but that hasn't stopped you so far.",
+                "Exits": [
+                    {
+                        "Id": {
+                            "Case": "ExitId",
+                            "Fields": [
+                                9
+                            ]
+                        },
+                        "Target": {
+                            "Case": "EnvironmentId",
+                            "Fields": [
+                                5
+                            ]
+                        },
+                        "Direction": {
+                            "Case": "West"
+                        },
+                        "Distance": {
+                            "Case": "Steps",
+                            "Fields": [
+                                10
+                            ]
+                        },
+                        "Description": "Secret Passage",
+                        "ExitState": {
+                            "Case": "Open"
+                        }
+                    }
+                ],
+                "InventoryItems": [
+                    {
+                        "Id": {
+                            "Case": "ItemId",
+                            "Fields": [
+                                3
+                            ]
+                        },
+                        "Name": "Gold",
+                        "Description": "that probably fell out of someones pocket",
+                        "Health": null,
+                        "SwitchState": null,
+                        "Stats": null,
+                        "Behaviors": []
+                    }
+                ],
+                "EnvironmentItems": []
+            }
+        ]
+    },
+    "GameScene": {
+        "Case": "OpenExplore"
+    },
+    "LastCommand": {
+        "Case": "SaveGame"
+    },
+    "Output": {
+        "Case": "Output",
+        "Fields": [
+            [
+                "{Name = \"P1\";\n Health = Health (15,15);\n Experience = Experience (0,1);\n Stats = {Attack = AttackStat 2;\n          Defense = DefenseStat 14;\n          Damage = Damage 3;};}",
+                "1/1/71 6:01:50 AM",
+                "[{Id = ItemId 2;\n  Name = \"lantern\";\n  Description = \"with a full battery\";\n  Health = Some (Health (8,15));\n  SwitchState = Some SwitchOff;\n  Stats = None;\n  Behaviors =\n   [(Description \"Batter Life\", LoseLifeOnUpdate);\n    (Description \"Battery Warning\", GetOutputs);\n    (Description \"You pick up the lantern\", CanTake true);\n    (Description \"Turns the light on and off\", TurnOnOff SwitchOn)];}]"
+            ]
+        ]
+    }
+}

@@ -23,7 +23,7 @@ and ItemUse =
 | PutIn of ItemId // put [item] in (me)
 | TakeFrom of ItemId // take [item] from (me)
 | AttackWith of MonsterId // attack [monster] with (me)
-| TurnOnOff // turn (me) on/off
+| TurnOnOff of SwitchState // turn (me) on/off
 | ApplyStats // apply my stats to whom holds me (player or monster)
 | LoseLifeOnUpdate
 | GetOutputs
@@ -35,14 +35,8 @@ type TryUseItemFailure =
 | CantFind
 
 type EnvironmentItem =
-// | EnvironmentItem of EnvironmentItemProperties
 | Encounter of EncounterProperties
-// | Interaction of NPC
-
-and EnvironmentItemProperties = {
-    Name: string
-    Uses: ItemUse list
-}
+| Interaction
 
 and EncounterProperties = {
     Description: string
@@ -51,6 +45,3 @@ and EncounterProperties = {
 
 let createInventoryItem id name description health switchState stats behaviors=
     { Id = id; Name = name; Description = description; Health = health; SwitchState = switchState; Stats = stats; Behaviors = behaviors }
-
-// let createEnvironmentItem name uses =
-//     EnvironmentItem { Name = name; Uses = uses }

@@ -65,6 +65,11 @@ let (|MatchInput|_|) pattern input =
     unification (makePatterns pattern) (makePatterns input) []
     |> Option.map extractText
 
+let makeName tokens =
+    tokens 
+    |> List.filter (fun word -> word <> "the")
+    |> String.concat " "
+
 let exploreParser : CommandParser =
     fun input ->
         match input.ToLower().Trim() with
@@ -84,11 +89,18 @@ let exploreParser : CommandParser =
         | "e" -> Some (Move East)
         | "w" -> Some (Move West)
         // Item commands
-        | MatchInput "take *" [[itemName]] -> Some (Take itemName)
-        | MatchInput "drop *" [[itemName]] -> Some (Drop itemName)
-        | MatchInput "use *" [[itemName]] -> Some (Use itemName)
+        | MatchInput "take *" [itemTokens] -> 
+            (Take (makeName itemTokens)) |> Some
+        | MatchInput "drop *" [itemTokens] -> 
+            (Drop (makeName itemTokens)) |> Some
+        | MatchInput "use *" [itemTokens] -> 
+            (Use (makeName itemTokens)) |> Some
         | MatchInput "open * with *" [targetTokens; itemTokens;] ->
             Some (Use "TODO")
+        | MatchInput "turn * on" [itemTokens] ->
+            (SwitchItemOn (itemTokens |> makeName)) |> Some
+        | MatchInput "turn * off" [itemTokens] ->
+            (SwitchItemOff (itemTokens |> makeName)) |> Some
         // single word commands
         | "status" -> Some Status
         | "exit" -> Some Exit

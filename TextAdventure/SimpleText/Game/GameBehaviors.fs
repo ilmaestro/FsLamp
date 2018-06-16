@@ -13,15 +13,20 @@ module Common =
             match itemUse, item.Health, item.SwitchState with
             | LoseLifeOnUpdate, Some h, Some switch ->
                 if switch = SwitchOn then { item with Health = Some (f h)} else item
+                |> Ok
             | LoseLifeOnUpdate, Some h, None ->
                 { item with Health = Some (f h)}
-            | _ -> item
+                |> Ok
+            | _ -> item |> failItemUpdate "Item use not supported"
 
-    let updateSwitchBehavior f : UpdateItemBehavior=
+    let updateSwitchBehavior : UpdateItemBehavior=
         fun (itemUse: ItemUse, item: InventoryItem) ->
             match itemUse, item.SwitchState with
-            | TurnOnOff, Some s -> {item with SwitchState = Some (f s)}
-            | _ -> item
+            | TurnOnOff switchTarget, Some switchSource when switchTarget <> switchSource -> 
+                {item with SwitchState = Some switchTarget} |> Ok
+            | TurnOnOff switchState, Some _ ->
+                item |> failItemUpdate (sprintf "%s is already %A" item.Name switchState )
+            | _ -> item |> failItemUpdate "Item use not supported"
 
     let OpenExitBehavior : UpdateGameStateBehavior =
         fun (itemUse, _, gamestate) ->
@@ -32,16 +37,15 @@ module Common =
 
                 gamestate
                 |> Environment.openExit exit
-            | _ ->
-                gamestate
+                |> Ok
+            | _ -> gamestate |> failGameStateUpdate "Item use not supported"
 
     let outputBehavior f : UpdateGameStateBehavior =
         fun (itemUse, item, gamestate) ->
             match itemUse with
             | GetOutputs ->
-                gamestate |> Output.appendOutputs (f item)
-            | _ ->
-                gamestate
+                gamestate |> Output.appendOutputs (f item) |> Ok
+            | _ -> gamestate |> failGameStateUpdate "Item use not supported"
 
     let addToInventoryBehavior getSuccessOutputs getFailureOutputs: UpdateGameStateBehavior =
         fun (itemuse, item, gamestate) ->
@@ -52,9 +56,11 @@ module Common =
                 |> Inventory.addItem item
                 |> World.updateWorldEnvironment
                 |> Output.setOutput (Output (getSuccessOutputs item))
+                |> Ok
             | _ ->
                 gamestate
                 |> Output.setOutput (Output (getFailureOutputs item))
+                |> failGameStateUpdate "Item use not supported"
 
 module Behaviors =
     open Common
@@ -90,6 +96,11 @@ module Behaviors =
         ItemUse.addGameStateBehavior
             (Description description, Items.CanTake canTake)
             (addToInventoryBehavior (fun item -> [sprintf "%s taken." item.Name]) (fun _ -> [sprintf "%s" description]))
+
+    let turnOnOff description =
+        ItemUse.addItemUseBehavior
+            (Description description, ItemUse.Defaults.TurnOnOff)
+            (updateSwitchBehavior)
 
     // the item can provide light in rooms where no light exists.
     let providesLight =

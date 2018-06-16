@@ -41,6 +41,7 @@ let lanternItem =
                     (5,5, "Lantern is getting extremely dim.");
                     (10,10, "Lantern is getting dim.");]
             Behaviors.takeItem "You pick up the lantern" true;
+            Behaviors.turnOnOff "Turns the light on and off";
         ]
 
 let gold =

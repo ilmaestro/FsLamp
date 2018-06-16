@@ -90,6 +90,10 @@ module Inventory =
     let addItem item gamestate =
         { gamestate with Inventory = item :: gamestate.Inventory }
 
+    let updateItem (item: InventoryItem) gamestate =
+        let newInventory = gamestate.Inventory |> List.map (fun i -> if i.Id = item.Id then item else i)
+        { gamestate with Inventory = newInventory }
+
 
 module Output =
     let setOutput output gamestate =

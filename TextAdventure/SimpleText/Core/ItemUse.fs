@@ -3,8 +3,16 @@ open Primitives
 open Items
 open GameState
 
-type UpdateItemBehavior = ((ItemUse * InventoryItem) -> InventoryItem)
-type UpdateGameStateBehavior = ((ItemUse * InventoryItem * GameState) -> GameState)
+type UpdateItemFailure = {
+    Item: InventoryItem
+    Message: string
+}
+type UpdateGameStateFailure = {
+    GameState: GameState
+    Message: string
+}
+type UpdateItemBehavior = ((ItemUse * InventoryItem) -> Result<InventoryItem,UpdateItemFailure>)
+type UpdateGameStateBehavior = ((ItemUse * InventoryItem * GameState) -> Result<GameState,UpdateGameStateFailure>)
 
 let private itemUseBehaviorCache : Map<(Description * ItemUse),UpdateItemBehavior> ref = ref Map.empty
 let private gameStateBehaviorCache : Map<(Description * ItemUse),UpdateGameStateBehavior> ref = ref Map.empty
@@ -23,6 +31,12 @@ let findItemUseBehavior id =
 let findGameStateBehavior id =
     (!gameStateBehaviorCache).TryFind id
 
+
+let failItemUpdate message item =
+    Error { Item = item; Message = message }
+
+let failGameStateUpdate message gs =
+    Error { GameState = gs; Message = message }
 
 let inline (==) (a: ItemUse) (b: ItemUse) = 
     match a,b with
@@ -58,3 +72,4 @@ module Defaults =
     let TakeFrom = TakeFrom (ItemId 0)
     let AttackWith = AttackWith (MonsterId 0)
     let CanTake = CanTake true
+    let TurnOnOff = TurnOnOff SwitchOn

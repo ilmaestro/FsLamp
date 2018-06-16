@@ -129,7 +129,10 @@ module Explore =
 
                 match takeableUse with
                 | Some ((_, itemUse), Some update) ->
-                    update (itemUse, item, gamestate)
+                    match update (itemUse, item, gamestate) with
+                    | Ok gs -> gs
+                    | Error failure -> 
+                        failure.GameState
                 | _ ->
                     gamestate
                     |> Output.setOutput (Output [sprintf "You try to take %s, but it own't budge." item.Name])
@@ -150,8 +153,42 @@ module Explore =
                 |> World.updateWorldEnvironment
                 |> Output.setOutput (Output [sprintf "You dropped %s." item.Name])
             | None ->    
-                let output = [sprintf "Couldn't find %s." itemName]
-                {gamestate with Output = Output output }
+                gamestate
+                |> Output.setOutput (Output [sprintf "Couldn't find %s." itemName])
+
+    let switch (itemName: string) switchState : GamePart =
+        fun gamestate ->
+            // find item
+            let itemOption = 
+                gamestate.Inventory
+                |> List.tryFind (fun i ->
+                    (i.Name.ToLower()) = itemName.ToLower())
+
+            match itemOption with
+            | Some item ->
+                // find use
+                let switchableUse = 
+                    item 
+                    |> tryFindItemUse (ItemUse.Defaults.TurnOnOff) 
+                    |> Option.map (fun itemUse -> (itemUse, findItemUseBehavior itemUse))
+
+                match switchableUse with
+                | Some (_, Some update) ->
+                    // try to update
+                    match update (Items.TurnOnOff switchState, item) with
+                    | Ok item ->
+                        gamestate 
+                        |> Inventory.updateItem item
+                        |> Output.setOutput (Output [sprintf "%s turned %A" item.Name switchState])
+                    | Error failure ->
+                        gamestate
+                        |> Output.setOutput (Output [failure.Message])
+                | _ ->
+                    gamestate
+                    |> Output.setOutput (Output [sprintf "%s doesn't appear to have a switch for that." item.Name])
+            | None ->
+                gamestate
+                |> Output.setOutput (Output [sprintf "Couldn't find %s." itemName])
 
     // let private tryUseItem uses name gamestate =
     //     match Uses.find uses gamestate.Environment with

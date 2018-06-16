@@ -77,10 +77,13 @@ let updateGameObjects : GamePart =
         // thread gamestate through all the update functions
         |> List.fold (fun gs (item, update) ->
             // get updated item
-            let item' = update item
-            // update item in gamestate
-            let inventory' = Environment.updateInventory item' gs.Inventory
-            gs |> Inventory.setInventory inventory'
+            match update item with
+            | Ok item' ->
+                // update item in gamestate
+                let inventory' = Environment.updateInventory item' gs.Inventory
+                gs |> Inventory.setInventory inventory'
+            | Error _ ->
+                gs
         ) gamestate
 
 let getGameObjectOutputs : GamePart =
@@ -90,7 +93,9 @@ let getGameObjectOutputs : GamePart =
         |> List.filter (fun (_, _, update) -> update.IsSome)
         |> List.map (fun (i, (_, itemUse), update) -> ((itemUse,i), update.Value))
         |> List.fold (fun gs ((itemUse, item), update) ->
-            update (itemUse, item, gs)
+            match update (itemUse, item, gs) with
+            | Ok gs' -> gs'
+            | Error _ -> gs
         ) gamestate
 
 // loop: Read -> Parse -> Command -> Action -> Print -> Loop

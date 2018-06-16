@@ -2,6 +2,7 @@ module Dispatcher
 open Domain
 open GameState
 open Actions
+open Items
 
 let getSaveDataFilename = 
     "./SaveData/GameSave.json"
@@ -22,6 +23,8 @@ let dispatch command : GamePart =
             | Take itemName -> Explore.take itemName
             | Drop itemName -> Explore.drop itemName
             | Use itemName  -> message "not supported at this moment" //Explore.useItem itemName
+            | SwitchItemOn itemName     -> Explore.switch itemName SwitchState.SwitchOn
+            | SwitchItemOff itemName    -> Explore.switch itemName SwitchState.SwitchOff
             | SaveGame      -> Explore.save getSaveDataFilename
             // main menu
             | NewGame       -> MainMenu.startGame

@@ -88,9 +88,6 @@ and ExitState =
 | Locked
 | Hidden
 
-
-
-
 type Command =
 // open explore
 | NoCommand
@@ -104,6 +101,8 @@ type Command =
 | Take of ItemName: string
 | Drop of ItemName: string
 | Use of ItemName: string
+| SwitchItemOn of ItemName: string
+| SwitchItemOff of ItemName: string
 | SaveGame
 // main menu
 | NewGame
