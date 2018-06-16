@@ -26,6 +26,23 @@ module Common =
         fun gamestate ->
             {gamestate with Output = Output [s]}
 
+    let tryFindItemWithUseFromInventory (itemName: string) itemUse gamestate =
+        gamestate.Inventory
+        |> List.tryFind (fun i ->
+            (i.Name.ToLower()) = itemName.ToLower())
+        |> Option.bind (tryFindItemUse itemUse)
+
+    let findItemByUse itemUse items =
+        items |> List.tryFind (tryFindItemUse itemUse >> Option.isSome)
+
+    let anyItemWithUse itemUse items =
+        items |> List.exists (tryFindItemUse itemUse >> Option.isSome)
+
+    let itemIsSwitchedOn (item: Items.InventoryItem) =
+        match item.SwitchState with
+        | Some Items.SwitchOn -> true
+        | _ -> false
+
     let tryUseItemFromInventory (itemName: string) itemUse gamestate =
             let itemOption = 
                 gamestate.Environment.InventoryItems 
@@ -46,6 +63,14 @@ module Common =
                     Error Items.CantUse
             | None ->
                 Error Items.CantFind
+
+    let ifLightSource f g : GamePart =
+        fun gamestate ->
+            // either you have an item that's providing a lightsource or the current environment has its own
+            match gamestate.Environment.LightSource, (findItemByUse Items.ProvidesLight gamestate.Inventory)  with
+            | Some _, _ -> f gamestate
+            | _, Some item when item |> itemIsSwitchedOn -> f gamestate
+            | _ -> g gamestate
 
 module Explore =
     let wait ts : GamePart =
@@ -91,7 +116,9 @@ module Explore =
                     gamestate
                     |> World.updateWorldTravelTime exit.Distance
                     |> setEnvironment nextEnvironment
-                    |> Output.setOutput (Output [nextEnvironment.Description])
+                    |> ifLightSource
+                        (Output.setOutput (Output [nextEnvironment.Description]))
+                        (Output.setOutput (Output ["It's too dark to see."]))
                     |> Encounter.checkEncounter
                 | Locked ->
                     gamestate |> Output.setOutput (Output ["The exit is locked."])
@@ -110,7 +137,11 @@ module Explore =
                 yield gamestate.Environment.Description
                 yield "Exits"; yield! exits; 
                 match items with [] -> () | _ -> yield ""; yield "You see"; yield! items ]
-            { gamestate with Output = Output log }
+
+            gamestate
+            |> ifLightSource
+                (Output.setOutput (Output log))
+                (Output.setOutput (Output ["It's too dark to look around."]))
 
     let take (itemName: string) : GamePart =
         fun gamestate ->

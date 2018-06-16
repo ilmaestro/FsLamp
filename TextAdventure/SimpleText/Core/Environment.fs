@@ -10,11 +10,12 @@ type Environment = {
     Exits: Exit list
     InventoryItems: InventoryItem list
     EnvironmentItems: EnvironmentItem list
+    LightSource: InventoryItem option
 }
 
 module Environment =
-    let create id name description exits items environmentItems =
-        { Id = EnvironmentId id; Name = name; Description = description; Exits = exits; InventoryItems = items; EnvironmentItems = environmentItems }
+    let create id name description exits items environmentItems lightsource =
+        { Id = EnvironmentId id; Name = name; Description = description; Exits = exits; InventoryItems = items; EnvironmentItems = environmentItems; LightSource = lightsource }
 
     let updateInventory (item: InventoryItem) (inventory: InventoryItem list) =
         inventory

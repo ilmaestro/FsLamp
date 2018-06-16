@@ -43,5 +43,11 @@ and EncounterProperties = {
     Monsters: Monster list
 }
 
-let createInventoryItem id name description health switchState stats behaviors=
-    { Id = id; Name = name; Description = description; Health = health; SwitchState = switchState; Stats = stats; Behaviors = behaviors }
+let mutable private inventoryItemCount = 0
+
+let private getNextInventoryItemId () =
+    inventoryItemCount <- (inventoryItemCount + 1)
+    ItemId (inventoryItemCount)
+
+let createInventoryItem name description health switchState stats behaviors =
+    { Id = getNextInventoryItemId (); Name = name; Description = description; Health = health; SwitchState = switchState; Stats = stats; Behaviors = behaviors }

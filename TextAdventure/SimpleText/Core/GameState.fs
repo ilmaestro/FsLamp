@@ -1,5 +1,4 @@
 module GameState
-open Primitives
 open Domain
 open Items
 open Environment

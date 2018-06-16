@@ -3,10 +3,15 @@ open Primitives
 open Items
 open GameBehaviors
 
+let theSun =
+    createInventoryItem "sun" "is shining overhead." None None None [(Description "ball of fire", ProvidesLight)]
+
+let ambientLight =
+    createInventoryItem "ambient light" "" None None None [(Description "ambient light", ProvidesLight)]
+
 // this key is used to open
 let keyItem = 
     createInventoryItem
-        (ItemId 1)
         "key" "laying in a pile of debris"
         None // no health
         None
@@ -15,12 +20,12 @@ let keyItem =
             Behaviors.takeItem "You pickup a small, crusty key." true]
 
 let typewriter =
-    createInventoryItem (ItemId 4) "typewriter" "collecting dust" None None None 
+    createInventoryItem "typewriter" "collecting dust" None None None 
         [Behaviors.openSecretPassage "As you press down hard on one of the keys. The air begins to move around you. Suddenly, a secret passage opens up from within the wall." (ExitId 7);
             Behaviors.takeItem "After several attempts of trying to pick up the typewriter, you realize you don't actually want to carry this thing around." false]
 
 let rock =
-    createInventoryItem (ItemId 5) "rock" "just lying around" None None None
+    createInventoryItem "rock" "just lying around" None None None
         [Behaviors.openSecretPassage "You throw the rock directly at the voice and hear a terrible scream.  Moments later you can hear footsteps running to the east away from you." (ExitId 8);]
 
 // lantern is an item you can take that allows you to see in dark places.
@@ -28,7 +33,6 @@ let rock =
 // it consumes battery life when it's turned on
 let lanternItem =
     createInventoryItem
-        (ItemId 2) 
         "lantern" "with a full battery"
         (Some (Health(15, 15)))
         (Some Items.SwitchOff)
@@ -42,7 +46,8 @@ let lanternItem =
                     (10,10, "Lantern is getting dim.");]
             Behaviors.takeItem "You pick up the lantern" true;
             Behaviors.turnOnOff "Turns the light on and off";
+            (Description "Light", ProvidesLight);
         ]
 
 let gold =
-    createInventoryItem (ItemId 3) "Gold" "that probably fell out of someones pocket" None None None []
+    createInventoryItem "Gold" "that probably fell out of someones pocket" None None None []
