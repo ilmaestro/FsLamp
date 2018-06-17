@@ -6,7 +6,6 @@ open Environment
 open Player
 open System
 open ItemUse
-open ItemUse
 
 type GamePart = GameState -> GameState
 
@@ -52,6 +51,23 @@ module Common =
         |> Option.bind f
         |> Option.map (fun update -> (item, itemUse, update))
 
+    let tryFindItemFromGame name gamestate =
+        [gamestate.Inventory; gamestate.Environment.InventoryItems]
+        |> List.map (tryFindByName name)
+        |> List.choose id
+        |> List.tryHead
+
+    let tryFindItemBehavior itemUse item =
+        let itemUpdate = 
+            tryFindUpdate findItemUseBehavior itemUse item
+            |> Option.map (fun (item, itemUse, update) -> (item, itemUse, UpdateItem update))
+        let gameUpdate =
+            tryFindUpdate findGameStateBehavior itemUse item
+            |> Option.map (fun (item, itemUse, update) -> (item, itemUse, UpdateGameState update))
+        [itemUpdate; gameUpdate]
+        |> List.choose id
+        |> List.tryHead
+        
     let ifLightSource f g : GamePart =
         fun gamestate ->
             // either you have an item that's providing a lightsource or the current environment has its own
@@ -146,32 +162,6 @@ module Explore =
                 gamestate
                 |> Output.setOutput (Output [sprintf "Couldn't find %s." itemName])
 
-            // find item
-            // let itemOption = 
-            //     gamestate.Environment.InventoryItems 
-            //     |> List.tryFind (fun i ->
-            //         (i.Name.ToLower()) = itemName.ToLower())
-
-            // match itemOption with
-            // | Some item ->
-            //     let takeableUse = 
-            //         item 
-            //         |> tryFindItemUse (ItemUse.Defaults.CanTake) 
-            //         |> Option.map (fun itemUse -> (itemUse, findGameStateBehavior itemUse))
-
-            //     match takeableUse with
-            //     | Some ((_, itemUse), Some update) ->
-            //         match update (itemUse, item, gamestate) with
-            //         | Ok gs -> gs
-            //         | Error failure -> 
-            //             failure.GameState
-            //     | _ ->
-            //         gamestate
-            //         |> Output.setOutput (Output [sprintf "You try to take %s, but it own't budge." item.Name])
-            // | None ->
-            //     let output = [sprintf "Couldn't find %s." itemName]
-            //     {gamestate with Output = Output output }
-
     let drop (itemName: string) : GamePart =
         fun gamestate ->
             // find item
@@ -190,55 +180,31 @@ module Explore =
 
     let switch (itemName: string) switchState : GamePart =
         fun gamestate ->
-            let trySwitchUpdate = 
-                gamestate.Inventory
-                |> tryFindByName itemName
-                |> Option.bind (tryFindUpdate findItemUseBehavior (ItemUse.Defaults.TurnOnOff))
-                |> Option.map (fun (item, _, update) -> update (Items.TurnOnOff switchState, item))
+            let item = tryFindItemFromGame itemName gamestate
+            let behavior = item |> Option.bind (tryFindItemBehavior (ItemUse.Defaults.TurnOnOff))
+            
+            match item, behavior with
+            | _, Some (item, _, UpdateItem update) ->
+                match update (Items.TurnOnOff switchState, item) with
+                | Ok item' ->
+                    // TODO: if item isn't in Inventory, update it in environment
+                    gamestate 
+                    |> Inventory.updateItem item'
+                    |> Output.setOutput (Output [sprintf "%s turned %A" item.Name switchState])
+                | Error failure ->
+                    gamestate
+                    |> Output.setOutput (Output [failure.Message])
+            | _, Some (item, _, UpdateGameState update) ->
+                match update (Items.TurnOnOff switchState, item, gamestate) with
+                | Ok gamestate' ->
+                    gamestate'
+                | Error failure ->
+                    failure.GameState
+            | Some _, None ->
+                gamestate |> Output.setOutput (Output [sprintf "%s doesn't appear to have that function." itemName])
+            | None, None ->
+                gamestate |> Output.setOutput (Output [sprintf "Couldn't find %s." itemName])
 
-            match trySwitchUpdate with
-            | Some (Ok item) ->
-                gamestate 
-                |> Inventory.updateItem item
-                |> Output.setOutput (Output [sprintf "%s turned %A" item.Name switchState])
-            | Some (Error failure) ->
-                gamestate
-                |> Output.setOutput (Output [failure.Message])
-            | None -> 
-                gamestate
-                |> Output.setOutput (Output [sprintf "Couldn't find %s." itemName])
-
-            // find item
-            // let itemOption = 
-            //     gamestate.Inventory
-            //     |> List.tryFind (fun i ->
-            //         (i.Name.ToLower()) = itemName.ToLower())
-
-            // match itemOption with
-            // | Some item ->
-            //     // find use
-            //     let switchableUse = 
-            //         item 
-            //         |> tryFindItemUse (ItemUse.Defaults.TurnOnOff) 
-            //         |> Option.map (fun itemUse -> (itemUse, findItemUseBehavior itemUse))
-
-            //     match switchableUse with
-            //     | Some (_, Some update) ->
-            //         // try to update
-            //         match update (Items.TurnOnOff switchState, item) with
-            //         | Ok item ->
-            //             gamestate 
-            //             |> Inventory.updateItem item
-            //             |> Output.setOutput (Output [sprintf "%s turned %A" item.Name switchState])
-            //         | Error failure ->
-            //             gamestate
-            //             |> Output.setOutput (Output [failure.Message])
-            //     | _ ->
-            //         gamestate
-            //         |> Output.setOutput (Output [sprintf "%s doesn't appear to have a switch for that." item.Name])
-            // | None ->
-            //     gamestate
-            //     |> Output.setOutput (Output [sprintf "Couldn't find %s." itemName])
 
     // let private tryUseItem uses name gamestate =
     //     match Uses.find uses gamestate.Environment with

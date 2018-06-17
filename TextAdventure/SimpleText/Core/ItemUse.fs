@@ -14,6 +14,10 @@ type UpdateGameStateFailure = {
 type UpdateItemBehavior = ((ItemUse * InventoryItem) -> Result<InventoryItem,UpdateItemFailure>)
 type UpdateGameStateBehavior = ((ItemUse * InventoryItem * GameState) -> Result<GameState,UpdateGameStateFailure>)
 
+type ItemBehavior =
+| UpdateItem of UpdateItemBehavior
+| UpdateGameState of UpdateGameStateBehavior
+
 let private itemUseBehaviorCache : Map<(Description * ItemUse),UpdateItemBehavior> ref = ref Map.empty
 let private gameStateBehaviorCache : Map<(Description * ItemUse),UpdateGameStateBehavior> ref = ref Map.empty
 
