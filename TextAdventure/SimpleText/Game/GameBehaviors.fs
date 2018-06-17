@@ -101,8 +101,3 @@ module Behaviors =
         ItemUse.addItemUseBehavior
             (Description description, ItemUse.Defaults.TurnOnOff)
             (updateSwitchBehavior)
-
-    // the item can provide light in rooms where no light exists.
-    let providesLight =
-        //TODO: need something in the gamestate to keep a lightsource state
-        ()
