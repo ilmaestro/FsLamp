@@ -23,45 +23,6 @@ type Monster = {
     Stats: Stats
 }
 
-// type InventoryItem =
-// | InventoryItem of InventoryItemProperties
-// | TemporaryItem of InventoryItemProperties * Lifetime: int
-// | OnOffItem of InventoryItemProperties * OnOff: bool
-// | AttackItem of AttackItemProperties
-
-// and InventoryItemProperties = {
-//     Name: string
-//     Description: string
-//     Uses: ItemUse list // list of uses for this item.
-//     Behaviors: BehaviorId list
-// }
-
-// and AttackItemProperties = {
-//     Name: string
-//     Description: string
-//     Damage: int
-//     Behaviors: BehaviorId list
-// }
-
-// and ItemUse =
-// | Unlock of ExitId * Description: string
-// | Unhide of ExitId * Description: string
-// | Put of PutUse * id: string
-// | Contain of ContainUse
-// | Switch of SwitchType
-
-// and PutUse =
-// | PutOn
-// | PutIn
-
-// and ContainUse =
-// | ContainOn
-// | ConainIn
-
-// and SwitchType =
-// | OnOff
-
-
 // the player's immediate location/environment
 // environments are connected by paths
 type Exit = {
@@ -101,6 +62,7 @@ type Command =
 | Take of ItemName: string
 | Drop of ItemName: string
 | Use of ItemName: string
+| UseWith of TargetName: string * ItemName: string
 | SwitchItemOn of ItemName: string
 | SwitchItemOff of ItemName: string
 | SaveGame
@@ -159,3 +121,17 @@ let healthDescription (Health (life, total)) =
 
 let createStats attack defense damage =
     { Attack = (AttackStat attack); Defense = DefenseStat defense; Damage = Damage damage }
+
+
+// computation helpers
+
+type MaybeBuilder() =
+    member this.Bind (x, f) =
+        match x with
+        | Some a -> f a
+        | None -> None
+    
+    member this.Return (x) =
+        Some x
+
+let maybe = new MaybeBuilder()

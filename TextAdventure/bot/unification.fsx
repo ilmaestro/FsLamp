@@ -49,7 +49,7 @@ let matchPattern (pattern : Sentence) (input : Sentence) =
     if pattern.IsQuestion <> input.IsQuestion then None
     else unification pattern.Contents input.Contents []
 (matchPattern (makeSentence "open * with * or *") (makeSentence "open the bork creaky door with rusty key or the snarky wrench"))
-
+(matchPattern (makeSentence "open * with *") (makeSentence "open the door with key"))
 
 
 (unification (parseText "a *") (parseText "a b") []) = Some [[Word "b"]]

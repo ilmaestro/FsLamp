@@ -26,17 +26,17 @@ module Common =
         fun gamestate ->
             {gamestate with Output = Output [s]}
 
-    let tryFindItemWithUseFromInventory (itemName: string) itemUse gamestate =
-        gamestate.Inventory
-        |> List.tryFind (fun i ->
-            (i.Name.ToLower()) = itemName.ToLower())
-        |> Option.bind (tryFindItemUse itemUse)
+    // let tryFindItemWithUseFromInventory (itemName: string) itemUse gamestate =
+    //     gamestate.Inventory
+    //     |> List.tryFind (fun i ->
+    //         (i.Name.ToLower()) = itemName.ToLower())
+    //     |> Option.bind (tryFindItemUse itemUse)
 
     let findItemByUse itemUse items =
         items |> List.tryFind (tryFindItemUse itemUse >> Option.isSome)
 
-    let anyItemWithUse itemUse items =
-        items |> List.exists (tryFindItemUse itemUse >> Option.isSome)
+    // let anyItemWithUse itemUse items =
+    //     items |> List.exists (tryFindItemUse itemUse >> Option.isSome)
 
     let itemIsSwitchedOn (item: Items.InventoryItem) =
         match item.SwitchState with
@@ -58,6 +58,7 @@ module Common =
         |> List.tryHead
 
     let tryFindItemBehavior itemUse item =
+
         let itemUpdate = 
             tryFindUpdate findItemUseBehavior itemUse item
             |> Option.map (fun (item, itemUse, update) -> (item, itemUse, UpdateItem update))
@@ -65,6 +66,19 @@ module Common =
             tryFindUpdate findGameStateBehavior itemUse item
             |> Option.map (fun (item, itemUse, update) -> (item, itemUse, UpdateGameState update))
         [itemUpdate; gameUpdate]
+        |> List.choose id
+        |> List.tryHead
+
+    let tryFindBehaviorFromUse itemUse =
+        let itemUpdate = findItemUseBehavior itemUse |> Option.map UpdateItem
+        let gameUpdate = findGameStateBehavior itemUse |> Option.map UpdateGameState
+        [itemUpdate; gameUpdate]
+        |> List.choose id
+        |> List.tryHead
+
+    let tryFindOneOf uses item =
+        uses
+        |> List.map (fun itemuse -> item |> tryFindItemUse itemuse)
         |> List.choose id
         |> List.tryHead
         
@@ -206,46 +220,46 @@ module Explore =
                 gamestate |> Output.setOutput (Output [sprintf "Couldn't find %s." itemName])
 
 
-    // let private tryUseItem uses name gamestate =
-    //     match Uses.find uses gamestate.Environment with
-    //     | Some (Unlock (exitId, desc))
-    //     | Some (Unhide (exitId, desc)) ->
-    //         let exit = Exit.find exitId gamestate.Environment
-    //         gamestate
-    //         |> Exit.openExit exit
-    //         |> Output.setOutput (Output [desc; sprintf "%s opened with %s." exit.Description name;])
-    //     | None ->
-    //         gamestate
-    //         |> Output.setOutput (Output [sprintf "Can't use %s here." name])
-
-    // let useItem (itemName: string) : GamePart =
-    //     fun gamestate ->
-    //         // find item
-    //         let itemOption =
-    //             gamestate.Inventory
-    //             |> List.tryFind (fun i -> ((Item.inventoryItemName i).ToLower()) = itemName.ToLower())
-
-    //         let environmentItemOption =
-    //             gamestate.Environment.EnvironmentItems
-    //             |> List.tryFind (fun i -> ((Item.environmentItemDescription i).ToLower()) = itemName.ToLower())
-
-    //         // use item
-    //         match itemOption, environmentItemOption with
-    //         | Some item', _ ->
-    //             match item' with
-    //             | InventoryItem item -> tryUseItem item.Uses item.Name gamestate
-    //             | _ -> gamestate
-                
-    //         | None, Some item' ->
-    //             match item' with
-    //             | EnvironmentItem item -> tryUseItem item.Uses item.Name gamestate
-    //             | _ ->
-    //                 gamestate 
-    //                 |> Output.setOutput (Output ["Can't use that here."])
-    //         | None, _ ->
-    //             gamestate
-    //             |> Output.setOutput (Output [sprintf "What's a %s?" itemName])
+    let useItem (itemName: string) : GamePart =
+        fun gamestate ->
+            let itemOption = tryFindItemFromGame itemName gamestate
+            let useBehavior =
+                maybe {
+                    let! item' = itemOption
+                    let! (desc, itemUse) = item' |> tryFindOneOf ItemUse.Defaults.Useable
+                    let! behavior = (desc, itemUse) |> tryFindBehaviorFromUse
+                    return (desc, itemUse, behavior)
+                }
             
+            match itemOption, useBehavior with
+            | Some item, Some (Description desc, itemUse, UpdateItem update) ->
+                match update (itemUse, item) with
+                | Ok item' ->
+                    // TODO: if item isn't in Inventory, update it in environment
+                    gamestate 
+                    |> Inventory.updateItem item'
+                    |> Output.setOutput (Output [sprintf "Used %s." item.Name; desc])
+                | Error failure ->
+                    gamestate
+                    |> Output.setOutput (Output [failure.Message])
+            | Some item, Some (Description desc, itemUse, UpdateGameState update) ->
+                match update (itemUse, item, gamestate) with
+                | Ok gamestate' ->
+                    gamestate' |> Output.setOutput (Output [desc])
+                | Error failure ->
+                    failure.GameState
+            | Some _, None ->
+                gamestate |> Output.setOutput (Output [sprintf "%s doesn't appear to have that function." itemName])
+            | None, Some _
+            | None, None ->
+                gamestate |> Output.setOutput (Output [sprintf "Couldn't find %s." itemName])
+
+    let useItemOn (targetName: string) (itemName: string) : GamePart =
+        fun gamestate ->
+            if targetName = "door" then 
+                gamestate |> useItem itemName 
+            else gamestate
+
     let save filename : GamePart =
         fun gamestate ->
             IO.saveGameState filename gamestate

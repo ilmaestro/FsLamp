@@ -77,3 +77,5 @@ module Defaults =
     let AttackWith = AttackWith (MonsterId 0)
     let CanTake = CanTake true
     let TurnOnOff = TurnOnOff SwitchOn
+
+    let Useable = [Open; UseOnExit]

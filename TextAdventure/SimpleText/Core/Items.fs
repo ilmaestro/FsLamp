@@ -30,10 +30,6 @@ and ItemUse =
 | ProvidesLight
 | CanTake of bool
 
-type TryUseItemFailure =
-| CantUse
-| CantFind
-
 type EnvironmentItem =
 | Encounter of EncounterProperties
 | Interaction

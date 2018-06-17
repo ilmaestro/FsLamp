@@ -19,7 +19,7 @@ module Common =
                 |> Ok
             | _ -> item |> failItemUpdate "Item use not supported"
 
-    let updateSwitchBehavior : UpdateItemBehavior=
+    let updateSwitchBehavior : UpdateItemBehavior =
         fun (itemUse: ItemUse, item: InventoryItem) ->
             match itemUse, item.SwitchState with
             | TurnOnOff switchTarget, Some switchSource when switchTarget <> switchSource -> 
@@ -29,16 +29,19 @@ module Common =
             | _ -> item |> failItemUpdate "Item use not supported"
 
     let OpenExitBehavior : UpdateGameStateBehavior =
-        fun (itemUse, _, gamestate) ->
+        fun (itemUse, item, gamestate) ->
             match itemUse with
             | UseOnExit exitId
             | OpenExit exitId ->
-                let exit = Exit.find exitId gamestate.Environment
-
-                gamestate
-                |> Environment.openExit exit
-                |> Ok
-            | _ -> gamestate |> failGameStateUpdate "Item use not supported"
+                try
+                    let exit = Exit.find exitId gamestate.Environment
+                    gamestate
+                    |> Environment.openExit exit
+                    |> Ok
+                with
+                | _ -> failwithf "couldn't find exit %A" exitId
+            | _ -> 
+                gamestate |> failGameStateUpdate "Item use not supported"
 
     let outputBehavior f : UpdateGameStateBehavior =
         fun (itemUse, item, gamestate) ->

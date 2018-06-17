@@ -71,7 +71,7 @@ module Environment =
 
     let openExit exit gamestate =
         gamestate
-        |> updateEnvironment exit
+        |> updateEnvironment { exit with ExitState = ExitState.Open }
         |> World.updateWorldEnvironment
 
     let removeItemFromEnvironment item gamestate =
