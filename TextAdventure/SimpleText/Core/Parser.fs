@@ -47,7 +47,7 @@ let rec unification pattern input acc =
                 unification pattern irest ((grp @ [Word i]) :: grpRest)
 
     | (Word p) :: prest, (Word i) :: irest  when p = i ->
-        unification prest irest acc
+        unification prest irest ([] :: acc)
     | _ -> None
 
 let extractText (pattern : Pattern list list) = 

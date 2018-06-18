@@ -18,10 +18,10 @@ open Eliza
 //  - if the pattern & input start with the same word, skip them
 //  - otherwise we fail (because the pattern doesn't match input)
 
-let rec unification pattern input acc =
+let rec unification pattern input (acc: Pattern list list) =
     match pattern, input with
     | [],[] ->
-        acc |> List.rev |> Some
+        acc |> List.filter (fun l -> l.Length > 0) |> List.rev |> Some
     | Wildcard :: prest, (Word i) :: irest ->
         match acc with
         | [] ->
@@ -42,14 +42,14 @@ let rec unification pattern input acc =
                 unification pattern irest ((grp @ [Word (i + "....")]) :: grpRest)
 
     | (Word p) :: prest, (Word i) :: irest  when p = i ->
-        unification prest irest acc
+        unification prest irest ([] :: acc)
     | _ -> None
 
 let matchPattern (pattern : Sentence) (input : Sentence) = 
     if pattern.IsQuestion <> input.IsQuestion then None
     else unification pattern.Contents input.Contents []
 (matchPattern (makeSentence "open * with * or *") (makeSentence "open the bork creaky door with rusty key or the snarky wrench"))
-(matchPattern (makeSentence "open * with *") (makeSentence "open the door with key"))
+(matchPattern (makeSentence "open * with *") (makeSentence "open door with key"))
 
 
 (unification (parseText "a *") (parseText "a b") []) = Some [[Word "b"]]
@@ -94,6 +94,4 @@ let fillAnswer (text : string) (pattern : Answer) =
         | Word w -> result + " " + w ) ""
 
 let doorAnswer = (matchPattern (makeSentence "open * with * or *") (makeSentence "open the bork creaky door with rusty key or the snarky wrench")) |> Option.get 
-
-doorAnswer |> extractText
 
