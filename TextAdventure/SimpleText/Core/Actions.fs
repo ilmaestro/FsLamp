@@ -90,7 +90,41 @@ module Common =
             | _, Some item when item |> itemIsSwitchedOn -> f gamestate
             | _ -> g gamestate
 
+    let bindId a b = a b
+
 module Explore =
+    
+    let useGeneric itemName uses handleItemUpdate handleGamestateUpdate doItemUpdate doGameStateUpdate : GamePart =
+        fun gamestate ->
+            let itemOption = tryFindItemFromGame itemName gamestate
+            let useBehavior =
+                maybe {
+                    let! item' = itemOption
+                    let! (desc, itemUse) = item' |> tryFindOneOf uses
+                    let! behavior = (desc, itemUse) |> tryFindBehaviorFromUse
+                    return (desc, itemUse, behavior)
+                }
+            match itemOption, useBehavior with
+            | Some item, Some (desc, itemUse, UpdateItem update) ->
+                match doItemUpdate update (itemUse, item) with
+                | Ok item' ->
+                    gamestate |> handleItemUpdate (item', itemUse, desc)
+                | Error (failure: UpdateItemFailure) ->
+                    gamestate
+                    |> Output.setOutput (Output [failure.Message])
+            | Some item, Some (desc, itemUse, UpdateGameState update) ->
+                match doGameStateUpdate update (itemUse, item, gamestate) with
+                | Ok gamestate' ->
+                    gamestate' |> handleGamestateUpdate (item, itemUse, desc)
+                | Error failure ->
+                    failure.GameState
+                    |> Output.setOutput (Output [failure.Message])
+            | Some _, None ->
+                gamestate |> Output.setOutput (Output [sprintf "%s doesn't appear to have that function." itemName])
+            | None, Some _
+            | None, None ->
+                gamestate |> Output.setOutput (Output [sprintf "Couldn't find %s." itemName])
+
     let wait ts : GamePart =
         fun gamestate ->
             let world = {gamestate.World with Time = gamestate.World.Time + ts}
@@ -162,19 +196,12 @@ module Explore =
                 (Output.setOutput (Output ["It's too dark to look around."]))
 
     let take (itemName: string) : GamePart =
-        fun gamestate ->
-            let tryTakeUpdate = 
-                gamestate.Environment.InventoryItems 
-                |> tryFindByName itemName
-                |> Option.bind (tryFindUpdate findGameStateBehavior (ItemUse.Defaults.CanTake))
-                |> Option.map (fun (item, itemUse, update) -> update (itemUse, item, gamestate))
-
-            match tryTakeUpdate with
-            | Some (Ok gs) -> gs
-            | Some (Error failure) -> failure.GameState
-            | None -> 
-                gamestate
-                |> Output.setOutput (Output [sprintf "Couldn't find %s." itemName])
+        useGeneric itemName [ItemUse.Defaults.CanTake]
+            (fun _ gamestate -> gamestate)
+            (fun _ gamestate -> gamestate)
+            bindId
+            bindId
+            
 
     let drop (itemName: string) : GamePart =
         fun gamestate ->
@@ -193,66 +220,28 @@ module Explore =
                 |> Output.setOutput (Output [sprintf "Couldn't find %s." itemName])
 
     let switch (itemName: string) switchState : GamePart =
-        fun gamestate ->
-            let item = tryFindItemFromGame itemName gamestate
-            let behavior = item |> Option.bind (tryFindItemBehavior (ItemUse.Defaults.TurnOnOff))
-            
-            match item, behavior with
-            | _, Some (item, _, UpdateItem update) ->
-                match update (Items.TurnOnOff switchState, item) with
-                | Ok item' ->
-                    // TODO: if item isn't in Inventory, update it in environment
-                    gamestate 
-                    |> Inventory.updateItem item'
-                    |> Output.setOutput (Output [sprintf "%s turned %A" item.Name switchState])
-                | Error failure ->
-                    gamestate
-                    |> Output.setOutput (Output [failure.Message])
-            | _, Some (item, _, UpdateGameState update) ->
-                match update (Items.TurnOnOff switchState, item, gamestate) with
-                | Ok gamestate' ->
-                    gamestate'
-                | Error failure ->
-                    failure.GameState
-            | Some _, None ->
-                gamestate |> Output.setOutput (Output [sprintf "%s doesn't appear to have that function." itemName])
-            | None, None ->
-                gamestate |> Output.setOutput (Output [sprintf "Couldn't find %s." itemName])
-
+        useGeneric itemName [ItemUse.Defaults.TurnOnOff]
+            (fun (item, _, Description desc) gamestate ->
+                // TODO: if item isn't in Inventory, update it in environment
+                gamestate 
+                |> Inventory.updateItem item
+                |> Output.setOutput (Output [sprintf "%s turned %A" item.Name switchState; desc]))
+            (fun (_, _, Description desc) gamestate ->
+                gamestate |> Output.setOutput (Output [desc]))
+            (fun update (_, item) -> update (Items.TurnOnOff switchState, item))
+            (fun update (_, item, gamestate) -> update (Items.TurnOnOff switchState, item, gamestate))
 
     let useItem (itemName: string) : GamePart =
-        fun gamestate ->
-            let itemOption = tryFindItemFromGame itemName gamestate
-            let useBehavior =
-                maybe {
-                    let! item' = itemOption
-                    let! (desc, itemUse) = item' |> tryFindOneOf ItemUse.Defaults.Useable
-                    let! behavior = (desc, itemUse) |> tryFindBehaviorFromUse
-                    return (desc, itemUse, behavior)
-                }
-            
-            match itemOption, useBehavior with
-            | Some item, Some (Description desc, itemUse, UpdateItem update) ->
-                match update (itemUse, item) with
-                | Ok item' ->
-                    // TODO: if item isn't in Inventory, update it in environment
-                    gamestate 
-                    |> Inventory.updateItem item'
-                    |> Output.setOutput (Output [sprintf "Used %s." item.Name; desc])
-                | Error failure ->
-                    gamestate
-                    |> Output.setOutput (Output [failure.Message])
-            | Some item, Some (Description desc, itemUse, UpdateGameState update) ->
-                match update (itemUse, item, gamestate) with
-                | Ok gamestate' ->
-                    gamestate' |> Output.setOutput (Output [desc])
-                | Error failure ->
-                    failure.GameState
-            | Some _, None ->
-                gamestate |> Output.setOutput (Output [sprintf "%s doesn't appear to have that function." itemName])
-            | None, Some _
-            | None, None ->
-                gamestate |> Output.setOutput (Output [sprintf "Couldn't find %s." itemName])
+        useGeneric itemName ItemUse.Defaults.Useable
+            (fun (item, itemUse, Description desc) gamestate ->
+                // TODO: if item isn't in Inventory, update it in environment
+                gamestate 
+                |> Inventory.updateItem item
+                |> Output.setOutput (Output [sprintf "Used %s." item.Name; desc]))
+            (fun (item, itemUse, Description desc) gamestate ->
+                gamestate |> Output.setOutput (Output [desc]))
+            bindId
+            bindId
 
     let useItemOn (targetName: string) (itemName: string) : GamePart =
         fun gamestate ->

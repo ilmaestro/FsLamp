@@ -33,13 +33,14 @@ module Common =
             match itemUse with
             | UseOnExit exitId
             | OpenExit exitId ->
-                try
-                    let exit = Exit.find exitId gamestate.Environment
+                // let exit = Exit.find exitId gamestate.Environment
+                match gamestate.Environment.Exits |> List.tryFind (fun e -> e.Id = exitId) with
+                | Some exit ->
                     gamestate
                     |> Environment.openExit exit
                     |> Ok
-                with
-                | _ -> failwithf "couldn't find exit %A" exitId
+                | None ->
+                    gamestate |> failGameStateUpdate "Can't use that here."
             | _ -> 
                 gamestate |> failGameStateUpdate "Item use not supported"
 
