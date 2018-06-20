@@ -66,6 +66,19 @@ module Common =
                 |> Output.setOutput (Output (getFailureOutputs item))
                 |> failGameStateUpdate "Item use not supported"
 
+    let putInBehavior : UpdateGameStateBehavior =
+        fun (itemUse, item, gamestate) ->
+            match itemUse, item.Contains with
+            | PutIn itemId, Some container ->
+                // find item from environment inventory or player inventory
+                let itemToPut = item // TODO: ...
+                let container' = itemToPut :: container
+                let item' = { item with Contains = Some container'}
+                // TODO: update item in gamestate... is this an inventory or environment item?
+                Ok gamestate
+            | _ ->
+                gamestate |> failGameStateUpdate "can't put that here."
+
 module Behaviors =
     open Common
     // some behaviors

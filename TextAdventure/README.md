@@ -63,7 +63,10 @@ Behaviors are essentially pieces of game logic that can be assigned to game obje
 - [x] items can be taken
 - [x] turn lantern on/off
 - [x] some environments have no light, unless lantern is turned on
-- [ ] containers that open/close and allow you to put items inside them
+- [ ] containers
+  - open/close
+  - put/take items from them
+- [ ] separate Uses for turnOn and turnOff
 - [ ] status bar: current environment, player health, time
 - [ ] NPC conversations
   - buy/sell

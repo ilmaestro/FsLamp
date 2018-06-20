@@ -9,6 +9,7 @@ type InventoryItem = {
     Health: Health option
     SwitchState: SwitchState option
     Stats: Stats option
+    Contains: (InventoryItem list) option
     Behaviors: (Description * ItemUse) list
 }
 
@@ -24,6 +25,7 @@ and ItemUse =
 | TakeFrom of ItemId // take [item] from (me)
 | AttackWith of MonsterId // attack [monster] with (me)
 | TurnOnOff of SwitchState // turn (me) on/off
+| Contains of MaxCount: int
 | ApplyStats // apply my stats to whom holds me (player or monster)
 | LoseLifeOnUpdate
 | GetOutputs
@@ -45,5 +47,5 @@ let private getNextInventoryItemId () =
     inventoryItemCount <- (inventoryItemCount + 1)
     ItemId (inventoryItemCount)
 
-let createInventoryItem name description health switchState stats behaviors =
-    { Id = getNextInventoryItemId (); Name = name; Description = description; Health = health; SwitchState = switchState; Stats = stats; Behaviors = behaviors }
+let createInventoryItem name description health switchState stats contains behaviors =
+    { Id = getNextInventoryItemId (); Name = name; Description = description; Health = health; SwitchState = switchState; Stats = stats; Contains = contains; Behaviors = behaviors }
