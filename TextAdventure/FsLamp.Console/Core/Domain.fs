@@ -77,11 +77,11 @@ type Command =
 | Run
 
 type Output = 
-| Header of string list
 | Output of string list
 | DoNothing
 | ExitGame
 | Rollback
+| GameOver
 
 // extensions
 type Direction

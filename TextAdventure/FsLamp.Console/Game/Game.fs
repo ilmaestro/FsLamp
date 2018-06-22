@@ -6,7 +6,6 @@ open Actions
 open Environment
 open Parser
 open System
-open GameItems
 open GameMonsters
 
 let title = """
@@ -19,9 +18,6 @@ let title = """
                           888                                                               
 """
 
-
-
-
 let defaultGamestate map =
     { Player = player1;
         Inventory = [];
@@ -29,16 +25,7 @@ let defaultGamestate map =
         Environment = map.[0];
         GameScene = MainMenu;
         LastCommand = NoCommand;
-        Output = Header [title; "Type GO to start the game, or LOAD to start from saved game."]}
-
-let getCommand (parseInput: CommandParser) =
-    Console.Write("\n> ")
-    let readline = Console.ReadLine()
-    match readline |> parseInput with
-    | Some command -> command
-    | None -> 
-        printfn "I don't understand %s." readline
-        NoCommand
+        Output = Output [title; "Type GO to start the game, or LOAD to start from saved game."]}
 
 let getAction gameScene (dispatcher: Command -> GamePart) = 
     let parser = 
@@ -46,14 +33,7 @@ let getAction gameScene (dispatcher: Command -> GamePart) =
         | MainMenu -> mainMenuParser
         | OpenExplore -> exploreParser
         | InEncounter _ -> encounterParser
-    getCommand parser |> dispatcher
-
-let handleHeader : GamePart =
-    fun gamestate ->
-        match gamestate.Output with
-        | Header log -> log |> List.iter (printfn "%s")
-        | _ -> ()
-        gamestate
+    Console.getCommand parser |> dispatcher
 
 let isUpdateItemUse (_, itemUse) =
     itemUse == Items.LoseLifeOnUpdate
@@ -103,29 +83,34 @@ let RunGame
     (dispatcher: Command -> GamePart)
     initialState =
     let rec loop history gamestate =
-        // print header
-        gamestate |> handleHeader |> ignore
-
         // get action from dispatcher based on input
         let action = getAction gamestate.GameScene dispatcher
 
         // execute the action to get next gamestate
         let nextGameState = gamestate |> updateGameObjects |> action  |> getGameObjectOutputs
 
+        // update screen
+        Console.update nextGameState
+
         // handle output
         match nextGameState.Output with
-        | Output log ->
-            log |> List.iter (printfn "%s")
-            loop (nextGameState :: history) nextGameState
-        | Header _ | DoNothing ->
+        | Output _ | DoNothing ->
             loop (nextGameState :: history) nextGameState
         | Rollback ->
-            printfn "Rolling back..."
-            let (oldState, newHistory) =
-                match history with
-                | _ :: old :: tail  -> (old, tail)
-                | _                 -> (gamestate, history)
-            loop newHistory oldState
+            match history with
+            | _ :: old :: tail  ->
+                Console.update (old |> Output.addOutput "Rolled back...")
+                loop tail old
+            | _ ->
+                loop history gamestate
+        | GameOver ->
+            let outputs = match initialState.Output with Output x -> x | _ -> []
+            let gamestate' = {initialState with Output = Output ("Game Over! Starting back at the beginning." :: outputs) }
+            Console.update gamestate'
+            loop [] gamestate'
         | ExitGame -> ()
-    
-    loop [] initialState
+
+    // initial screen update
+    Console.update initialState
+
+    loop [] {initialState with Output = DoNothing }

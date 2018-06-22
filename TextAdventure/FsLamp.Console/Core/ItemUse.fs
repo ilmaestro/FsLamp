@@ -2,7 +2,6 @@ module ItemUse
 open Primitives
 open Items
 open GameState
-open GameState
 
 type UpdateItemFailure = {
     Item: InventoryItem

@@ -34,7 +34,7 @@ let checkGameOver gamestate =
     else
         gamestate
         |> Scene.setScene MainMenu
-        |> Output.setOutput (Header ["Game over!"])
+        |> Output.setOutput GameOver
 
 module Rolls =
     let private rnd = System.Random()

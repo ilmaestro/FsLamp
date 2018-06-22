@@ -18,6 +18,7 @@
     <Compile Include="Game/GameItems.fs" />
     <Compile Include="Game/GameMonsters.fs" />
     <Compile Include="Game/GameMap.fs" />
+    <Compile Include="Game/Console.fs" />
     <Compile Include="Game/Game.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
