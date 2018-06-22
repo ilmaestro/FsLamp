@@ -2,7 +2,6 @@ module GameItems
 open Primitives
 open Items
 open GameBehaviors
-open System.ComponentModel
 
 let createBasicItem name description behaviors =
     createInventoryItem name description None None None None behaviors
@@ -14,10 +13,10 @@ let ambientLight =
     createBasicItem "ambient light" "" [(Description "ambient light", ProvidesLight)]
 
 // this key is used to open
-let keyItem = 
+let keyItem exitId = 
     createBasicItem
         "key" "laying in a pile of debris"
-        [Behaviors.openExit "After a few minutes of getting the key to fit correctly, the lock releases and the door creakily opens." (ExitId 5);
+        [Behaviors.openExit "After a few minutes of getting the key to fit correctly, the lock releases and the door creakily opens." exitId;
             Behaviors.takeItem "You pickup a small, crusty key." true]
 
 let typewriter =
