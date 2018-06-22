@@ -59,5 +59,8 @@ let mailbox =
         None
         None
         None
-        (Some [gold])
-        [(Description "Holds 1 Item", Contains 1)]
+        (Some [])
+        [
+            (Description "Holds 1 Item", Contains 1);
+            (Behaviors.putIn "shoved inside the tiny mailbox");
+            (Behaviors.takeOut "taken from the scrappy mailbox")]

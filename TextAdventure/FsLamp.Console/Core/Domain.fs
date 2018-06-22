@@ -55,16 +55,19 @@ type Command =
 | Wait of TimeSpan
 | Move of Direction
 | Look
+| LookIn of ItemName: string
 | Status
 | Help
 | Exit
 | Undo
 | Take of ItemName: string
+| TakeFrom of TargetName: string * ItemName: string
 | Drop of ItemName: string
 | Use of ItemName: string
 | UseWith of TargetName: string * ItemName: string
 | SwitchItemOn of ItemName: string
 | SwitchItemOff of ItemName: string
+| PutItem of TargetName: string * ItemName: string
 | SaveGame
 // main menu
 | NewGame

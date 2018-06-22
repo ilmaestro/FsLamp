@@ -89,8 +89,11 @@ let exploreParser : CommandParser =
         | "e" -> Some (Move East)
         | "w" -> Some (Move West)
         // Item commands
+        | MatchInput "take * from *" [targetTokens; itemTokens] -> 
+            (TakeFrom (makeName targetTokens, makeName itemTokens)) |> Some
         | MatchInput "take *" [itemTokens] -> 
             (Take (makeName itemTokens)) |> Some
+
         | MatchInput "drop *" [itemTokens] -> 
             (Drop (makeName itemTokens)) |> Some
 
@@ -107,7 +110,12 @@ let exploreParser : CommandParser =
         | MatchInput "turn off *" [itemTokens]
         | MatchInput "turn * off" [itemTokens] ->
             (SwitchItemOff (itemTokens |> makeName)) |> Some
-        
+
+        | MatchInput "put * in *" [sourceTokens; itemTokens;] ->
+            (PutItem (makeName sourceTokens, makeName itemTokens)) |> Some
+
+        | MatchInput "look in *" [itemTokens] ->
+            (LookIn (makeName itemTokens)) |> Some
         // single word commands
         | "status" -> Some Status
         | "exit" -> Some Exit

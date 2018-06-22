@@ -20,9 +20,9 @@ and SwitchState =
 and ItemUse =
 | OpenExit of ExitId // open [exit] with (me)
 | UseOnExit of ExitId // use (me) on [exit]
-| PutOn of ItemId // put [item] on (me)
-| PutIn of ItemId // put [item] in (me)
-| TakeFrom of ItemId // take [item] from (me)
+| PutOn of InventoryItem option // put [item] on (me)
+| PutIn of InventoryItem option // put [item] in (me)
+| TakeOut of itemName:string option // take [item] from (me)
 | AttackWith of MonsterId // attack [monster] with (me)
 | TurnOnOff of SwitchState // turn (me) on/off
 | Contains of MaxCount: int

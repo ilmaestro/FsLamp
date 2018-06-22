@@ -81,6 +81,10 @@ module Environment =
     let addItemToEnvironment item gamestate =
         let environment = {gamestate.Environment with InventoryItems = item :: gamestate.Environment.InventoryItems }
         { gamestate with Environment = environment}
+    
+    let setEnvironmentItems items gamestate =
+        let environment = {gamestate.Environment with InventoryItems = items }
+        { gamestate with Environment = environment}
 
 module Inventory =
     let setInventory inventory gamestate =

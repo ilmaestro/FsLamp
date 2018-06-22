@@ -6,6 +6,7 @@ open Items
 open Environment
 open GameState
 open Actions
+open System
 
 module Common =
     let updateHealthBehavior f : UpdateItemBehavior=
@@ -66,18 +67,56 @@ module Common =
                 |> Output.setOutput (Output (getFailureOutputs item))
                 |> failGameStateUpdate "Item use not supported"
 
-    let putInBehavior : UpdateGameStateBehavior =
+    let putInBehavior: UpdateGameStateBehavior =
         fun (itemUse, item, gamestate) ->
             match itemUse, item.Contains with
-            | PutIn itemId, Some container ->
-                // find item from environment inventory or player inventory
-                let itemToPut = item // TODO: ...
-                let container' = itemToPut :: container
-                let item' = { item with Contains = Some container'}
-                // TODO: update item in gamestate... is this an inventory or environment item?
-                Ok gamestate
+            | PutIn (Some itemToPut), Some container ->
+                let item' = { item with Contains = Some (itemToPut :: container)}
+
+                match gamestate |> ItemUse.whereIsItem item with
+                | Some InInventory ->
+                    gamestate
+                    |> ItemUse.tryRemoveItemsFromGame (seq { yield itemToPut; yield item; })
+                    |> Inventory.addItem item'
+                    |> Ok
+                | Some InEnvironment ->
+                    gamestate
+                    |> ItemUse.tryRemoveItemsFromGame (seq { yield itemToPut; yield item; })
+                    |> Environment.addItemToEnvironment item'
+                    |> Ok
+                | None ->
+                    gamestate |> failGameStateUpdate "where the hell is the item??"    
             | _ ->
                 gamestate |> failGameStateUpdate "can't put that here."
+
+    let takeOutBehavior: UpdateGameStateBehavior =
+        fun (itemUse, item, gamestate) ->
+            match itemUse, item.Contains with
+            | TakeOut (Some itemName), Some container ->
+                match container |> List.tryFind (fun i -> i.Name = itemName) with
+                | Some itemToTake ->
+                    let container' = container |> List.except (seq { yield itemToTake; })
+                    let item' = { item with Contains = Some (container')}
+
+                    match gamestate |> ItemUse.whereIsItem item with
+                    | Some InInventory ->
+                        gamestate
+                        |> ItemUse.tryRemoveItemsFromGame (seq { yield item; })
+                        |> Inventory.addItem item'
+                        |> Inventory.addItem itemToTake
+                        |> Ok
+                    | Some InEnvironment ->
+                        gamestate
+                        |> ItemUse.tryRemoveItemsFromGame (seq { yield item; })
+                        |> Environment.addItemToEnvironment item'
+                        |> Inventory.addItem itemToTake
+                        |> Ok
+                    | None ->
+                        gamestate |> failGameStateUpdate "where the hell is the item??"
+                | None ->
+                    gamestate |> failGameStateUpdate (sprintf "Couldn't find %s in %s" itemName item.Name)
+            | _ ->
+                gamestate |> failGameStateUpdate "can't take that here."
 
 module Behaviors =
     open Common
@@ -118,3 +157,15 @@ module Behaviors =
         ItemUse.addItemUseBehavior
             (Description description, ItemUse.Defaults.TurnOnOff)
             (updateSwitchBehavior)
+
+    let putIn description =
+        ItemUse.addGameStateBehavior
+            (Description description, ItemUse.Defaults.PutIn)
+            (putInBehavior)
+
+    let takeOut description =
+        ItemUse.addGameStateBehavior
+            (Description description, ItemUse.Defaults.TakeOut)
+            (takeOutBehavior)
+
+        
