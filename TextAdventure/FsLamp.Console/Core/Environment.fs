@@ -12,6 +12,9 @@ type Environment = {
     EnvironmentItems: EnvironmentItem list
     LightSource: InventoryItem option
 }
+with
+    member x.Describe () =
+        sprintf "# %s\n%s" x.Name x.Description
 
 module Environment =
     let create id name description exits items environmentItems lightsource =

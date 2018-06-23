@@ -1,4 +1,6 @@
 module ConsoleService
+open SkiaSharp
+open CommonMark.Syntax
 
 let private esc = string (char 0x1B)
 let private csi = esc + "["
@@ -60,7 +62,7 @@ let show256Colors() =
             printf " "
         printfn ""
 
-open SkiaSharp
+
 
 let showBitmap path =
     use input = System.IO.File.OpenRead(path)
@@ -77,22 +79,42 @@ let showBitmap path =
         resetColor()
         printfn ""
 
-// let showBitmap path =
-//     let bitmap = Image.FromFile(path) :?> Bitmap
-//     for y in 0..bitmap.Size.Height-1 do
-//         for x in 0..bitmap.Size.Width-1 do
-//             let px = bitmap.GetPixel(x, y)
-//             setBackgroundRgb (int px.R) (int px.G) (int px.B)
-//             printf "  "
-//         resetColor()
-//         printfn ""
+module Markdown =
+    open System
+    open CommonMark
 
-// let showBitmapFSharp path =
-//     let bitmap = Image.FromFile(path) :?> Bitmap
-//     for y in 0..bitmap.Size.Height-1 do
-//         for x in 0..bitmap.Size.Width-1 do
-//             let px = bitmap.GetPixel(x, y)
-//             printfn "setBackgroundRgb %i %i %i" (int px.R) (int px.G) (int px.B)
-//             printfn @"printf ""  """
-//         printfn "resetColor()"
-//         printfn @"printfn """""
+    let rec printInline (il: Inline) =
+        if il = null then ()
+        else
+            match il.Tag with
+            | InlineTag.String ->
+                printf "%s" il.LiteralContent
+            | _ -> ()
+
+            printInline il.FirstChild
+            printInline il.NextSibling
+
+    let rec printBlock (block: Block) =
+        if block = null then ()
+        else
+            match block.Tag with
+            | BlockTag.Document -> ()
+            | BlockTag.Paragraph ->
+                printInline block.InlineContent
+                printfn ""
+            | BlockTag.AtxHeading
+            | BlockTag.SetextHeading ->
+                setBackground (int block.Heading.Level)
+                printInline block.InlineContent
+                resetColor()
+                printfn ""
+            | _ -> ()
+            
+            printBlock block.FirstChild
+            printBlock block.NextSibling
+
+    let renderSomething (input: string) =
+        let settings = CommonMarkSettings.Default.Clone()
+        use src = (new IO.StringReader(input)) :> IO.TextReader
+        CommonMarkConverter.Parse(src, settings)
+        |> printBlock

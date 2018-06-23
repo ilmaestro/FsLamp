@@ -3,3 +3,4 @@ nuget FAKE
 nuget FSharp.Data
 nuget Newtonsoft.Json
 nuget SkiaSharp
+nuget CommonMark.NET

@@ -21,8 +21,17 @@ let title = """
                                ▀                                                   
 """
 
-let author = "Ryan Kilkenny"
-let date = "2018-06-23"
+let introduction = """
+# FsLamp
+
+FsLamp is a text adventure game written in F\\#
+
+## A Text Adventure
+
+Written by Ryan Kilkenny
+
+Date: 2018-06-23
+"""
 
 let defaultGamestate map =
     { Player = player1;
@@ -31,7 +40,7 @@ let defaultGamestate map =
         Environment = map.[0];
         GameScene = MainMenu;
         LastCommand = NoCommand;
-        Output = Output [title; author; date; "Type GO to start the game, or LOAD to start from saved game."]}
+        Output = Output [introduction; "Type GO to start the game, or LOAD to start from saved game."]}
 
 let getAction gameScene (dispatcher: Command -> GamePart) = 
     let parser = 
@@ -118,9 +127,9 @@ let RunGame
 
     clearScreen()
     showBitmap "../Assets/fslogo.bmp"
-    showBitmap "../Assets/smallhammer.png"
-    // showBitmap "../Assets/street_lantern.png"
-    // showBitmap "../Assets/cnossus-tiles-2bpp/items/sword.png"
+    // showBitmap "../Assets/smallhammer.png"
+    //Markdown.renderSomething introduction
+    printfn "%s" title
 
     // initial screen update
     Console.update initialState

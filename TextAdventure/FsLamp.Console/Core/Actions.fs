@@ -113,7 +113,7 @@ module Explore =
                     |> World.updateWorldTravelTime exit.Distance
                     |> setEnvironment nextEnvironment
                     |> ifLightSource
-                        (Output.setOutput (Output [nextEnvironment.Description]))
+                        (Output.setOutput (Output [(nextEnvironment.Describe())]))
                         (Output.setOutput (Output ["It's too dark to see."]))
                     |> Encounter.checkEncounter
                 | Locked ->
@@ -245,7 +245,7 @@ module MainMenu =
         fun gamestate ->
             gamestate
             |> Scene.setScene OpenExplore
-            |> Output.setOutput (Output [gamestate.Environment.Description])
+            |> Output.setOutput (Output [(gamestate.Environment.Describe())])
 
     let loadGame : GamePart =
         fun _ ->

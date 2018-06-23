@@ -1,5 +1,6 @@
 NUGET
   remote: https://www.nuget.org/api/v2
+    CommonMark.NET (0.15.1)
     FAKE (5.1)
     FSharp.Core (4.5) - restriction: && (< net40) (< portable-net45+win8+wp8+wpa81)
     FSharp.Data (2.4.6)
