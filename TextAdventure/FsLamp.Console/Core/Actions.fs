@@ -125,14 +125,20 @@ module Explore =
 
     let look : GamePart =
         fun gamestate ->
-            let exitHelper = sprintf "\tA %s to the %A"
-            let itemHelper = sprintf "\tA %s %s"
+            let exitHelper = sprintf "- A %s to the %A"
+            let itemHelper = sprintf "- A %s %s"
             let exits = gamestate.Environment.Exits |> List.filter (fun e -> e.ExitState <> Hidden) |> List.map (fun p -> exitHelper p.Description p.Direction)
             let items = gamestate.Environment.InventoryItems |> List.map (fun {Name = name; Description = description } -> itemHelper name description)
             let log = [
-                yield gamestate.Environment.Description
-                yield "Exits"; yield! exits; 
-                match items with [] -> () | _ -> yield ""; yield "You see"; yield! items ]
+                yield gamestate.Environment.Describe();
+                yield "  \n*Exits*";
+                yield! exits; 
+                match items with 
+                | [] -> () 
+                | _ ->
+                    yield "*You see*"; 
+                    yield! items 
+                ]
 
             gamestate
             |> ifLightSource

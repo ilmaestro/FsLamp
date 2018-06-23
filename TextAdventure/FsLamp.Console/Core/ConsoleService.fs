@@ -84,34 +84,69 @@ module Markdown =
     open CommonMark
 
     let rec printInline (il: Inline) =
-        if il = null then ()
-        else
-            match il.Tag with
-            | InlineTag.String ->
-                printf "%s" il.LiteralContent
-            | _ -> ()
-
+        let next() =
             printInline il.FirstChild
             printInline il.NextSibling
 
+        if il = null then ()
+        else
+            match il.Tag with
+            | InlineTag.LineBreak ->
+                printfn ""
+                printfn ""
+                next()
+            | InlineTag.SoftBreak ->
+                printfn ""
+                next()
+            | InlineTag.String ->
+                printf "%s" il.LiteralContent
+                next()
+            | InlineTag.Strong
+            | InlineTag.Emphasis ->
+                highIntensity()
+                next()
+                resetColor()
+                printf ""
+            | _ ->
+                next()
+
+            
+
     let rec printBlock (block: Block) =
+        let next() =
+            printBlock block.FirstChild
+            printBlock block.NextSibling
+
         if block = null then ()
         else
             match block.Tag with
-            | BlockTag.Document -> ()
+            | BlockTag.Document -> 
+                next()
             | BlockTag.Paragraph ->
                 printInline block.InlineContent
                 printfn ""
+                next()
             | BlockTag.AtxHeading
             | BlockTag.SetextHeading ->
                 setBackground (int block.Heading.Level)
                 printInline block.InlineContent
                 resetColor()
                 printfn ""
-            | _ -> ()
-            
-            printBlock block.FirstChild
-            printBlock block.NextSibling
+                next()
+            | BlockTag.List ->
+                // printfn ""
+                next()
+                // printfn ""
+            | BlockTag.ListItem ->
+                printf "  "
+                next()
+            | BlockTag.ThematicBreak ->
+                printfn ""
+                printfn ""
+                next()
+            | _ ->
+                printInline block.InlineContent
+                next()
 
     let renderSomething (input: string) =
         let settings = CommonMarkSettings.Default.Clone()
