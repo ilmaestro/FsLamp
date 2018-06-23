@@ -13,6 +13,8 @@
     <Compile Include="Core/Player.fs" />
     <Compile Include="Core/Parser.fs" />
     <Compile Include="Core/Actions.fs" />
+    <Compile Include="Core/WindowsConsole.fs" />
+    <Compile Include="Core/ConsoleService.fs" />
     <Compile Include="Game/Dispatcher.fs" />
     <Compile Include="Game/GameBehaviors.fs" />
     <Compile Include="Game/GameItems.fs" />
@@ -24,5 +26,6 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+    <PackageReference Include="SkiaSharp" Version="1.60.1" />
   </ItemGroup>
 </Project>

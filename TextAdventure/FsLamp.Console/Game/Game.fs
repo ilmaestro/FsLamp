@@ -7,6 +7,7 @@ open Environment
 open Parser
 open System
 open GameMonsters
+open ConsoleService
 
 let title = """
    ▄████████    ▄████████       ▄█          ▄████████   ▄▄▄▄███▄▄▄▄      ▄███████▄ 
@@ -20,6 +21,9 @@ let title = """
                                ▀                                                   
 """
 
+let author = "Ryan Kilkenny"
+let date = "2018-06-23"
+
 let defaultGamestate map =
     { Player = player1;
         Inventory = [];
@@ -27,7 +31,7 @@ let defaultGamestate map =
         Environment = map.[0];
         GameScene = MainMenu;
         LastCommand = NoCommand;
-        Output = Output [title; "Type GO to start the game, or LOAD to start from saved game."]}
+        Output = Output [title; author; date; "Type GO to start the game, or LOAD to start from saved game."]}
 
 let getAction gameScene (dispatcher: Command -> GamePart) = 
     let parser = 
@@ -111,6 +115,12 @@ let RunGame
             Console.update gamestate'
             loop [] gamestate'
         | ExitGame -> ()
+
+    clearScreen()
+    showBitmap "../Assets/fslogo.bmp"
+    showBitmap "../Assets/smallhammer.png"
+    // showBitmap "../Assets/street_lantern.png"
+    // showBitmap "../Assets/cnossus-tiles-2bpp/items/sword.png"
 
     // initial screen update
     Console.update initialState

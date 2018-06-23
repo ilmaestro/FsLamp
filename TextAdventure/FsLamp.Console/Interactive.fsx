@@ -1,21 +1,17 @@
 #I "../../packages/Newtonsoft.Json/lib/netstandard2.0"
 #I "../../packages/NETStandard.Library/build/netstandard2.0/ref"
+#I "../../packages/SkiaSharp/lib/netstandard1.3"
+#I "../../packages/SkiaSharp/runtimes/osx/native"
 #r "netstandard"
 #r "Newtonsoft.Json"
+#r "SkiaSharp"
 
-open Newtonsoft.Json
+#load "Core/ConsoleService.fs"
 
-// question, what does a recordtype with a function look like when serialized?
-type Myrecord = {
-     Name: string
-     UpdateFunction: Myrecord -> Myrecord
-}
+open ConsoleService
 
-let value = { Name = "try to serialize this"; UpdateFunction = (fun mr -> {mr with Name = "serialized!" }) }
+showBasicColors()
+show256Colors()
 
-let json = JsonConvert.SerializeObject(value)
-
-// throws exception: Type is an interface or abstract class and cannot be instantiated. Path 'UpdateFunction'
-let value' = JsonConvert.DeserializeObject<Myrecord>(json)
-
+showBitmap "./TextAdventure/Assets/fslogo.bmp"
 
