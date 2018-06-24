@@ -5,11 +5,11 @@ open Environment
 open GameItems
 open GameMonsters
 
+
 let defaultMap () =
     [|
         (Environment.create 1 "Origin"
-            """A moment ago you were just in bed floating above your mind, dreaming about how to add zebras to spreadsheets.  Now it appears you've awakened in a dimlit room. Many unfamiliar smells lurk around you.  
-There's an old creaky door to the north."""
+            (Utility.readTextAsset "1_Intro.md")
             [Exit.create 1 2 Open North (Steps 2) "Creaky door"]
             [keyItem (ExitId 5); lanternItem; mailbox;]
             []

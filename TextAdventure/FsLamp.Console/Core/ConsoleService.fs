@@ -1,6 +1,7 @@
 module ConsoleService
 open SkiaSharp
 open CommonMark.Syntax
+open System.Drawing
 
 let private esc = string (char 0x1B)
 let private csi = esc + "["
@@ -107,10 +108,33 @@ module Markdown =
                 next()
                 resetColor()
                 printf ""
+            | InlineTag.Image ->
+                showBitmap (il.TargetUrl)
+                // next()
             | _ ->
                 next()
 
-            
+    open System.Diagnostics
+
+    let pygmentize lexer (contents: string) =
+        let psi = new ProcessStartInfo( "pygmentize" );
+        let mutable command = null :> Process
+        psi.RedirectStandardInput <- true
+        psi.WindowStyle <- ProcessWindowStyle.Hidden
+        psi.UseShellExecute <- false
+        psi.CreateNoWindow <- true
+        try
+            psi.Arguments <- sprintf "-l %s" lexer
+            command <- Process.Start(psi)
+
+            use inputWriter = command.StandardInput
+            inputWriter.AutoFlush <- true
+            inputWriter.Write (contents)
+            inputWriter.Close()
+
+            command.WaitForExit()
+        finally
+            if not <| isNull command then command.Close()
 
     let rec printBlock (block: Block) =
         let next() =
@@ -134,15 +158,26 @@ module Markdown =
                 printfn ""
                 next()
             | BlockTag.List ->
-                // printfn ""
                 next()
-                // printfn ""
             | BlockTag.ListItem ->
                 printf "  "
                 next()
             | BlockTag.ThematicBreak ->
                 printfn ""
                 printfn ""
+                next()
+            | BlockTag.FencedCode ->
+                match block.FencedCodeData.Info with
+                | "fsharp" ->
+                    // run the data through pygmentize
+                    pygmentize "fsharp" (block.StringContent.ToString())
+                    printfn ""
+                | info ->
+                    let color = Color.FromName(info)
+                    setForegroundRgb (int color.R) (int color.G) (int color.B)
+                    printf "%s" (block.StringContent.ToString())
+                    resetColor()
+                    printfn ""
                 next()
             | _ ->
                 printInline block.InlineContent

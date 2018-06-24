@@ -38,6 +38,26 @@ module Common =
 
 module Explore =
     
+    let useDescribe itemName itemUse : GamePart =
+        fun gamestate ->
+            let itemOption = tryFindItemFromGame itemName gamestate
+            let description = 
+                maybe {
+                    let! item' = itemOption
+                    let! (desc, _) = item' |> tryFindItemUse itemUse
+                    return desc
+                }
+            match itemOption, description with
+            | Some _, Some (Description desc) ->
+                gamestate
+                |> Output.setOutput (Output [desc])
+            | Some _, None ->
+                gamestate 
+                |> Output.setOutput (Output [sprintf "%s doesn't appear to have that function." itemName])
+            | None, _ ->
+                gamestate
+                |> Output.setOutput (Output [sprintf "Couldn't find %s." itemName])
+
     let useGeneric itemName uses handleItemUpdate handleGamestateUpdate doItemUpdate doGameStateUpdate : GamePart =
         fun gamestate ->
             let itemOption = tryFindItemFromGame itemName gamestate
@@ -82,24 +102,9 @@ module Explore =
                     Output = Output outputs }
 
 
-    let help : GamePart =
-        fun gamestate ->
-            let help = """
-    Commands:
-    status                        - get the current player status
-    wait {seconds}                - wait for specified number of seconds
-    move {north|south|east|west}  - move in specified direction
-    help                          - show help
-    look                          - find things
-    exit                          - exit the game
-            """
-            let outputs = [help]
-            { gamestate with Output = Output outputs }
+    let help : GamePart = Output.setOutput (Output [Utility.readTextAsset "Help.md"])
 
-
-    let exitGame : GamePart =
-        fun gamestate ->
-            { gamestate with Output = ExitGame }
+    let exitGame : GamePart = Output.setOutput ExitGame
 
     let move dir: GamePart =
         fun gamestate ->
@@ -202,6 +207,9 @@ module Explore =
                 gamestate |> Output.setOutput (Output [desc]))
             (fun update (_, item) -> update (Items.TurnOnOff switchState, item))
             (fun update (_, item, gamestate) -> update (Items.TurnOnOff switchState, item, gamestate))
+
+    let readItem (itemName: string) : GamePart =
+        useDescribe itemName Items.Readable
 
     let useItem (itemName: string) : GamePart =
         useGeneric itemName ItemUse.Defaults.Useable

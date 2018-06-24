@@ -51,7 +51,15 @@ let lanternItem =
         ]
 
 let gold =
-    createBasicItem "Gold" "that probably fell out of someones pocket" []
+    createBasicItem "Gold" "that probably fell out of someones pocket" [
+        (Behaviors.takeItem "Gold is in your pocket" true;)
+    ]
+
+let letter =
+    createBasicItem "letter" "" [
+        (Description (Utility.readTextAsset "1_Intro_Letter.md"), Readable);
+        Behaviors.takeItem "You pick up the crumpled letter" true;
+        ]
 
 let mailbox =
     createInventoryItem
@@ -59,8 +67,7 @@ let mailbox =
         None
         None
         None
-        (Some [])
+        (Some [letter])
         [
-            (Description "Holds 1 Item", Contains 1);
             (Behaviors.putIn "shoved inside the tiny mailbox");
             (Behaviors.takeOut "taken from the scrappy mailbox")]

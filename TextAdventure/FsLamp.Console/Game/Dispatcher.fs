@@ -30,6 +30,7 @@ let dispatch command : GamePart =
             | SwitchItemOff itemName            -> Explore.switch itemName SwitchState.SwitchOff
             | PutItem (sourceName, targetName)  -> Explore.put sourceName targetName
             | SaveGame                          -> Explore.save getSaveDataFilename
+            | Read itemName                     -> Explore.readItem itemName
             // main menu
             | NewGame                           -> MainMenu.startGame
             | LoadGame                          -> MainMenu.loadGame >> MainMenu.startGame

@@ -9,30 +9,6 @@ open System
 open GameMonsters
 open ConsoleService
 
-let title = """
-   ▄████████    ▄████████       ▄█          ▄████████   ▄▄▄▄███▄▄▄▄      ▄███████▄ 
-  ███    ███   ███    ███      ███         ███    ███ ▄██▀▀▀███▀▀▀██▄   ███    ███ 
-  ███    █▀    ███    █▀       ███         ███    ███ ███   ███   ███   ███    ███ 
- ▄███▄▄▄       ███             ███         ███    ███ ███   ███   ███   ███    ███ 
-▀▀███▀▀▀     ▀███████████      ███       ▀███████████ ███   ███   ███ ▀█████████▀  
-  ███                 ███      ███         ███    ███ ███   ███   ███   ███        
-  ███           ▄█    ███      ███▌    ▄   ███    ███ ███   ███   ███   ███        
-  ███         ▄████████▀       █████▄▄██   ███    █▀   ▀█   ███   █▀   ▄████▀      
-                               ▀                                                   
-"""
-
-let introduction = """
-# FsLamp
-
-FsLamp is a text adventure game written in F\\#
-
-## A Text Adventure
-
-Written by Ryan Kilkenny
-
-Date: 2018-06-23
-"""
-
 let defaultGamestate map =
     { Player = player1;
         Inventory = [];
@@ -40,7 +16,7 @@ let defaultGamestate map =
         Environment = map.[0];
         GameScene = MainMenu;
         LastCommand = NoCommand;
-        Output = Output [introduction; "Type GO to start the game, or LOAD to start from saved game."]}
+        Output = Output [(Utility.readTextAsset "0_Title.md"); "Type GO to start the game, or LOAD to start from saved game."]}
 
 let getAction gameScene (dispatcher: Command -> GamePart) = 
     let parser = 
@@ -54,7 +30,7 @@ let isUpdateItemUse (_, itemUse) =
     itemUse == Items.LoseLifeOnUpdate
 
 let isOutputItemUse (_, itemUse) =
-    itemUse == Items.GetOutputs
+    itemUse == Items.LogOutputs
 
 let getUses f g (list: Items.InventoryItem list) =
     list 
@@ -126,10 +102,9 @@ let RunGame
         | ExitGame -> ()
 
     clearScreen()
-    showBitmap "../Assets/fslogo.bmp"
+    // showBitmap "../Assets/fslogo.bmp"
     // showBitmap "../Assets/smallhammer.png"
-    //Markdown.renderSomething introduction
-    printfn "%s" title
+    // printfn "%s" title
 
     // initial screen update
     Console.update initialState

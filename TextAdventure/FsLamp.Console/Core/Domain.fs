@@ -69,6 +69,7 @@ type Command =
 | SwitchItemOff of ItemName: string
 | PutItem of TargetName: string * ItemName: string
 | SaveGame
+| Read of ItemName: string
 // main menu
 | NewGame
 | LoadGame

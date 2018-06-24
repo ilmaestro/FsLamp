@@ -48,7 +48,7 @@ module Common =
     let outputBehavior f : UpdateGameStateBehavior =
         fun (itemUse, item, gamestate) ->
             match itemUse with
-            | GetOutputs ->
+            | LogOutputs ->
                 gamestate |> Output.appendOutputs (f item) |> Ok
             | _ -> gamestate |> failGameStateUpdate "Item use not supported"
 
@@ -138,7 +138,7 @@ module Behaviors =
 
     let batteryWarnings description (ranges: (int * int * string) list) =
         ItemUse.addGameStateBehavior
-            (Description description, Items.GetOutputs)
+            (Description description, Items.LogOutputs)
             (outputBehavior (fun item -> 
                 match item.Health with
                 | Some (Health(life, _)) ->

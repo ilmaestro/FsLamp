@@ -116,6 +116,9 @@ let exploreParser : CommandParser =
 
         | MatchInput "look in *" [itemTokens] ->
             (LookIn (makeName itemTokens)) |> Some
+
+        | MatchInput "read *" [itemTokens] ->
+            (Read (makeName itemTokens)) |> Some
         // single word commands
         | "status" -> Some Status
         | "exit" -> Some Exit

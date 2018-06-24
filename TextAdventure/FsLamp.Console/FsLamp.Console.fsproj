@@ -6,6 +6,7 @@
   <ItemGroup>
     <Compile Include="Core/Primitives.fs" />
     <Compile Include="Core/Domain.fs" />
+    <Compile Include="Core/Utility.fs" />
     <Compile Include="Core/Items.fs" />
     <Compile Include="Core/Environment.fs" />
     <Compile Include="Core/GameState.fs" />

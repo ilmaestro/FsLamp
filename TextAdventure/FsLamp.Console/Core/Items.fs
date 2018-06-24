@@ -28,9 +28,10 @@ and ItemUse =
 | Contains of MaxCount: int
 | ApplyStats // apply my stats to whom holds me (player or monster)
 | LoseLifeOnUpdate
-| GetOutputs
+| LogOutputs
 | ProvidesLight
 | CanTake of bool
+| Readable
 
 type EnvironmentItem =
 | Encounter of EncounterProperties

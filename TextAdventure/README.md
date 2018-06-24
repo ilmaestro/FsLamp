@@ -1,5 +1,11 @@
 # Text Adventure
 
+## Dependencies
+
+- CommonMark.NET
+- Pygments (uses the pygmentize CLI) (pip install pygments)
+- SkiaSharp
+
 ## Game Loop
 
 Input -> Parser -> Command -> Dispatcher -> Output
@@ -37,7 +43,7 @@ Uses
 - Contains
 - ApplyStats
 - LoseLifeOnUpdate
-- GetOutputs
+- LogOutputs
 - ProvidesLight
 - CanTake
 
