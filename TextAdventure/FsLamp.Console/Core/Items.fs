@@ -32,6 +32,7 @@ and ItemUse =
 | ProvidesLight
 | CanTake of bool
 | Readable
+| ReadOnUpdate
 
 type EnvironmentItem =
 | Encounter of EncounterProperties

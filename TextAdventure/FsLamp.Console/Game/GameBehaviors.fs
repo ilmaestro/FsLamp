@@ -95,24 +95,32 @@ module Common =
             | TakeOut (Some itemName), Some container ->
                 match container |> List.tryFind (fun i -> i.Name = itemName) with
                 | Some itemToTake ->
-                    let container' = container |> List.except (seq { yield itemToTake; })
-                    let item' = { item with Contains = Some (container')}
+                    // check if item is take-able
+                    match itemToTake |> ItemUse.tryFindItemUse (ItemUse.Defaults.CanTake) with
+                    | Some (Description desc, _) ->
+                        let container' = container |> List.except (seq { yield itemToTake; })
+                        let item' = { item with Contains = Some (container')}
 
-                    match gamestate |> ItemUse.whereIsItem item with
-                    | Some InInventory ->
-                        gamestate
-                        |> ItemUse.tryRemoveItemsFromGame (seq { yield item; })
-                        |> Inventory.addItem item'
-                        |> Inventory.addItem itemToTake
-                        |> Ok
-                    | Some InEnvironment ->
-                        gamestate
-                        |> ItemUse.tryRemoveItemsFromGame (seq { yield item; })
-                        |> Environment.addItemToEnvironment item'
-                        |> Inventory.addItem itemToTake
-                        |> Ok
+                        match gamestate |> ItemUse.whereIsItem item with
+                        | Some InInventory ->
+                            gamestate
+                            |> ItemUse.tryRemoveItemsFromGame (seq { yield item; })
+                            |> Inventory.addItem item'
+                            |> Inventory.addItem itemToTake
+                            |> Output.setOutput (Output [desc])
+                            |> Ok
+                        | Some InEnvironment ->
+                            gamestate
+                            |> ItemUse.tryRemoveItemsFromGame (seq { yield item; })
+                            |> Environment.addItemToEnvironment item'
+                            |> Inventory.addItem itemToTake
+                            |> Output.setOutput (Output [desc])
+                            |> Ok
+                        | None ->
+                            gamestate |> failGameStateUpdate "where the hell is the item??"
                     | None ->
-                        gamestate |> failGameStateUpdate "where the hell is the item??"
+                        gamestate |> failGameStateUpdate "it doesn't seem to want to move."
+                    
                 | None ->
                     gamestate |> failGameStateUpdate (sprintf "Couldn't find %s in %s" itemName item.Name)
             | _ ->
@@ -147,6 +155,24 @@ module Behaviors =
                     | None -> []
                 | None -> []    
             ))
+
+    let theWubOutput =
+        let mutable text = 
+            (Utility.readTextAsset "story.md").Split([|'\n'|]) 
+            |> Array.toList
+            |> List.filter (fun x -> x.Length > 0)
+
+        ItemUse.addGameStateBehavior
+            (Description "The Wub", Items.ReadOnUpdate)
+            (fun (_, _, gamestate) -> 
+                match text with
+                | [] -> gamestate |> Ok
+                | head :: tail ->
+                    text <- tail
+                    gamestate
+                    |> Output.prependOutputs [sprintf "The Wub: **%s**" head; "***";]
+                    |> Ok
+                )
 
     let takeItem description canTake =
         ItemUse.addGameStateBehavior

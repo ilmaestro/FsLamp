@@ -30,7 +30,7 @@ let isUpdateItemUse (_, itemUse) =
     itemUse == Items.LoseLifeOnUpdate
 
 let isOutputItemUse (_, itemUse) =
-    itemUse == Items.LogOutputs
+    itemUse == Items.LogOutputs || itemUse == Items.ReadOnUpdate
 
 let getUses f g (list: Items.InventoryItem list) =
     list 

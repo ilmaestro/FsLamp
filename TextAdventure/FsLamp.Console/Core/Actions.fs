@@ -166,19 +166,17 @@ module Explore =
     let take (itemName: string) : GamePart =
         useGeneric itemName [ItemUse.Defaults.CanTake]
             (fun _ gamestate -> gamestate)
-            (fun _ gamestate -> gamestate)
+            (fun (_, _, Description desc) gamestate -> gamestate |> Output.prependOutputs [desc])
             bindId
             bindId
     
     let takeFrom targetName itemName : GamePart =
-        fun gamestate ->
-            let takeOutUse = Items.TakeOut (Some targetName)
-            gamestate
-            |> useGeneric itemName [ItemUse.Defaults.TakeOut]
-                (fun (_, _, _) gamestate -> gamestate)
-                (fun (_, _, Description desc) gamestate -> gamestate |> Output.setOutput (Output [desc]))
-                (fun update (_, item) -> update (takeOutUse, item))
-                (fun update (_, item, gamestate) -> update (takeOutUse, item, gamestate))
+        let takeOutUse = Items.TakeOut (Some targetName)
+        useGeneric itemName [ItemUse.Defaults.TakeOut]
+            (fun (_, _, _) gamestate -> gamestate)
+            (fun (_, _, Description desc) gamestate -> gamestate |> Output.appendOutputs [desc])
+            (fun update (_, item) -> update (takeOutUse, item))
+            (fun update (_, item, gamestate) -> update (takeOutUse, item, gamestate))
 
     let drop (itemName: string) : GamePart =
         fun gamestate ->
@@ -188,9 +186,11 @@ module Explore =
                 |> List.tryFind (fun i -> (i.Name.ToLower()) = itemName.ToLower())
             match itemOption with
             | Some item ->
+                let inventory' = gamestate.Inventory |> List.except (seq { yield item })
                 gamestate
                 |> Environment.addItemToEnvironment item
                 |> World.updateWorldEnvironment
+                |> Inventory.setInventory inventory'
                 |> Output.setOutput (Output [sprintf "You dropped %s." item.Name])
             | None ->    
                 gamestate

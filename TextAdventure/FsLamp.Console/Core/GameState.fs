@@ -116,6 +116,12 @@ module Output =
         | _ -> 
             gamestate
 
+    let prependOutputs outputs gamestate =
+        match gamestate.Output with
+        | Output output ->
+            { gamestate with Output = Output (outputs @ output) }
+        | _ -> 
+            gamestate
 
 module IO =
     let saveGameState filename gamestate =

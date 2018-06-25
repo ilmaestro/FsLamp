@@ -9,4 +9,4 @@
 
 Welcome to FsLamp!
 
-![Hammer]("../Assets/smallhammer.png")
+![Hammer](../Assets/smallhammer.png)

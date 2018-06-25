@@ -61,13 +61,19 @@ let letter =
         Behaviors.takeItem "You pick up the crumpled letter" true;
         ]
 
+let theWub =
+    createBasicItem "wub" "" [
+        Behaviors.theWubOutput;
+        Behaviors.takeItem "You pick up the wub" true;
+    ]
+
 let mailbox =
     createInventoryItem
         "mailbox" "propped up by a small stick"
         None
         None
         None
-        (Some [letter])
+        (Some [letter; theWub])
         [
             (Behaviors.putIn "shoved inside the tiny mailbox");
             (Behaviors.takeOut "taken from the scrappy mailbox")]
