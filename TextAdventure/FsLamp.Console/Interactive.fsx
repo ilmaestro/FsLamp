@@ -18,3 +18,19 @@ show256Colors()
 
 showBitmap "./TextAdventure/Assets/fslogo.bmp"
 
+open System.Diagnostics
+
+let test() =
+    let processStart = 
+        ProcessStartInfo(
+            FileName = "cmd.exe",
+            UseShellExecute = false,
+            RedirectStandardOutput = true,
+            StandardOutputEncoding = System.Text.Encoding.UTF8,
+            Arguments = "/c chcp 65001 > null && pygmentize ./FsLamp.Console/Program.fs"
+        )
+    let p = Process.Start(processStart)
+    let output = p.StandardOutput.ReadToEnd()
+    p.WaitForExit()
+    output
+test()

@@ -33,7 +33,7 @@ run                           - run away!
 let useDescribe itemName itemUse : GamePart =
     fun gamestate ->
         let itemOption = tryFindItemFromGame itemName gamestate
-        let description = 
+        let description =
             maybe {
                 let! item' = itemOption
                 let! (desc, _) = item' |> tryFindItemUse itemUse
