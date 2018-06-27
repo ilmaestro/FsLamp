@@ -79,10 +79,13 @@ let exploreParser : CommandParser =
                 Wait (TimeSpan.FromSeconds(result)) |> Some
             else None
         // Move commands
+        
         | MatchInput "move to the *" [[dir]]
         | MatchInput "go to the *" [[dir]]
         | MatchInput "go *" [[dir]]
-        | MatchInput "move *" [[dir]] ->
+        | MatchInput "move *" [[dir]] ->        
+            dir |> Direction.Parse |> Option.map Move
+        | MatchInput "climb *" [[dir]] when (dir = "up" || dir = "down") ->
             dir |> Direction.Parse |> Option.map Move
         | "n" -> Some (Move North)
         | "s" -> Some (Move South)

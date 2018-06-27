@@ -39,6 +39,8 @@ and Direction =
 | South
 | East
 | West
+| Up
+| Down
 
 and Distance = 
 | Steps of int // assuming 1 step per second
@@ -93,6 +95,8 @@ with
         | "south" -> Some South
         | "east" -> Some East
         | "west" -> Some West
+        | "up" -> Some Up
+        | "down" -> Some Down
         | _ -> None
  
 type ExitState
