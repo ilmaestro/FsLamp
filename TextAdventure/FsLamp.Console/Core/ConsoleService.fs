@@ -128,7 +128,7 @@ module Markdown =
         psi.WindowStyle <- ProcessWindowStyle.Hidden
         psi.UseShellExecute <- false
         psi.CreateNoWindow <- true
-        psi.Arguments <- sprintf "/c chcp 65001 > null && pygmentize -l %s" lexer
+        psi.Arguments <- sprintf "/c chcp 65001 >NUL && pygmentize -l %s" lexer
 
         try
             
