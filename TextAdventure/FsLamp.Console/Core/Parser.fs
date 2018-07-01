@@ -20,6 +20,11 @@ let parseText (input: string) : Pattern list =
     |> Array.toList
     |> List.map (fun word -> if word = "*" then Wildcard else Word word)
 
+let parseFilterForLuis (input: string) =
+    input.Split([| ' ' |]) 
+    |> Array.except (seq { yield "the"; yield "a"; yield "an"})
+    |> String.concat " "
+
 let makePatterns input =
     input |> cleanText |> parseText
 
@@ -148,27 +153,108 @@ let mainMenuParser : CommandParser =
 
 let luisParser settings : CommandParser =
     fun input ->
-        LUISApi.Client.getResponse settings input
-        |> Async.RunSynchronously
-        |> Option.bind (fun query ->
-            if query.TopScoringIntent.Score > 0.5 then
-                // match the intent
-                match query.TopScoringIntent with
-                | { Intent = "Move";} ->
-                    match query.Entities with
-                    | entity :: _ when entity.Type = "Direction" && entity.Score > 0.5 ->
-                        entity.Entity |> Direction.Parse |> Option.map Move
-                    | _ -> None
-                
-                | { Intent = "Exit"} -> Some Exit
-                | { Intent = "Help"} -> Some Help
-                | { Intent = "Look"} -> Some Look
-                | { Intent = "SaveGame"} -> Some SaveGame
-                | { Intent = "Status"} -> Some Status
-                | { Intent = "Undo"} -> Some Undo
-                | { Intent = "Wait"} -> Wait (TimeSpan.FromMinutes(1.)) |> Some
-                | _ ->
-                    None
-            else
-                None
-        )
+        if not <| String.IsNullOrWhiteSpace(input) then
+            // shortcuts
+            match input with
+            | "n" -> Some (Move North)
+            | "s" -> Some (Move South)
+            | "e" -> Some (Move East)
+            | "w" -> Some (Move West)
+            | "up" -> Some (Move Up)
+            | "down" -> Some (Move Down)
+            | _ ->
+            // run input through LUIS
+                LUISApi.Client.getResponse settings (input |> parseFilterForLuis)
+                |> Async.RunSynchronously
+                |> Option.bind (fun query ->
+                    if query.TopScoringIntent.Score > 0.5 then
+                        // match the intent
+                        match query.TopScoringIntent with
+                        | { Intent = "Move";} ->
+                            match query.Entities with
+                            | entity :: _ when entity.Type = "Direction" && entity.Score > 0.5 ->
+                                entity.Entity |> Direction.Parse |> Option.map Move
+                            | _ -> None
+                        
+                        | { Intent = "Take"} ->
+                            match query.Entities with
+                            | [e1; e2] when e1.Type = "Item" && e2.Type = "Item" && e1.Role <> e2.Role ->
+                                let args =
+                                    if e1.Role = "target" && e2.Role = "source" 
+                                        then (e1.Entity, e2.Entity) 
+                                        else (e2.Entity, e1.Entity)
+                                TakeFrom args |> Some
+                            | [entity] when entity.Type = "Item" && entity.Score > 0.5 ->
+                                Take entity.Entity |> Some
+                            | _ -> None
+                        | { Intent = "Put"} ->
+                            match query.Entities with
+                            | [e1; e2] when e1.Type = "Item" && e2.Type = "Item" && e1.Role <> e2.Role ->
+                                let args =
+                                    if e1.Role = "source" && e2.Role = "target" 
+                                        then (e1.Entity, e2.Entity)
+                                        else (e2.Entity, e1.Entity)
+                                PutItem args |> Some
+                            | _ -> None
+                        | { Intent = "Drop"} ->
+                            match query.Entities with
+                            | [entity] when entity.Type = "Item" && entity.Score > 0.5 ->
+                                Drop entity.Entity |> Some
+                            | _ -> None
+
+                        | { Intent = "SwitchOn"}
+                        | { Intent = "SwitchOff"} ->
+                            match query.Entities with
+                            | [e1; e2] when e1.Type = "Item" && e2.Type = "SwitchOperation" ->
+                                if e2.Entity = "on" 
+                                then SwitchItemOn (e1.Entity) |> Some
+                                else SwitchItemOff (e1.Entity) |> Some
+                            | [e2; e1] when e2.Type = "SwitchOperation" && e1.Type = "Item" ->
+                                if e2.Entity = "on" 
+                                then SwitchItemOn (e1.Entity) |> Some
+                                else SwitchItemOff (e1.Entity) |> Some
+                            | _ -> None
+
+                        | { Intent = "Examine"} ->
+                            match query.Entities with
+                            | [e1; e2] when e1.Type = "Item" && e2.Type = "ExamineOperation" ->
+                                match e2.Entity with
+                                | "read" ->
+                                    Read e1.Entity |> Some
+                                | _ -> None
+                            | [e2; e1] when e2.Type = "ExamineOperation" && e1.Type = "Item" ->
+                                match e2.Entity with
+                                | "read" ->
+                                    Read e1.Entity |> Some
+                                | _ -> None
+                            | _ -> None
+                        | { Intent = "Use" } ->
+                            match query.Entities with
+                            | [e1; e2] when e1.Type = "Item" && e2.Type = "Item" && e1.Role <> e2.Role ->
+                                let args =
+                                    if e1.Role = "target" && e2.Role = "source" 
+                                        then (e1.Entity, e2.Entity) 
+                                        else (e2.Entity, e1.Entity)
+                                UseWith args |> Some
+                            | [e1] when e1.Type = "Item" ->
+                                Use e1.Entity |> Some
+                            | _ -> None
+                        | { Intent = "Exit"} -> Some Exit
+                        | { Intent = "Help"} -> Some Help
+                        | { Intent = "Look"} -> 
+                            match query.Entities with
+                            | entity :: _ when entity.Type = "Item" && entity.Score > 0.5 ->
+                                LookIn entity.Entity |> Some
+                            | _ -> Some Look
+                            
+                        | { Intent = "SaveGame"} -> Some SaveGame
+                        | { Intent = "Status"} -> Some Status
+                        | { Intent = "Undo"} -> Some Undo
+                        | { Intent = "Wait"} -> Wait (TimeSpan.FromMinutes(1.)) |> Some
+                        | _ ->
+                            None
+                    else
+                        None
+                )
+        else
+            Wait (TimeSpan.FromMinutes(1.)) |> Some

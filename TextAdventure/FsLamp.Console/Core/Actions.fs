@@ -235,20 +235,20 @@ module Explore =
                 gamestate |> useItem itemName 
             else gamestate
 
-    let put targetName itemName : GamePart =
+    let put sourceName targetName : GamePart =
         fun gamestate ->
-            match tryFindItemFromGame targetName gamestate with
+            match tryFindItemFromGame sourceName gamestate with
             | Some sourceItem ->
                 let putInUse = Items.PutIn (Some sourceItem)
                 gamestate
-                |> useGeneric itemName [ItemUse.Defaults.PutIn]
+                |> useGeneric targetName [ItemUse.Defaults.PutIn]
                     (fun (_, _, _) gamestate -> gamestate)
                     (fun (_, _, Description desc) gamestate -> gamestate |> Output.setOutput (Output [desc]))
                     (fun update (_, item) -> update (putInUse, item))
                     (fun update (_, item, gamestate) -> update (putInUse, item, gamestate))
             | None ->
                 gamestate
-                |> Output.setOutput (Output [sprintf "Couldn't find %s." targetName])
+                |> Output.setOutput (Output [sprintf "Couldn't find %s." sourceName])
 
     let save filename : GamePart =
         fun gamestate ->
