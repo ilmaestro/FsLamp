@@ -148,13 +148,24 @@ let luisParser settings : CommandParser =
         LUISApi.Client.getResponse settings input
         |> Async.RunSynchronously
         |> Option.bind (fun query ->
-            // match the intent
-            match query.TopScoringIntent with
-            | { Intent = "Move"; Score = s;} when s > 0.5 ->
-                match query.Entities with
-                | entity :: _ when entity.Type = "Direction" && entity.Score > 0.5 ->
-                    entity.Entity |> Direction.Parse |> Option.map Move
-                | _ -> None
-            | _ ->
+            if query.TopScoringIntent.Score > 0.5 then
+                // match the intent
+                match query.TopScoringIntent with
+                | { Intent = "Move";} ->
+                    match query.Entities with
+                    | entity :: _ when entity.Type = "Direction" && entity.Score > 0.5 ->
+                        entity.Entity |> Direction.Parse |> Option.map Move
+                    | _ -> None
+                
+                | { Intent = "Exit"} -> Some Exit
+                | { Intent = "Help"} -> Some Help
+                | { Intent = "Look"} -> Some Look
+                | { Intent = "SaveGame"} -> Some SaveGame
+                | { Intent = "Status"} -> Some Status
+                | { Intent = "Undo"} -> Some Undo
+                | { Intent = "Wait"} -> Wait (TimeSpan.FromMinutes(1.)) |> Some
+                | _ ->
+                    None
+            else
                 None
         )
