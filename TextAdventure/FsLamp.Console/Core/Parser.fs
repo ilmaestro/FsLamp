@@ -141,3 +141,20 @@ let mainMenuParser : CommandParser =
         | [| "go" |] -> Some NewGame
         | [| "load" |] -> Some LoadGame
         | _ -> None
+
+
+let luisParser settings : CommandParser =
+    fun input ->
+        LUISApi.Client.getResponse settings input
+        |> Async.RunSynchronously
+        |> Option.bind (fun query ->
+            // match the intent
+            match query.TopScoringIntent with
+            | { Intent = "Move"; Score = s;} when s > 0.5 ->
+                match query.Entities with
+                | entity :: _ when entity.Type = "Direction" && entity.Score > 0.5 ->
+                    entity.Entity |> Direction.Parse |> Option.map Move
+                | _ -> None
+            | _ ->
+                None
+        )

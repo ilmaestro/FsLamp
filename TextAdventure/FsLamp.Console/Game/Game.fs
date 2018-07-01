@@ -18,13 +18,7 @@ let defaultGamestate map =
         LastCommand = NoCommand;
         Output = Output [(Utility.readTextAsset "0_Title.md"); "Type GO to start the game, or LOAD to start from saved game."]}
 
-let getAction gameScene (dispatcher: Command -> GamePart) = 
-    let parser = 
-        match gameScene with
-        | MainMenu -> mainMenuParser
-        | OpenExplore -> exploreParser
-        | InEncounter _ -> encounterParser
-    Console.getCommand parser |> dispatcher
+
 
 let isUpdateItemUse (_, itemUse) =
     itemUse == Items.LoseLifeOnUpdate
@@ -71,11 +65,12 @@ let getGameObjectOutputs : GamePart =
 
 // loop: Read -> Parse -> Command -> Action -> Print -> Loop
 let RunGame
-    (dispatcher: Command -> GamePart)
+    actionResolver
     initialState =
     let rec loop history gamestate =
+
         // get action from dispatcher based on input
-        let action = getAction gamestate.GameScene dispatcher
+        let action = actionResolver gamestate.GameScene
 
         // execute the action to get next gamestate
         let nextGameState = gamestate |> updateGameObjects |> action  |> getGameObjectOutputs
