@@ -17,11 +17,11 @@ let keyItem exitId =
     createBasicItem
         "key" "laying in a pile of debris"
         [Behaviors.openExit "After a few minutes of getting the key to fit correctly, the lock releases and the door creakily opens." exitId;
-            Behaviors.takeItem "You pickup a small, crusty key." true]
+            Behaviors.takeItem "You pickup the small, crusty key." true]
 
 let typewriter =
     createBasicItem "typewriter" "collecting dust"
-        [Behaviors.openSecretPassage "As you press down hard on one of the keys. The air begins to move around you. Suddenly, a secret passage opens up from within the wall." (ExitId 7);
+        [Behaviors.openSecretPassage "As you press down hard on one of the keys. The air begins to move around you. Suddenly, the desk under the typewriter shifts to reveal a secret passage with steps leading down almost immediately into darkness." (ExitId 7);
             Behaviors.takeItem "After several attempts of trying to pick up the typewriter, you realize you don't actually want to carry this thing around." false]
 
 let rock =
@@ -34,7 +34,7 @@ let rock =
 let lanternItem =
     createInventoryItem
         "lantern" "with a full battery"
-        (Some (Health(15, 15)))
+        (Some (Health(150, 150)))
         (Some Items.SwitchOff)
         None
         None
@@ -43,28 +43,28 @@ let lanternItem =
             Behaviors.batteryWarnings "Battery Warning"
                 [
                     (0,0, "Lantern's batteries are dead.");
-                    (5,5, "Lantern is getting extremely dim.");
-                    (10,10, "Lantern is getting dim.");]
-            Behaviors.takeItem "You pick up the lantern" true;
-            Behaviors.turnOnOff "Turns the light on and off";
+                    (10,10, "Lantern is getting extremely dim.");
+                    (20,20, "Lantern is getting dim.");]
+            Behaviors.takeItem "You pick up the lantern." true;
+            Behaviors.turnOnOff "You turn the switch.";
             (Description "Light", ProvidesLight);
         ]
 
 let gold =
     createBasicItem "Gold" "that probably fell out of someones pocket" [
-        (Behaviors.takeItem "Gold is in your pocket" true;)
+        (Behaviors.takeItem "GOOOLD!" true;)
     ]
 
 let letter =
     createBasicItem "letter" "" [
         (Description (Utility.readTextAsset "1_Intro_Letter.md"), Readable);
-        Behaviors.takeItem "You pick up the crumpled letter" true;
+        Behaviors.takeItem "You pick up the crumpled letter." true;
         ]
 
 let theWub =
     createBasicItem "wub" "" [
         Behaviors.theWubOutput;
-        Behaviors.takeItem "You pick up the wub" true;
+        Behaviors.takeItem "You pick up the wub." true;
     ]
 
 let mailbox =
@@ -75,5 +75,5 @@ let mailbox =
         None
         (Some [letter; theWub])
         [
-            (Behaviors.putIn "shoved inside the tiny mailbox");
-            (Behaviors.takeOut "taken from the scrappy mailbox")]
+            (Behaviors.putIn "shoved inside the tiny mailbox.");
+            (Behaviors.takeOut "taken from the scrappy mailbox.")]

@@ -116,15 +116,22 @@ module Markdown =
 
     open System.Diagnostics
 
+
+
     let pygmentize lexer (contents: string) =
-        let psi = new ProcessStartInfo( "pygmentize" );
+//        let psi = new ProcessStartInfo( "pygmentize" );
+        let psi = new ProcessStartInfo( "cmd.exe" ); // windows fix.
         let mutable command = null :> Process
         psi.RedirectStandardInput <- true
+        psi.RedirectStandardOutput <- true
+        psi.StandardOutputEncoding <- System.Text.Encoding.UTF8
         psi.WindowStyle <- ProcessWindowStyle.Hidden
         psi.UseShellExecute <- false
         psi.CreateNoWindow <- true
+        psi.Arguments <- sprintf "/c chcp 65001 >NUL && pygmentize -l %s" lexer
+
         try
-            psi.Arguments <- sprintf "-l %s" lexer
+            
             command <- Process.Start(psi)
 
             use inputWriter = command.StandardInput
@@ -132,7 +139,9 @@ module Markdown =
             inputWriter.Write (contents)
             inputWriter.Close()
 
+            let output = command.StandardOutput.ReadToEnd()
             command.WaitForExit()
+            output
         finally
             if not <| isNull command then command.Close()
 
@@ -170,7 +179,7 @@ module Markdown =
                 match block.FencedCodeData.Info with
                 | "fsharp" ->
                     // run the data through pygmentize
-                    pygmentize "fsharp" (block.StringContent.ToString())
+                    printf "%s" (pygmentize "fsharp" (block.StringContent.ToString()))
                     printfn ""
                 | info ->
                     let color = Color.FromName(info)

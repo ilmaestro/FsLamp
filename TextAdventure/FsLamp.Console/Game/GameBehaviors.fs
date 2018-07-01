@@ -26,7 +26,7 @@ module Common =
             | TurnOnOff switchTarget, Some switchSource when switchTarget <> switchSource -> 
                 {item with SwitchState = Some switchTarget} |> Ok
             | TurnOnOff switchState, Some _ ->
-                item |> failItemUpdate (sprintf "%s is already %A" item.Name switchState )
+                item |> failItemUpdate (sprintf "%s is already %s" item.Name (switchState.ToString()) )
             | _ -> item |> failItemUpdate "Item use not supported"
 
     let OpenExitBehavior : UpdateGameStateBehavior =

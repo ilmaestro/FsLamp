@@ -130,18 +130,18 @@ module Explore =
 
     let look : GamePart =
         fun gamestate ->
-            let exitHelper = sprintf "- A %s to the %A"
+            let exitHelper = sprintf "- A %s (%A)"
             let itemHelper = sprintf "- A %s %s"
             let exits = gamestate.Environment.Exits |> List.filter (fun e -> e.ExitState <> Hidden) |> List.map (fun p -> exitHelper p.Description p.Direction)
             let items = gamestate.Environment.InventoryItems |> List.map (fun {Name = name; Description = description } -> itemHelper name description)
             let log = [
-                yield gamestate.Environment.Describe();
-                yield "  \n*Exits*";
+                yield "You look around and see..."
+                yield "*Exits*";
                 yield! exits; 
-                match items with 
+                match items with
                 | [] -> () 
                 | _ ->
-                    yield "*You see*"; 
+                    yield "*Interesting shtuff*"; 
                     yield! items 
                 ]
 
@@ -156,8 +156,8 @@ module Explore =
             | Some item ->
                 match item.Contains with
                 | Some contents when contents.Length > 0 ->
-                    let outputs = contents |> List.map (fun i -> sprintf "\tA %s" i.Name)
-                    gamestate |> Output.setOutput (Output ("You see" :: outputs))
+                    let outputs = contents |> List.map (fun i -> sprintf "- A %s" i.Name)
+                    gamestate |> Output.setOutput (Output ("*You see*" :: outputs))
                 | _ ->
                     gamestate |> Output.setOutput (Output [sprintf "There's nothing inside %s." itemName])
             | None ->
@@ -199,10 +199,16 @@ module Explore =
     let switch (itemName: string) switchState : GamePart =
         useGeneric itemName [ItemUse.Defaults.TurnOnOff]
             (fun (item, _, Description desc) gamestate ->
+                let otherOutputs =
+                    if (item |> ItemUse.itemHasUse Items.ProvidesLight) && gamestate.Environment.LightSource.IsNone && switchState = (Items.SwitchOn)
+                    then
+                        // this thing is providing light, describe the environment.
+                        [gamestate.Environment.Describe()]
+                    else []
                 // TODO: if item isn't in Inventory, update it in environment
                 gamestate 
                 |> Inventory.updateItem item
-                |> Output.setOutput (Output [sprintf "%s turned %A" item.Name switchState; desc]))
+                |> Output.setOutput (Output ([desc; sprintf "%s turned %s" item.Name (switchState.ToString());] @ otherOutputs)))
             (fun (_, _, Description desc) gamestate ->
                 gamestate |> Output.setOutput (Output [desc]))
             (fun update (_, item) -> update (Items.TurnOnOff switchState, item))

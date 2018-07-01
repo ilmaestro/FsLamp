@@ -16,6 +16,11 @@ type InventoryItem = {
 and SwitchState =
 | SwitchOn
 | SwitchOff
+with 
+    override x.ToString() =
+        match x with
+        | SwitchOn -> "on"
+        | SwitchOff -> "off"
 
 and ItemUse =
 | OpenExit of ExitId // open [exit] with (me)
