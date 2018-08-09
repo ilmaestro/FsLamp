@@ -14,7 +14,7 @@ type Environment = {
 }
 with
     member x.Describe () =
-        sprintf "# %s\n%s" x.Name x.Description
+        sprintf "%s" x.Description
 
 module Environment =
     let create id name description exits items environmentItems lightsource =

@@ -20,14 +20,16 @@ module Common =
                 |> Ok
             | _ -> item |> failItemUpdate "Item use not supported"
 
-    let updateSwitchBehavior : UpdateItemBehavior =
-        fun (itemUse: ItemUse, item: InventoryItem) ->
+    let updateSwitchBehavior : UpdateGameStateBehavior =
+        fun (itemUse: ItemUse, item, gamestate) ->
             match itemUse, item.SwitchState with
             | TurnOnOff switchTarget, Some switchSource when switchTarget <> switchSource -> 
-                {item with SwitchState = Some switchTarget} |> Ok
+                gamestate
+                |> Inventory.updateItem {item with SwitchState = Some switchTarget}
+                |> Ok
             | TurnOnOff switchState, Some _ ->
-                item |> failItemUpdate (sprintf "%s is already %s" item.Name (switchState.ToString()) )
-            | _ -> item |> failItemUpdate "Item use not supported"
+                gamestate |> failGameStateUpdate (sprintf "%s is already %s" item.Name (switchState.ToString()) )
+            | _ -> gamestate |> failGameStateUpdate "Item use not supported"
 
     let OpenExitBehavior : UpdateGameStateBehavior =
         fun (itemUse, item, gamestate) ->
@@ -180,7 +182,7 @@ module Behaviors =
             (addToInventoryBehavior (fun item -> [sprintf "%s taken." item.Name]) (fun _ -> [sprintf "%s" description]))
 
     let turnOnOff description =
-        ItemUse.addItemUseBehavior
+        ItemUse.addGameStateBehavior
             (Description description, ItemUse.Defaults.TurnOnOff)
             (updateSwitchBehavior)
 

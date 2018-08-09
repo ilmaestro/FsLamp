@@ -18,6 +18,8 @@ let cursorPreviousLine (lines: int) = printcsif "%iF" lines
 let setCursorPos (row: int) (column: int) = printcsif "%i;%iH" row column
 let clearScreen () = printcsif "2J"
 let clearLine () = printcsif "2K"
+let insertLine (lines: int) = printcsif "%iL" lines
+let deleteLine (lines: int) = printcsif "%iM" lines
 let scrollUp (lines: int) = printcsif "%iS" lines
 let scrollDown (lines: int) = printcsif "%iT" lines
 let selectGraphicRendition (gr: int list) = printcsif "%sm" (System.String.Join(";", gr |> Seq.map string))
@@ -31,8 +33,11 @@ let setExtendedForeground i = selectGraphicRendition [38; 5; i]
 let setExtendedBackground i = selectGraphicRendition [48; 5; i]
 let setForegroundRgb r g b = selectGraphicRendition [38; 2; r; g; b]
 let setBackgroundRgb r g b = selectGraphicRendition [48; 2; r; g; b]
-let saveCursorPos () = printcsif "%is"
-let restoreCursorPos () = printcsif "%iu"
+let saveCursorPos () = printcsif "s"
+let restoreCursorPos () = printcsif "u"
+let useAlternateScreenBuffer () = printcsif "?1049h"
+let useMainScreenBuffer () = printcsif "?1049l"
+
 
 let showBasicColors() =
     for i in 0..7 do
@@ -62,8 +67,6 @@ let show256Colors() =
             resetColor()
             printf " "
         printfn ""
-
-
 
 let showBitmap path =
     use input = System.IO.File.OpenRead(path)
@@ -119,8 +122,8 @@ module Markdown =
 
 
     let pygmentize lexer (contents: string) =
-//        let psi = new ProcessStartInfo( "pygmentize" );
-        let psi = new ProcessStartInfo( "cmd.exe" ); // windows fix.
+        let psi = new ProcessStartInfo( "pygmentize" );
+        // let psi = new ProcessStartInfo( "cmd.exe" ); // windows fix.
         let mutable command = null :> Process
         psi.RedirectStandardInput <- true
         psi.RedirectStandardOutput <- true
@@ -128,7 +131,8 @@ module Markdown =
         psi.WindowStyle <- ProcessWindowStyle.Hidden
         psi.UseShellExecute <- false
         psi.CreateNoWindow <- true
-        psi.Arguments <- sprintf "/c chcp 65001 >NUL && pygmentize -l %s" lexer
+        psi.Arguments <- sprintf "-l %s" lexer
+        // psi.Arguments <- sprintf "/c chcp 65001 >NUL && pygmentize -l %s" lexer
 
         try
             
@@ -197,3 +201,22 @@ module Markdown =
         use src = (new IO.StringReader(input)) :> IO.TextReader
         CommonMarkConverter.Parse(src, settings)
         |> printBlock
+
+
+module PageView =
+
+    let renderHeader text =
+        saveCursorPos ()
+        setCursorPos 2 0
+        setBackground 2
+        setForeground 0
+        clearLine ()
+        printf " %s" text
+        resetColor ()
+        printfn ""
+        restoreCursorPos ()
+
+    let drawScreen log room health exp time =
+        Markdown.renderSomething log
+        let header = sprintf "%s \t\t\t Health: %s \t\t\t Experience: %i \t\t\t %s" room health exp time
+        renderHeader header

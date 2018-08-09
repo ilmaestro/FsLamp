@@ -3,19 +3,20 @@ open System
 open Domain
 open GameState
 open Parser
-
-let private writeOutput (output: string []) =
-    //output |> List.iter (printfn "%s")
-    let s = String.Join ("\n", output)
-    ConsoleService.Markdown.renderSomething s
+open Primitives
 
 let private writeOutputLog = function
     | Output log ->
-        log |> List.toArray |> writeOutput
-    | _ -> ()
+        let output = log |> List.toArray
+        String.Join ("\n", output)
+    | _ -> ""
 
 let update (gs: GameState) =
-    gs.Output |> writeOutputLog
+    let (Health (cur,max)) = gs.Player.Health
+    let health = sprintf "%i/%i" cur max
+    let (Experience (exp, _)) = gs.Player.Experience
+    let time = gs.World.Time.ToString()
+    ConsoleService.PageView.drawScreen (gs.Output |> writeOutputLog) gs.Environment.Name health exp time
 
 let getCommand (parseInput: CommandParser) =
     Console.Write("\n> ")

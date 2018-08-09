@@ -12,13 +12,11 @@ open ConsoleService
 let defaultGamestate map =
     { Player = player1;
         Inventory = [];
-        World = { Time = DateTime.Parse("1971-01-01 06:01:42"); Map = map };
+        World = { Time = DateTime.Parse("1971-04-09 06:01:42"); Map = map };
         Environment = map.[0];
         GameScene = MainMenu;
         LastCommand = NoCommand;
         Output = Output [(Utility.readTextAsset "0_Title.md"); "Type GO to start the game, or LOAD to start from saved game."]}
-
-
 
 let isUpdateItemUse (_, itemUse) =
     itemUse == Items.LoseLifeOnUpdate
@@ -94,12 +92,11 @@ let RunGame
             let gamestate' = {initialState with Output = Output ("Game Over! Starting back at the beginning." :: outputs) }
             Console.update gamestate'
             loop [] gamestate'
-        | ExitGame -> ()
+        | ExitGame ->
+            useMainScreenBuffer ()
 
+    useAlternateScreenBuffer ()
     clearScreen()
-    // showBitmap "../Assets/fslogo.bmp"
-    // showBitmap "../Assets/smallhammer.png"
-    // printfn "%s" title
 
     // initial screen update
     Console.update initialState
