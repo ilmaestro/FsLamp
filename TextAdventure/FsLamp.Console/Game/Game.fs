@@ -71,7 +71,7 @@ let RunGame
         let action = actionResolver gamestate.GameScene
 
         // execute the action to get next gamestate
-        let nextGameState = gamestate |> updateGameObjects |> action  |> getGameObjectOutputs
+        let nextGameState = gamestate |> updateGameObjects |> action |> getGameObjectOutputs
 
         // update screen
         Console.update nextGameState

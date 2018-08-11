@@ -1,4 +1,32 @@
-# FsLamp Presentation
+```SkyBlue
+   _______  _______    ___      _______  __   __  _______ 
+  |       ||       |  |   |    |   _   ||  |_|  ||       |
+  |    ___||  _____|  |   |    |  |_|  ||       ||    _  |
+  |   |___ | |_____   |   |    |       ||       ||   |_| |
+  |    ___||_____  |  |   |___ |       ||       ||    ___|
+  |   |     _____| |  |       ||   _   || ||_|| ||   |    
+  |___|    |_______|  |_______||__| |__||_|   |_||___|    
+```
+
+![Hammer](../Assets/smallhammer.png)
+
+By Ryan Kilkenny - Portland F# Meetup
+
+FsLamp is a text adventure engine written in F#. It was developed out of a learning project meant to improve F# skills, game design skills, and hopefully pave the path towards future game development and natural language processing. In this talk we'll take a look at the game engine implementation and learn how to write interactive fiction games in F#.
+
+---
+
+```SpringGreen
+ _     _  __   __  _______    _______  __   __    ___   ______  
+| | _ | ||  | |  ||       |  |   _   ||  |_|  |  |   | |      | 
+| || || ||  |_|  ||   _   |  |  |_|  ||       |  |   | |___   | 
+|       ||       ||  | |  |  |       ||       |  |   |   __|  | 
+|       ||       ||  |_|  |  |       ||       |  |   |  |_____| 
+|   _   ||   _   ||       |  |   _   || ||_|| |  |   |    __    
+|__| |__||__| |__||_______|  |__| |__||_|   |_|  |___|   |__|   
+```
+
+Ryan Kilkenny is a multi-paradigm polyglot primarily living in the .NET world. He's been an F# enthusiast since 2013 and interested in game development since playing Space Invaders on a Commodore VIC-20 in 1985. He is currently employed by Banfield Pet Hospital and enjoys working within a team of extremely talented IT professionals to make the world better for pets.
 
 ---
 
@@ -29,6 +57,12 @@
 |   ||  ||       ||       ||    ___|  |   |___ |  |_|  ||  |_|  ||    ___|
 |   |_| ||   _   || ||_|| ||   |___   |       ||       ||       ||   |    
 |_______||__| |__||_|   |_||_______|  |_______||_______||_______||___|    
+```
+
+__The game loop relies on a simple architecture__
+
+```SpringGreen
+Input -> Action -> Output -> Print -> Loop
 ```
 
 ```fsharp
@@ -69,6 +103,8 @@ let RunGame actionResolver initialState =
 |_______||__| |__||_|   |_||_______|  |_______|  |___|  |__| |__|  |___|  |_______|
 ```
 
+__One big object graph__
+
 ```fsharp
 type GameState = {
     Player: Player
@@ -79,6 +115,86 @@ type GameState = {
     LastCommand: Command
     Output: Output
 }
+```
+
+__Easy to serialize__
+
+```fsharp
+module IO =
+    let saveGameState filename gamestate =
+        let json = JsonConvert.SerializeObject(gamestate)
+        System.IO.File.WriteAllText(filename, json)
+
+    let loadGameState filename =
+        let json = System.IO.File.ReadAllText(filename)
+        JsonConvert.DeserializeObject<GameState>(json)
+```
+
+---
+
+```SkyBlue
+ _______  _______  __   __  _______  _______  _______  ______    _______ 
+|       ||   _   ||  |_|  ||       ||       ||   _   ||    _ |  |       |
+|    ___||  |_|  ||       ||    ___||    _  ||  |_|  ||   | ||  |_     _|
+|   | __ |       ||       ||   |___ |   |_| ||       ||   |_||_   |   |  
+|   ||  ||       ||       ||    ___||    ___||       ||    __  |  |   |  
+|   |_| ||   _   || ||_|| ||   |___ |   |    |   _   ||   |  | |  |   |  
+|_______||__| |__||_|   |_||_______||___|    |__| |__||___|  |_|  |___|  
+```
+
+- Function that takes __GameState__ and returns __GameState__
+
+```fsharp
+type GamePart = GameState -> GameState
+```
+
+- __easy to compose__
+
+```fsharp
+let takeItem item : GamePart =
+    fun gamestate ->
+        gamestate
+        |> Environment.removeItemFromEnvironment item
+        |> Inventory.addItem item
+        |> World.updateWorldEnvironment
+        |> Output.setOutput (Output (getSuccessOutputs item))
+```
+
+---
+
+```SkyBlue
+ _______  _______  ______    _______  _______  ______   
+|       ||   _   ||    _ |  |       ||       ||    _ |  
+|    _  ||  |_|  ||   | ||  |  _____||    ___||   | ||  
+|   |_| ||       ||   |_||_ | |_____ |   |___ |   |_||_ 
+|    ___||       ||    __  ||_____  ||    ___||    __  |
+|   |    |   _   ||   |  | | _____| ||   |___ |   |  | |
+|___|    |__| |__||___|  |_||_______||_______||___|  |_|
+
+```
+
+- __Parsing__ takes user input and translates it into command
+- a command can then be __dispatched__ to an __action__
+
+```SpringGreen
+Get Input -> LUIS -> Build Command -> Dispatch Action
+```
+
+```fsharp
+type CommandParser = string -> Command option
+```
+
+__Get input__
+
+```fsharp
+let getCommand (parseInput: CommandParser) =
+    Console.Write("\n> ")
+    let readline = Console.ReadLine()
+    match readline |> parseInput with
+    | Some command -> command
+    | None -> 
+        printfn "I don't understand %s." readline
+        NoCommand
 ```
 
 ---
@@ -174,16 +290,6 @@ FsLamp on LUIS
 
 ---
 
-```SkyBlue
- ___      __   __  ___   _______ 
-|   |    |  | |  ||   | |       |
-|   |    |  | |  ||   | |  _____|
-|   |    |  |_|  ||   | | |_____ 
-|   |___ |       ||   | |_____  |
-|       ||       ||   |  _____| |
-|_______||_______||___| |_______|
-```
-
 Example of how to convert a LUIS result into a command
 
 ```fsharp
@@ -208,41 +314,32 @@ match query.TopScoringIntent with
 ```
 
 ---
-
-### Basic Info
-
----
-
-### Configuration
-
----
-
 ```SkyBlue
- _______  _______  __   __  _______  _______  _______  ______    _______ 
-|       ||   _   ||  |_|  ||       ||       ||   _   ||    _ |  |       |
-|    ___||  |_|  ||       ||    ___||    _  ||  |_|  ||   | ||  |_     _|
-|   | __ |       ||       ||   |___ |   |_| ||       ||   |_||_   |   |  
-|   ||  ||       ||       ||    ___||    ___||       ||    __  |  |   |  
-|   |_| ||   _   || ||_|| ||   |___ |   |    |   _   ||   |  | |  |   |  
-|_______||__| |__||_|   |_||_______||___|    |__| |__||___|  |_|  |___|  
+ ___   _______  _______  __   __  _______ 
+|   | |       ||       ||  |_|  ||       |
+|   | |_     _||    ___||       ||  _____|
+|   |   |   |  |   |___ |       || |_____ 
+|   |   |   |  |    ___||       ||_____  |
+|   |   |   |  |   |___ | ||_|| | _____| |
+|___|   |___|  |_______||_|   |_||_______|
 ```
 
-The idea of a gamepart is simple, a function that takes GameState and returns GameState.  
+- optional properties used over inherited types
+  - keeps serialization simple
+  - new properties will likely need to be added, which may make increase maintenance
+- list of behaviors
 
 ```fsharp
-type GamePart = GameState -> GameState
-```
-
-By using this as a common pattern, it becomes very easy to compose functions that manipulate GameState.
-
-```fsharp
-let takeItem item : GamePart =
-    fun gamestate ->
-        gamestate
-        |> Environment.removeItemFromEnvironment item
-        |> Inventory.addItem item
-        |> World.updateWorldEnvironment
-        |> Output.setOutput (Output (getSuccessOutputs item))
+type InventoryItem = {
+    Id: ItemId
+    Name: string
+    Description: string
+    Health: Health option
+    SwitchState: SwitchState option
+    Stats: Stats option
+    Contains: (InventoryItem list) option
+    Behaviors: (Description * ItemUse) list
+}
 ```
 
 ---
@@ -257,7 +354,85 @@ let takeItem item : GamePart =
 |_______||_______||__| |__||__| |__|  |___|  |___| |_______||___|  |_||_______|
 ```
 
-Game behaviors are what give the player the ability to interact with components of the game.
+- Game behaviors give the player the ability to interact with items in the game
+- Each behavior assigned an Id and stored in a runtime cache
+- Behavior Id's get persisted in GameState as part of an item
+
+```fsharp
+type UpdateGameStateBehavior = (ItemUse * InventoryItem * GameState) -> Result<GameState, UpdateGameStateFailure>
+```
+
+---
+
+Define behaviors
+
+```fsharp
+    let updateHealthBehavior f : UpdateItemBehavior=
+        fun (itemUse: ItemUse, item: InventoryItem) ->
+            match itemUse, item.Health, item.SwitchState with
+            | LoseLifeOnUpdate, Some h, Some switch ->
+                if switch = SwitchOn then { item with Health = Some (f h)} else item
+                |> Ok
+            | LoseLifeOnUpdate, Some h, None ->
+                { item with Health = Some (f h)}
+                |> Ok
+            | _ -> item |> failItemUpdate "Item use not supported"
+
+    let loseBattery description amount =
+        ItemUse.addItemUseBehavior
+            (Description description, Items.LoseLifeOnUpdate)
+            (updateHealthBehavior (fun (Health (life,total)) -> Health(life - amount,total)))
+```
+
+---
+
+Add the behaviors to items
+
+```fsharp
+let lantern =
+    createInventoryItem
+        "lantern" "with a full battery"
+        (Some (Health(150, 150)))
+        (Some Items.SwitchOff)
+        None
+        None
+        [
+            Behaviors.loseBattery "Batter Life" 1; // per turn
+            Behaviors.batteryWarnings "Battery Warning"
+                [
+                    (0,0, "Lantern's batteries are dead.");
+                    (10,10, "Lantern is getting extremely dim.");
+                    (20,20, "Lantern is getting dim.");]
+            Behaviors.takeItem "You pick up the lantern." true;
+            Behaviors.turnOnOff "You turn the switch.";
+            (Description "Light", ProvidesLight);
+        ]
+```
+
+---
+
+Add items to Environments
+
+```fsharp
+let origin =
+    (Environment.create 1 "Origin"
+            (Utility.readTextAsset "1_Intro.md")
+            [Exit.create 1 2 Open North (Steps 2) "Creaky door"]
+            [keyItem (ExitId 5); lanternItem; mailbox;]
+            []
+            (Some ambientLight)
+        )
+```
+
+---
+
+# Why F\#?
+
+Does F# work well for a text adventure game?  Yes, in my opinion.
+
+- Domain driven design
+- Immutable
+- Multi-pardigm language
 
 ---
 
@@ -270,3 +445,5 @@ Game behaviors are what give the player the ability to interact with components 
   |   |  |   _   ||   _   || | |   ||    _  |    |   |  |       ||       |
   |___|  |__| |__||__| |__||_|  |__||___| |_|    |___|  |_______||_______|
 ```
+
+Check out FsLamp on Github <https://github.com/ilmaestro/FsLamp>

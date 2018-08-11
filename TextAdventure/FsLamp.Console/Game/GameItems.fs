@@ -88,17 +88,17 @@ let mailbox =
             (Behaviors.putIn "shoved inside the tiny mailbox.");
             (Behaviors.takeOut "taken from the scrappy mailbox.")]
 
-let agendaDoc =
-    createBasicItem "agenda" "" [
-        (Description (Utility.readTextAsset "meetup_agenda.md"), Readable);
-        ]
+// let agendaDoc =
+//     createBasicItem "agenda" "" [
+//         (Description (Utility.readTextAsset "meetup_agenda.md"), Readable);
+//         ]
 
-let gameLoopDoc =
-    createBasicItem "game loop" "" [
-        (Description (Utility.readTextAsset "meetup_gameloop.md"), Readable);
-        ]
+// let gameLoopDoc =
+//     createBasicItem "game loop" "" [
+//         (Description (Utility.readTextAsset "meetup_gameloop.md"), Readable);
+//         ]
 
-let luisDoc =
-    createBasicItem "luis" "" [
-        (Description (Utility.readTextAsset "meetup_luis.md"), Readable);
-        ]
+// let luisDoc =
+//     createBasicItem "luis" "" [
+//         (Description (Utility.readTextAsset "meetup_luis.md"), Readable);
+//         ]
