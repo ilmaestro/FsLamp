@@ -14,6 +14,7 @@ type GameScene =
 | MainMenu
 | OpenExplore
 | InEncounter of EncounterProperties
+| CustomScene of CommandParser
 
 type GameState = {
     Player: Player

@@ -6,7 +6,18 @@ open GameItems
 open GameMonsters
 open System
 
+(* 
+ linear map:
+    - origin
+    - hallway south
+    - hallway north
+    - office (locked)
+    - secret passage (hidden)
+    - dark passage (hidden)
+    - dark hole
+    - the meetup
 
+*)
 let defaultMap () =
     [|
         (Environment.create 1 "Origin"
@@ -58,9 +69,18 @@ A few seconds pass, finally a response... 'die!'.  As you fall backward you stum
             (Some ambientLight)
         );
         (Environment.create 7 "Dark Hole"
-            "You've discovered the pit to hell!"
+            "You've discovered the pit to hell! Now what?"
+            [ Exit.create 11 8 Open Down (Steps 1000) "Rabbit Hole" ]
             []
             []
+            (Some ambientLight));
+        (Environment.create 8 "The Meetup"
+            (Utility.readTextAsset "meetup_1.md")
             []
-            None)
+            [slideProjector] //[agendaDoc; gameLoopDoc; luisDoc; ]
+            []
+            (Some theSun)
+            )
     |]
+
+

@@ -13,7 +13,7 @@ let defaultGamestate map =
     { Player = player1;
         Inventory = [];
         World = { Time = DateTime.Parse("1971-04-09 06:01:42"); Map = map };
-        Environment = map.[0];
+        Environment = map.[7];
         GameScene = MainMenu;
         LastCommand = NoCommand;
         Output = Output [(Utility.readTextAsset "0_Title.md"); "Type GO to start the game, or LOAD to start from saved game."]}

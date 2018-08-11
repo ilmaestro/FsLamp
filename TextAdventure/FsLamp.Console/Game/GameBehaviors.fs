@@ -31,6 +31,45 @@ module Common =
                 gamestate |> failGameStateUpdate (sprintf "%s is already %s" item.Name (switchState.ToString()) )
             | _ -> gamestate |> failGameStateUpdate "Item use not supported"
 
+    let slidesSwitchBehavior : UpdateGameStateBehavior =
+        let rec getCommand () = 
+            let keyInfo = System.Console.ReadKey()
+            match keyInfo.Key with
+            | ConsoleKey.UpArrow -> "start"
+            | ConsoleKey.DownArrow -> "end"
+            | ConsoleKey.RightArrow -> "next"
+            | ConsoleKey.LeftArrow -> "back"
+            | ConsoleKey.Escape -> "exit"
+            | _ -> getCommand ()
+
+        fun (itemUse: ItemUse, item, gamestate) ->
+            // get slide
+            let slideContent = Utility.readTextAsset(item.Description)
+            let slides = slideContent.Split("---")
+            //let mutable slideIndex = 0
+            let slideLength = slides.Length
+
+            // interupt the game loop with our own game loop
+            let rec slideLoop slideIndex =
+                ConsoleService.clearScreen()
+                ConsoleService.Markdown.renderSomething slides.[slideIndex]
+
+                match getCommand() with
+                | "start" ->
+                    slideLoop 0
+                | "next" ->
+                    let nextIndex = if slideIndex < slideLength - 1 then (slideIndex + 1) else slideIndex
+                    slideLoop nextIndex
+                | "back" ->
+                    let nextIndex = if slideIndex > 0 then (slideIndex - 1) else slideIndex
+                    slideLoop nextIndex
+                | "end" ->
+                    slideLoop (slideLength - 1)
+                | _ -> ()
+
+            slideLoop 0
+            gamestate |> Ok
+
     let OpenExitBehavior : UpdateGameStateBehavior =
         fun (itemUse, item, gamestate) ->
             match itemUse with
@@ -196,4 +235,7 @@ module Behaviors =
             (Description description, ItemUse.Defaults.TakeOut)
             (takeOutBehavior)
 
-        
+    let slidesOnOff description =
+        ItemUse.addGameStateBehavior
+            (Description description, ItemUse.Defaults.TurnOnOff)
+            (slidesSwitchBehavior)

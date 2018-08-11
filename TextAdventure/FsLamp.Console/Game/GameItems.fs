@@ -50,6 +50,16 @@ let lanternItem =
             (Description "Light", ProvidesLight);
         ]
 
+let slideProjector =
+    createInventoryItem "slide projector"
+        "presentation.md"
+        None
+        (Some Items.SwitchOff)
+        None
+        None
+        [
+            Behaviors.slidesOnOff ".... well that was interesting. Thanks!"
+        ]
 let gold =
     createBasicItem "Gold" "that probably fell out of someones pocket" [
         (Behaviors.takeItem "GOOOLD!" true;)
@@ -73,7 +83,22 @@ let mailbox =
         None
         None
         None
-        (Some [letter; theWub])
+        (Some [letter;])
         [
             (Behaviors.putIn "shoved inside the tiny mailbox.");
             (Behaviors.takeOut "taken from the scrappy mailbox.")]
+
+let agendaDoc =
+    createBasicItem "agenda" "" [
+        (Description (Utility.readTextAsset "meetup_agenda.md"), Readable);
+        ]
+
+let gameLoopDoc =
+    createBasicItem "game loop" "" [
+        (Description (Utility.readTextAsset "meetup_gameloop.md"), Readable);
+        ]
+
+let luisDoc =
+    createBasicItem "luis" "" [
+        (Description (Utility.readTextAsset "meetup_luis.md"), Readable);
+        ]

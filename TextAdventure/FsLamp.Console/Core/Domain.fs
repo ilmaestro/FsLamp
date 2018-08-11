@@ -79,6 +79,8 @@ type Command =
 | Attack
 | Run
 
+type CommandParser = string -> Command option
+
 type Output = 
 | Output of string list
 | DoNothing

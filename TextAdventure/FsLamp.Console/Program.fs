@@ -25,6 +25,7 @@ let main _ =
             | MainMenu -> mainMenuParser
             | OpenExplore -> (Parser.luisParser luisSettings) //exploreParser
             | InEncounter _ -> encounterParser
+            | CustomScene parser -> parser
         Console.getCommand parser |> Dispatcher.dispatch
 
     RunGame actionResolver (defaultGamestate (defaultMap()))

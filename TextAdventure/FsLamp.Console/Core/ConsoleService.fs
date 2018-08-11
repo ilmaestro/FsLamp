@@ -181,10 +181,11 @@ module Markdown =
                 next()
             | BlockTag.FencedCode ->
                 match block.FencedCodeData.Info with
-                | "fsharp" ->
+                | lang when lang = "fsharp" || lang = "json"->
                     // run the data through pygmentize
-                    printf "%s" (pygmentize "fsharp" (block.StringContent.ToString()))
+                    printf "%s" (pygmentize lang (block.StringContent.ToString()))
                     printfn ""
+                
                 | info ->
                     let color = Color.FromName(info)
                     setForegroundRgb (int color.R) (int color.G) (int color.B)

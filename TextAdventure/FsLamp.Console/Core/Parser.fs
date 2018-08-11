@@ -2,8 +2,6 @@ module Parser
 open Domain
 open System
 
-type CommandParser = string -> Command option
-
 type Pattern =
 | Word of string
 | Wildcard
