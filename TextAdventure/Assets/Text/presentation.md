@@ -621,6 +621,56 @@ let origin =
         )
 ```
 
+```SkyBlue
+ _______  _______  __   __  _______  __   __  ___   _______  ______    _______ 
+|  _    ||       ||  | |  ||   _   ||  | |  ||   | |       ||    _ |  |       |
+| |_|   ||    ___||  |_|  ||  |_|  ||  |_|  ||   | |   _   ||   | ||  |  _____|
+|       ||   |___ |       ||       ||       ||   | |  | |  ||   |_||_ | |_____ 
+|  _   | |    ___||       ||       ||       ||   | |  |_|  ||    __  ||_____  |
+| |_|   ||   |___ |   _   ||   _   | |     | |   | |       ||   |  | | _____| |
+|_______||_______||__| |__||__| |__|  |___|  |___| |_______||___|  |_||_______|
+```
+
+- Serialized nicely
+
+```json
+"Behaviors": [
+    {
+        "Item1": {
+            "Case": "Description",
+            "Fields": [
+                "After a few minutes of getting the key to fit correctly, the lock releases and the door creakily opens."
+            ]
+        },
+        "Item2": {
+            "Case": "OpenExit",
+            "Fields": [
+                {
+                    "Case": "ExitId",
+                    "Fields": [
+                        5
+                    ]
+                }
+            ]
+        }
+    },
+    {
+        "Item1": {
+            "Case": "Description",
+            "Fields": [
+                "You pickup the small, crusty key."
+            ]
+        },
+        "Item2": {
+            "Case": "CanTake",
+            "Fields": [
+                true
+            ]
+        }
+    }
+]
+```
+
 ---
 
 ```SkyBlue
