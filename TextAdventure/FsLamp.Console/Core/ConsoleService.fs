@@ -131,7 +131,7 @@ module Markdown =
         psi.WindowStyle <- ProcessWindowStyle.Hidden
         psi.UseShellExecute <- false
         psi.CreateNoWindow <- true
-        psi.Arguments <- sprintf "-l %s" lexer
+        psi.Arguments <- sprintf "-l %s -O style=colorful,linenos=1" lexer
         // psi.Arguments <- sprintf "/c chcp 65001 >NUL && pygmentize -l %s" lexer
 
         try
@@ -173,7 +173,7 @@ module Markdown =
             | BlockTag.List ->
                 next()
             | BlockTag.ListItem ->
-                printf "  "
+                printf " * "
                 next()
             | BlockTag.ThematicBreak ->
                 printfn ""

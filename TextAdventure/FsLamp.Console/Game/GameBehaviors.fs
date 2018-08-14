@@ -52,7 +52,10 @@ module Common =
             // interupt the game loop with our own game loop
             let rec slideLoop slideIndex =
                 ConsoleService.clearScreen()
+                printfn ""
                 ConsoleService.Markdown.renderSomething slides.[slideIndex]
+                printfn ""
+                printf "%i/%i" (slideIndex + 1) (slideLength)
 
                 match getCommand() with
                 | "start" ->

@@ -26,6 +26,8 @@ FsLamp is a text adventure engine written in F#. It was developed out of a learn
 |__| |__||__| |__||_______|  |__| |__||_|   |_|  |___|   |__|   
 ```
 
+![farmer](../Assets/FarmerSprite.png)
+
 Ryan Kilkenny is a multi-paradigm polyglot primarily living in the .NET world. He's been an F# enthusiast since 2013 and interested in game development since playing Space Invaders on a Commodore VIC-20 in 1985. He is currently employed by Banfield Pet Hospital and enjoys working within a team of extremely talented IT professionals to make the world better for pets.
 
 ---
@@ -41,11 +43,14 @@ Ryan Kilkenny is a multi-paradigm polyglot primarily living in the .NET world. H
 ```
 
 - The Game Loop
+- State
 - Natural Language Parsing
 - GameParts
+- Items
 - Behaviors
-- Making a game
-- Where to from here?
+- Why F#?
+
+![alien](../Assets/alien_2.png)
 
 ---
 
@@ -59,10 +64,20 @@ Ryan Kilkenny is a multi-paradigm polyglot primarily living in the .NET world. H
 |_______||__| |__||_|   |_||_______|  |_______||_______||_______||___|    
 ```
 
-__The game loop relies on a simple architecture__
-
 ```SpringGreen
 Input -> Action -> Output -> Print -> Loop
+```
+
+---
+
+```SkyBlue
+ _______  _______  __   __  _______    ___      _______  _______  _______ 
+|       ||   _   ||  |_|  ||       |  |   |    |       ||       ||       |
+|    ___||  |_|  ||       ||    ___|  |   |    |   _   ||   _   ||    _  |
+|   | __ |       ||       ||   |___   |   |    |  | |  ||  | |  ||   |_| |
+|   ||  ||       ||       ||    ___|  |   |___ |  |_|  ||  |_|  ||    ___|
+|   |_| ||   _   || ||_|| ||   |___   |       ||       ||       ||   |    
+|_______||__| |__||_|   |_||_______|  |_______||_______||_______||___|    
 ```
 
 ```fsharp
@@ -103,7 +118,7 @@ let RunGame actionResolver initialState =
 |_______||__| |__||_|   |_||_______|  |_______|  |___|  |__| |__|  |___|  |_______|
 ```
 
-__One big object graph__
+ - One big object graph
 
 ```fsharp
 type GameState = {
@@ -117,7 +132,19 @@ type GameState = {
 }
 ```
 
-__Easy to serialize__
+---
+
+```SkyBlue
+ _______  _______  __   __  _______    _______  _______  _______  _______  _______ 
+|       ||   _   ||  |_|  ||       |  |       ||       ||   _   ||       ||       |
+|    ___||  |_|  ||       ||    ___|  |  _____||_     _||  |_|  ||_     _||    ___|
+|   | __ |       ||       ||   |___   | |_____   |   |  |       |  |   |  |   |___ 
+|   ||  ||       ||       ||    ___|  |_____  |  |   |  |       |  |   |  |    ___|
+|   |_| ||   _   || ||_|| ||   |___    _____| |  |   |  |   _   |  |   |  |   |___ 
+|_______||__| |__||_|   |_||_______|  |_______|  |___|  |__| |__|  |___|  |_______|
+```
+
+- Easy to serialize
 
 ```fsharp
 module IO =
@@ -148,7 +175,19 @@ module IO =
 type GamePart = GameState -> GameState
 ```
 
-- __easy to compose__
+---
+
+```SkyBlue
+ _______  _______  __   __  _______  _______  _______  ______    _______ 
+|       ||   _   ||  |_|  ||       ||       ||   _   ||    _ |  |       |
+|    ___||  |_|  ||       ||    ___||    _  ||  |_|  ||   | ||  |_     _|
+|   | __ |       ||       ||   |___ |   |_| ||       ||   |_||_   |   |  
+|   ||  ||       ||       ||    ___||    ___||       ||    __  |  |   |  
+|   |_| ||   _   || ||_|| ||   |___ |   |    |   _   ||   |  | |  |   |  
+|_______||__| |__||_|   |_||_______||___|    |__| |__||___|  |_|  |___|  
+```
+
+- easy to compose
 
 ```fsharp
 let takeItem item : GamePart =
@@ -173,8 +212,21 @@ let takeItem item : GamePart =
 
 ```
 
-- __Parsing__ takes user input and translates it into command
+- __Parsing__ takes user input and translates it into a command
 - a command can then be __dispatched__ to an __action__
+
+---
+
+```SkyBlue
+ _______  _______  ______    _______  _______  ______   
+|       ||   _   ||    _ |  |       ||       ||    _ |  
+|    _  ||  |_|  ||   | ||  |  _____||    ___||   | ||  
+|   |_| ||       ||   |_||_ | |_____ |   |___ |   |_||_ 
+|    ___||       ||    __  ||_____  ||    ___||    __  |
+|   |    |   _   ||   |  | | _____| ||   |___ |   |  | |
+|___|    |__| |__||___|  |_||_______||_______||___|  |_|
+
+```
 
 ```SpringGreen
 Get Input -> LUIS -> Build Command -> Dispatch Action
@@ -184,7 +236,20 @@ Get Input -> LUIS -> Build Command -> Dispatch Action
 type CommandParser = string -> Command option
 ```
 
-__Get input__
+---
+
+```SkyBlue
+ _______  _______  ______    _______  _______  ______   
+|       ||   _   ||    _ |  |       ||       ||    _ |  
+|    _  ||  |_|  ||   | ||  |  _____||    ___||   | ||  
+|   |_| ||       ||   |_||_ | |_____ |   |___ |   |_||_ 
+|    ___||       ||    __  ||_____  ||    ___||    __  |
+|   |    |   _   ||   |  | | _____| ||   |___ |   |  | |
+|___|    |__| |__||___|  |_||_______||_______||___|  |_|
+
+```
+
+- Get input
 
 ```fsharp
 let getCommand (parseInput: CommandParser) =
@@ -258,7 +323,29 @@ let dispatch command : GamePart =
 
 Language Understanding LUIS <https://www.luis.ai/home>. A machine learning-based service to build natural language into apps, bots, and IoT devices.
 
-FsLamp uses LUIS to parse user input into intents.  The LUIS outputs look like:
+- Create Intents: Move, Look, Examine, TurnOn, TurnOff
+- Create Entities: Item, Operation
+- Define utterances: "go to the north", "open the door with key"
+- Improve matching with Patterns: "open {item:target} with {item:source}"
+- Train
+- Publish
+
+FsLamp on LUIS
+<https://www.luis.ai/applications/a658f77c-b290-4a81-9ed8-404c95537c9d/versions/0.1/build/intents>
+
+---
+
+```SkyBlue
+ ___      __   __  ___   _______ 
+|   |    |  | |  ||   | |       |
+|   |    |  | |  ||   | |  _____|
+|   |    |  |_|  ||   | | |_____ 
+|   |___ |       ||   | |_____  |
+|       ||       ||   |  _____| |
+|_______||_______||___| |_______|
+```
+
+The LUIS outputs look like:
 
 ```json
 {
@@ -285,12 +372,19 @@ FsLamp uses LUIS to parse user input into intents.  The LUIS outputs look like:
 }
 ```
 
-FsLamp on LUIS
-<https://www.luis.ai/applications/a658f77c-b290-4a81-9ed8-404c95537c9d/versions/0.1/build/intents>
-
 ---
 
-Example of how to convert a LUIS result into a command
+```SkyBlue
+ ___      __   __  ___   _______ 
+|   |    |  | |  ||   | |       |
+|   |    |  | |  ||   | |  _____|
+|   |    |  |_|  ||   | | |_____ 
+|   |___ |       ||   | |_____  |
+|       ||       ||   |  _____| |
+|_______||_______||___| |_______|
+```
+
+Example of how to parse a LUIS result
 
 ```fsharp
 match query.TopScoringIntent with
@@ -314,6 +408,7 @@ match query.TopScoringIntent with
 ```
 
 ---
+
 ```SkyBlue
  ___   _______  _______  __   __  _______ 
 |   | |       ||       ||  |_|  ||       |
@@ -329,6 +424,18 @@ match query.TopScoringIntent with
   - new properties will likely need to be added, which may make increase maintenance
 - list of behaviors
 
+---
+
+```SkyBlue
+ ___   _______  _______  __   __  _______ 
+|   | |       ||       ||  |_|  ||       |
+|   | |_     _||    ___||       ||  _____|
+|   |   |   |  |   |___ |       || |_____ 
+|   |   |   |  |    ___||       ||_____  |
+|   |   |   |  |   |___ | ||_|| | _____| |
+|___|   |___|  |_______||_|   |_||_______|
+```
+
 ```fsharp
 type InventoryItem = {
     Id: ItemId
@@ -340,6 +447,24 @@ type InventoryItem = {
     Contains: (InventoryItem list) option
     Behaviors: (Description * ItemUse) list
 }
+```
+
+---
+
+```SkyBlue
+ ___   _______  _______  __   __  _______ 
+|   | |       ||       ||  |_|  ||       |
+|   | |_     _||    ___||       ||  _____|
+|   |   |   |  |   |___ |       || |_____ 
+|   |   |   |  |    ___||       ||_____  |
+|   |   |   |  |   |___ | ||_|| | _____| |
+|___|   |___|  |_______||_|   |_||_______|
+```
+
+```fsharp
+let theSun =
+    createBasicItem "sun" "is shining overhead." [(Description "ball of fire", ProvidesLight)]
+
 ```
 
 ---
@@ -358,11 +483,63 @@ type InventoryItem = {
 - Each behavior assigned an Id and stored in a runtime cache
 - Behavior Id's get persisted in GameState as part of an item
 
+---
+
+```SkyBlue
+ _______  _______  __   __  _______  __   __  ___   _______  ______    _______ 
+|  _    ||       ||  | |  ||   _   ||  | |  ||   | |       ||    _ |  |       |
+| |_|   ||    ___||  |_|  ||  |_|  ||  |_|  ||   | |   _   ||   | ||  |  _____|
+|       ||   |___ |       ||       ||       ||   | |  | |  ||   |_||_ | |_____ 
+|  _   | |    ___||       ||       ||       ||   | |  |_|  ||    __  ||_____  |
+| |_|   ||   |___ |   _   ||   _   | |     | |   | |       ||   |  | | _____| |
+|_______||_______||__| |__||__| |__|  |___|  |___| |_______||___|  |_||_______|
+```
+
 ```fsharp
-type UpdateGameStateBehavior = (ItemUse * InventoryItem * GameState) -> Result<GameState, UpdateGameStateFailure>
+type UpdateGameStateBehavior =
+    (ItemUse * InventoryItem * GameState) -> Result<GameState, UpdateGameStateFailure>
+
+type UpdateItemBehavior =
+    (ItemUse * InventoryItem) -> Result<InventoryItem,UpdateItemFailure>
 ```
 
 ---
+
+```SkyBlue
+ _______  _______  __   __  _______  __   __  ___   _______  ______    _______ 
+|  _    ||       ||  | |  ||   _   ||  | |  ||   | |       ||    _ |  |       |
+| |_|   ||    ___||  |_|  ||  |_|  ||  |_|  ||   | |   _   ||   | ||  |  _____|
+|       ||   |___ |       ||       ||       ||   | |  | |  ||   |_||_ | |_____ 
+|  _   | |    ___||       ||       ||       ||   | |  |_|  ||    __  ||_____  |
+| |_|   ||   |___ |   _   ||   _   | |     | |   | |       ||   |  | | _____| |
+|_______||_______||__| |__||__| |__|  |___|  |___| |_______||___|  |_||_______|
+```
+
+- Behaviors are saved to a cache at runtime
+
+```fsharp
+let mutable private gameStateBehaviorCache : Map<(Description * ItemUse),UpdateGameStateBehavior> =
+    Map.empty
+
+let addGameStateBehavior id b =
+    gameStateBehaviorCache <- gameStateBehaviorCache.Add(id, b)
+    id
+
+let findGameStateBehavior id =
+    gameStateBehaviorCache.TryFind id
+```
+
+---
+
+```SkyBlue
+ _______  _______  __   __  _______  __   __  ___   _______  ______    _______ 
+|  _    ||       ||  | |  ||   _   ||  | |  ||   | |       ||    _ |  |       |
+| |_|   ||    ___||  |_|  ||  |_|  ||  |_|  ||   | |   _   ||   | ||  |  _____|
+|       ||   |___ |       ||       ||       ||   | |  | |  ||   |_||_ | |_____ 
+|  _   | |    ___||       ||       ||       ||   | |  |_|  ||    __  ||_____  |
+| |_|   ||   |___ |   _   ||   _   | |     | |   | |       ||   |  | | _____| |
+|_______||_______||__| |__||__| |__|  |___|  |___| |_______||___|  |_||_______|
+```
 
 Define behaviors
 
@@ -385,6 +562,16 @@ Define behaviors
 ```
 
 ---
+
+```SkyBlue
+ _______  _______  __   __  _______  __   __  ___   _______  ______    _______ 
+|  _    ||       ||  | |  ||   _   ||  | |  ||   | |       ||    _ |  |       |
+| |_|   ||    ___||  |_|  ||  |_|  ||  |_|  ||   | |   _   ||   | ||  |  _____|
+|       ||   |___ |       ||       ||       ||   | |  | |  ||   |_||_ | |_____ 
+|  _   | |    ___||       ||       ||       ||   | |  |_|  ||    __  ||_____  |
+| |_|   ||   |___ |   _   ||   _   | |     | |   | |       ||   |  | | _____| |
+|_______||_______||__| |__||__| |__|  |___|  |___| |_______||___|  |_||_______|
+```
 
 Add the behaviors to items
 
@@ -411,6 +598,16 @@ let lantern =
 
 ---
 
+```SkyBlue
+ _______  _______  __   __  _______  __   __  ___   _______  ______    _______ 
+|  _    ||       ||  | |  ||   _   ||  | |  ||   | |       ||    _ |  |       |
+| |_|   ||    ___||  |_|  ||  |_|  ||  |_|  ||   | |   _   ||   | ||  |  _____|
+|       ||   |___ |       ||       ||       ||   | |  | |  ||   |_||_ | |_____ 
+|  _   | |    ___||       ||       ||       ||   | |  |_|  ||    __  ||_____  |
+| |_|   ||   |___ |   _   ||   _   | |     | |   | |       ||   |  | | _____| |
+|_______||_______||__| |__||__| |__|  |___|  |___| |_______||___|  |_||_______|
+```
+
 Add items to Environments
 
 ```fsharp
@@ -426,13 +623,25 @@ let origin =
 
 ---
 
-# Why F\#?
+```SkyBlue
+ _     _  __   __  __   __  ______  
+| | _ | ||  | |  ||  | |  ||      | 
+| || || ||  |_|  ||  |_|  ||___   | 
+|       ||       ||       |  __|  | 
+|       ||       ||_     _| |_____| 
+|   _   ||   _   |  |   |     __    
+|__| |__||__| |__|  |___|    |__|   
+```
 
 Does F# work well for a text adventure game?  Yes, in my opinion.
 
 - Domain driven design
 - Immutable
-- Multi-pardigm language
+- Multi-paradigm
+  - blend functional and imperatve coding
+  - balance performance with maintainability
+- .NET Core / Cross-platform
+- lots of nuget packages
 
 ---
 
@@ -445,5 +654,7 @@ Does F# work well for a text adventure game?  Yes, in my opinion.
   |   |  |   _   ||   _   || | |   ||    _  |    |   |  |       ||       |
   |___|  |__| |__||__| |__||_|  |__||___| |_|    |___|  |_______||_______|
 ```
+
+![ufo](../Assets/UFO_1.png)
 
 Check out FsLamp on Github <https://github.com/ilmaestro/FsLamp>

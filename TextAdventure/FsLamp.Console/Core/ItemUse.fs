@@ -22,22 +22,23 @@ type WhereIsItem =
 | InInventory
 | InEnvironment
 
-let private itemUseBehaviorCache : Map<(Description * ItemUse),UpdateItemBehavior> ref = ref Map.empty
-let private gameStateBehaviorCache : Map<(Description * ItemUse),UpdateGameStateBehavior> ref = ref Map.empty
+let mutable private itemUseBehaviorCache : Map<(Description * ItemUse),UpdateItemBehavior> = Map.empty
+
+let mutable private gameStateBehaviorCache : Map<(Description * ItemUse),UpdateGameStateBehavior> = Map.empty
 
 let addItemUseBehavior id b =
-    itemUseBehaviorCache := (!itemUseBehaviorCache).Add(id, b)
+    itemUseBehaviorCache <- itemUseBehaviorCache.Add(id, b)
     id
 
 let addGameStateBehavior id b =
-    gameStateBehaviorCache := (!gameStateBehaviorCache).Add(id, b)
+    gameStateBehaviorCache <- gameStateBehaviorCache.Add(id, b)
     id
 
 let findItemUseBehavior id =
-    (!itemUseBehaviorCache).TryFind id
+    itemUseBehaviorCache.TryFind id
 
 let findGameStateBehavior id =
-    (!gameStateBehaviorCache).TryFind id
+    gameStateBehaviorCache.TryFind id
 
 
 let failItemUpdate message item =
