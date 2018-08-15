@@ -1,20 +1,24 @@
-```SkyBlue
-   _______  _______    ___      _______  __   __  _______ 
-  |       ||       |  |   |    |   _   ||  |_|  ||       |
-  |    ___||  _____|  |   |    |  |_|  ||       ||    _  |
-  |   |___ | |_____   |   |    |       ||       ||   |_| |
-  |    ___||_____  |  |   |___ |       ||       ||    ___|
-  |   |     _____| |  |       ||   _   || ||_|| ||   |    
-  |___|    |_______|  |_______||__| |__||_|   |_||___|    
-```
-
 ![Hammer](../Assets/smallhammer.png)
 
 By Ryan Kilkenny - Portland F# Meetup
 
 FsLamp is a text adventure engine written in F#. It was developed out of a learning project meant to improve F# skills, game design skills, and hopefully pave the path towards future game development and natural language processing. In this talk we'll take a look at the game engine implementation and learn how to write interactive fiction games in F#.
 
+```SkyBlue
+ _______  _______    ___      _______  __   __  _______ 
+|       ||       |  |   |    |   _   ||  |_|  ||       |
+|    ___||  _____|  |   |    |  |_|  ||       ||    _  |
+|   |___ | |_____   |   |    |       ||       ||   |_| |
+|    ___||_____  |  |   |___ |       ||       ||    ___|
+|   |     _____| |  |       ||   _   || ||_|| ||   |    
+|___|    |_______|  |_______||__| |__||_|   |_||___|    
+```
+
 ---
+
+![farmer](../Assets/FarmerSprite.png)
+
+Ryan Kilkenny is a multi-paradigm polyglot primarily living in the .NET world. He's been an F# enthusiast since 2013 and interested in game development since playing Space Invaders on a Commodore VIC-20 in 1985. He is currently employed by Banfield Pet Hospital and enjoys working within a team of extremely talented IT professionals to make the world better for pets.
 
 ```SpringGreen
  _     _  __   __  _______    _______  __   __    ___   ______  
@@ -26,21 +30,9 @@ FsLamp is a text adventure engine written in F#. It was developed out of a learn
 |__| |__||__| |__||_______|  |__| |__||_|   |_|  |___|   |__|   
 ```
 
-![farmer](../Assets/FarmerSprite.png)
-
-Ryan Kilkenny is a multi-paradigm polyglot primarily living in the .NET world. He's been an F# enthusiast since 2013 and interested in game development since playing Space Invaders on a Commodore VIC-20 in 1985. He is currently employed by Banfield Pet Hospital and enjoys working within a team of extremely talented IT professionals to make the world better for pets.
-
 ---
 
-```FloralWhite
- _______  _______  _______  __    _  ______   _______ 
-|   _   ||       ||       ||  |  | ||      | |   _   |
-|  |_|  ||    ___||    ___||   |_| ||  _    ||  |_|  |
-|       ||   | __ |   |___ |       || | |   ||       |
-|       ||   ||  ||    ___||  _    || |_|   ||       |
-|   _   ||   |_| ||   |___ | | |   ||       ||   _   |
-|__| |__||_______||_______||_|  |__||______| |__| |__|
-```
+![alien](../Assets/alien_2.png)
 
 - The Game Loop
 - State
@@ -50,26 +42,22 @@ Ryan Kilkenny is a multi-paradigm polyglot primarily living in the .NET world. H
 - Behaviors
 - Why F#?
 
-![alien](../Assets/alien_2.png)
+```Gold
+ _______  _______  _______  __    _  ______   _______ 
+|   _   ||       ||       ||  |  | ||      | |   _   |
+|  |_|  ||    ___||    ___||   |_| ||  _    ||  |_|  |
+|       ||   | __ |   |___ |       || | |   ||       |
+|       ||   ||  ||    ___||  _    || |_|   ||       |
+|   _   ||   |_| ||   |___ | | |   ||       ||   _   |
+|__| |__||_______||_______||_|  |__||______| |__| |__|
+```
 
 ---
-
-```SkyBlue
- _______  _______  __   __  _______    ___      _______  _______  _______ 
-|       ||   _   ||  |_|  ||       |  |   |    |       ||       ||       |
-|    ___||  |_|  ||       ||    ___|  |   |    |   _   ||   _   ||    _  |
-|   | __ |       ||       ||   |___   |   |    |  | |  ||  | |  ||   |_| |
-|   ||  ||       ||       ||    ___|  |   |___ |  |_|  ||  |_|  ||    ___|
-|   |_| ||   _   || ||_|| ||   |___   |       ||       ||       ||   |    
-|_______||__| |__||_|   |_||_______|  |_______||_______||_______||___|    
-```
 
 ```SpringGreen
 Input -> Action -> Output -> Print -> Loop
 ```
 
----
-
 ```SkyBlue
  _______  _______  __   __  _______    ___      _______  _______  _______ 
 |       ||   _   ||  |_|  ||       |  |   |    |       ||       ||       |
@@ -79,6 +67,8 @@ Input -> Action -> Output -> Print -> Loop
 |   |_| ||   _   || ||_|| ||   |___   |       ||       ||       ||   |    
 |_______||__| |__||_|   |_||_______|  |_______||_______||_______||___|    
 ```
+
+---
 
 ```fsharp
 let RunGame actionResolver initialState =
@@ -106,19 +96,19 @@ let RunGame actionResolver initialState =
     loop [] {initialState with Output = DoNothing }
 ```
 
----
-
 ```SkyBlue
- _______  _______  __   __  _______    _______  _______  _______  _______  _______ 
-|       ||   _   ||  |_|  ||       |  |       ||       ||   _   ||       ||       |
-|    ___||  |_|  ||       ||    ___|  |  _____||_     _||  |_|  ||_     _||    ___|
-|   | __ |       ||       ||   |___   | |_____   |   |  |       |  |   |  |   |___ 
-|   ||  ||       ||       ||    ___|  |_____  |  |   |  |       |  |   |  |    ___|
-|   |_| ||   _   || ||_|| ||   |___    _____| |  |   |  |   _   |  |   |  |   |___ 
-|_______||__| |__||_|   |_||_______|  |_______|  |___|  |__| |__|  |___|  |_______|
+ _______  _______  __   __  _______    ___      _______  _______  _______ 
+|       ||   _   ||  |_|  ||       |  |   |    |       ||       ||       |
+|    ___||  |_|  ||       ||    ___|  |   |    |   _   ||   _   ||    _  |
+|   | __ |       ||       ||   |___   |   |    |  | |  ||  | |  ||   |_| |
+|   ||  ||       ||       ||    ___|  |   |___ |  |_|  ||  |_|  ||    ___|
+|   |_| ||   _   || ||_|| ||   |___   |       ||       ||       ||   |    
+|_______||__| |__||_|   |_||_______|  |_______||_______||_______||___|    
 ```
 
- - One big object graph
+---
+
+- One big object graph
 
 ```fsharp
 type GameState = {
@@ -132,9 +122,7 @@ type GameState = {
 }
 ```
 
----
-
-```SkyBlue
+```Lime
  _______  _______  __   __  _______    _______  _______  _______  _______  _______ 
 |       ||   _   ||  |_|  ||       |  |       ||       ||   _   ||       ||       |
 |    ___||  |_|  ||       ||    ___|  |  _____||_     _||  |_|  ||_     _||    ___|
@@ -143,6 +131,8 @@ type GameState = {
 |   |_| ||   _   || ||_|| ||   |___    _____| |  |   |  |   _   |  |   |  |   |___ 
 |_______||__| |__||_|   |_||_______|  |_______|  |___|  |__| |__|  |___|  |_______|
 ```
+
+---
 
 - Easy to serialize
 
@@ -157,17 +147,17 @@ module IO =
         JsonConvert.DeserializeObject<GameState>(json)
 ```
 
----
-
-```SkyBlue
- _______  _______  __   __  _______  _______  _______  ______    _______ 
-|       ||   _   ||  |_|  ||       ||       ||   _   ||    _ |  |       |
-|    ___||  |_|  ||       ||    ___||    _  ||  |_|  ||   | ||  |_     _|
-|   | __ |       ||       ||   |___ |   |_| ||       ||   |_||_   |   |  
-|   ||  ||       ||       ||    ___||    ___||       ||    __  |  |   |  
-|   |_| ||   _   || ||_|| ||   |___ |   |    |   _   ||   |  | |  |   |  
-|_______||__| |__||_|   |_||_______||___|    |__| |__||___|  |_|  |___|  
+```Lime
+ _______  _______  __   __  _______    _______  _______  _______  _______  _______ 
+|       ||   _   ||  |_|  ||       |  |       ||       ||   _   ||       ||       |
+|    ___||  |_|  ||       ||    ___|  |  _____||_     _||  |_|  ||_     _||    ___|
+|   | __ |       ||       ||   |___   | |_____   |   |  |       |  |   |  |   |___ 
+|   ||  ||       ||       ||    ___|  |_____  |  |   |  |       |  |   |  |    ___|
+|   |_| ||   _   || ||_|| ||   |___    _____| |  |   |  |   _   |  |   |  |   |___ 
+|_______||__| |__||_|   |_||_______|  |_______|  |___|  |__| |__|  |___|  |_______|
 ```
+
+---
 
 - Function that takes __GameState__ and returns __GameState__
 
@@ -175,8 +165,6 @@ module IO =
 type GamePart = GameState -> GameState
 ```
 
----
-
 ```SkyBlue
  _______  _______  __   __  _______  _______  _______  ______    _______ 
 |       ||   _   ||  |_|  ||       ||       ||   _   ||    _ |  |       |
@@ -186,6 +174,8 @@ type GamePart = GameState -> GameState
 |   |_| ||   _   || ||_|| ||   |___ |   |    |   _   ||   |  | |  |   |  
 |_______||__| |__||_|   |_||_______||___|    |__| |__||___|  |_|  |___|  
 ```
+
+---
 
 - easy to compose
 
@@ -199,25 +189,22 @@ let takeItem item : GamePart =
         |> Output.setOutput (Output (getSuccessOutputs item))
 ```
 
----
-
 ```SkyBlue
- _______  _______  ______    _______  _______  ______   
-|       ||   _   ||    _ |  |       ||       ||    _ |  
-|    _  ||  |_|  ||   | ||  |  _____||    ___||   | ||  
-|   |_| ||       ||   |_||_ | |_____ |   |___ |   |_||_ 
-|    ___||       ||    __  ||_____  ||    ___||    __  |
-|   |    |   _   ||   |  | | _____| ||   |___ |   |  | |
-|___|    |__| |__||___|  |_||_______||_______||___|  |_|
-
+ _______  _______  __   __  _______  _______  _______  ______    _______ 
+|       ||   _   ||  |_|  ||       ||       ||   _   ||    _ |  |       |
+|    ___||  |_|  ||       ||    ___||    _  ||  |_|  ||   | ||  |_     _|
+|   | __ |       ||       ||   |___ |   |_| ||       ||   |_||_   |   |  
+|   ||  ||       ||       ||    ___||    ___||       ||    __  |  |   |  
+|   |_| ||   _   || ||_|| ||   |___ |   |    |   _   ||   |  | |  |   |  
+|_______||__| |__||_|   |_||_______||___|    |__| |__||___|  |_|  |___|  
 ```
+
+---
 
 - __Parsing__ takes user input and translates it into a command
 - a command can then be __dispatched__ to an __action__
 
----
-
-```SkyBlue
+```Yellow
  _______  _______  ______    _______  _______  ______   
 |       ||   _   ||    _ |  |       ||       ||    _ |  
 |    _  ||  |_|  ||   | ||  |  _____||    ___||   | ||  
@@ -228,17 +215,17 @@ let takeItem item : GamePart =
 
 ```
 
+---
+
 ```SpringGreen
-Get Input -> LUIS -> Build Command -> Dispatch Action
+User Input -> Command Parser (LUIS) -> Dispatcher
 ```
 
 ```fsharp
 type CommandParser = string -> Command option
 ```
 
----
-
-```SkyBlue
+```Yellow
  _______  _______  ______    _______  _______  ______   
 |       ||   _   ||    _ |  |       ||       ||    _ |  
 |    _  ||  |_|  ||   | ||  |  _____||    ___||   | ||  
@@ -248,6 +235,8 @@ type CommandParser = string -> Command option
 |___|    |__| |__||___|  |_||_______||_______||___|  |_|
 
 ```
+
+---
 
 - Get input
 
@@ -262,17 +251,18 @@ let getCommand (parseInput: CommandParser) =
         NoCommand
 ```
 
----
+```Yellow
+ _______  _______  ______    _______  _______  ______   
+|       ||   _   ||    _ |  |       ||       ||    _ |  
+|    _  ||  |_|  ||   | ||  |  _____||    ___||   | ||  
+|   |_| ||       ||   |_||_ | |_____ |   |___ |   |_||_ 
+|    ___||       ||    __  ||_____  ||    ___||    __  |
+|   |    |   _   ||   |  | | _____| ||   |___ |   |  | |
+|___|    |__| |__||___|  |_||_______||_______||___|  |_|
 
-```SkyBlue
- ______   ___   _______  _______  _______  _______  _______  __   __  _______  ______   
-|      | |   | |       ||       ||   _   ||       ||       ||  | |  ||       ||    _ |  
-|  _    ||   | |  _____||    _  ||  |_|  ||_     _||       ||  |_|  ||    ___||   | ||  
-| | |   ||   | | |_____ |   |_| ||       |  |   |  |       ||       ||   |___ |   |_||_ 
-| |_|   ||   | |_____  ||    ___||       |  |   |  |      _||       ||    ___||    __  |
-|       ||   |  _____| ||   |    |   _   |  |   |  |     |_ |   _   ||   |___ |   |  | |
-|______| |___| |_______||___|    |__| |__|  |___|  |_______||__| |__||_______||___|  |_|
 ```
+
+---
 
 ```fsharp
 let dispatch command : GamePart =
@@ -309,21 +299,21 @@ let dispatch command : GamePart =
         {gamestate with LastCommand = command } |> action
 ```
 
----
-
-```SkyBlue
- ___      __   __  ___   _______ 
-|   |    |  | |  ||   | |       |
-|   |    |  | |  ||   | |  _____|
-|   |    |  |_|  ||   | | |_____ 
-|   |___ |       ||   | |_____  |
-|       ||       ||   |  _____| |
-|_______||_______||___| |_______|
+```Fuchsia
+ ______   ___   _______  _______  _______  _______  _______  __   __  _______  ______   
+|      | |   | |       ||       ||   _   ||       ||       ||  | |  ||       ||    _ |  
+|  _    ||   | |  _____||    _  ||  |_|  ||_     _||       ||  |_|  ||    ___||   | ||  
+| | |   ||   | | |_____ |   |_| ||       |  |   |  |       ||       ||   |___ |   |_||_ 
+| |_|   ||   | |_____  ||    ___||       |  |   |  |      _||       ||    ___||    __  |
+|       ||   |  _____| ||   |    |   _   |  |   |  |     |_ |   _   ||   |___ |   |  | |
+|______| |___| |_______||___|    |__| |__|  |___|  |_______||__| |__||_______||___|  |_|
 ```
+
+---
 
 Language Understanding LUIS <https://www.luis.ai/home>. A machine learning-based service to build natural language into apps, bots, and IoT devices.
 
-- Create Intents: Move, Look, Examine, TurnOn, TurnOff
+- Create Intents: Move, Look, Examine, SwitchOn, SwitchOff
 - Create Entities: Item, Operation
 - Define utterances: "go to the north", "open the door with key"
 - Improve matching with Patterns: "open {item:target} with {item:source}"
@@ -333,8 +323,6 @@ Language Understanding LUIS <https://www.luis.ai/home>. A machine learning-based
 FsLamp on LUIS
 <https://www.luis.ai/applications/a658f77c-b290-4a81-9ed8-404c95537c9d/versions/0.1/build/intents>
 
----
-
 ```SkyBlue
  ___      __   __  ___   _______ 
 |   |    |  | |  ||   | |       |
@@ -344,35 +332,42 @@ FsLamp on LUIS
 |       ||       ||   |  _____| |
 |_______||_______||___| |_______|
 ```
+
+---
 
 The LUIS outputs look like:
 
 ```json
 {
-   "query": "Book me a flight to Cairo",
-   "topScoringIntent": {
-       "intent": "BookFlight",
-       "score": 0.9887482
-   },
-   "intents": [
-       {
-           "intent": "BookFlight",
-           "score": 0.9887482
-       }
-   ],
-   "entities": [
-       {
-           "entity": "cairo",
-           "type": "Location",
-           "startIndex": 20,
-           "endIndex": 24,
-           "score": 0.956781447
-       }
-   ]
+  "query": "turn slide projector on",
+  "topScoringIntent": {
+    "intent": "SwitchOn",
+    "score": 0.6997941
+  },
+  "intents": [
+    {
+      "intent": "SwitchOn",
+      "score": 0.6997941
+    }
+  ],
+  "entities": [
+    {
+      "entity": "slide projector",
+      "type": "Item",
+      "startIndex": 5,
+      "endIndex": 17,
+      "score": 0.5267918
+    },
+    {
+      "entity": "on",
+      "type": "SwitchOperation",
+      "startIndex": 19,
+      "endIndex": 20,
+      "score": 0.6275403
+    }
+  ]
 }
 ```
-
----
 
 ```SkyBlue
  ___      __   __  ___   _______ 
@@ -383,6 +378,8 @@ The LUIS outputs look like:
 |       ||       ||   |  _____| |
 |_______||_______||___| |_______|
 ```
+
+---
 
 Example of how to parse a LUIS result
 
@@ -407,26 +404,24 @@ match query.TopScoringIntent with
     | _ -> None
 ```
 
----
-
 ```SkyBlue
- ___   _______  _______  __   __  _______ 
-|   | |       ||       ||  |_|  ||       |
-|   | |_     _||    ___||       ||  _____|
-|   |   |   |  |   |___ |       || |_____ 
-|   |   |   |  |    ___||       ||_____  |
-|   |   |   |  |   |___ | ||_|| | _____| |
-|___|   |___|  |_______||_|   |_||_______|
+ ___      __   __  ___   _______ 
+|   |    |  | |  ||   | |       |
+|   |    |  | |  ||   | |  _____|
+|   |    |  |_|  ||   | | |_____ 
+|   |___ |       ||   | |_____  |
+|       ||       ||   |  _____| |
+|_______||_______||___| |_______|
 ```
+
+---
 
 - optional properties used over inherited types
   - keeps serialization simple
   - new properties will likely need to be added, which may make increase maintenance
 - list of behaviors
 
----
-
-```SkyBlue
+```HotPink
  ___   _______  _______  __   __  _______ 
 |   | |       ||       ||  |_|  ||       |
 |   | |_     _||    ___||       ||  _____|
@@ -435,6 +430,8 @@ match query.TopScoringIntent with
 |   |   |   |  |   |___ | ||_|| | _____| |
 |___|   |___|  |_______||_|   |_||_______|
 ```
+
+---
 
 ```fsharp
 type InventoryItem = {
@@ -449,9 +446,7 @@ type InventoryItem = {
 }
 ```
 
----
-
-```SkyBlue
+```HotPink
  ___   _______  _______  __   __  _______ 
 |   | |       ||       ||  |_|  ||       |
 |   | |_     _||    ___||       ||  _____|
@@ -461,30 +456,56 @@ type InventoryItem = {
 |___|   |___|  |_______||_|   |_||_______|
 ```
 
+---
+
 ```fsharp
 let theSun =
     createBasicItem "sun" "is shining overhead." [(Description "ball of fire", ProvidesLight)]
 
 ```
 
+```HotPink
+ ___   _______  _______  __   __  _______ 
+|   | |       ||       ||  |_|  ||       |
+|   | |_     _||    ___||       ||  _____|
+|   |   |   |  |   |___ |       || |_____ 
+|   |   |   |  |    ___||       ||_____  |
+|   |   |   |  |   |___ | ||_|| | _____| |
+|___|   |___|  |_______||_|   |_||_______|
+```
+
 ---
 
-```SkyBlue
- _______  _______  __   __  _______  __   __  ___   _______  ______    _______ 
-|  _    ||       ||  | |  ||   _   ||  | |  ||   | |       ||    _ |  |       |
-| |_|   ||    ___||  |_|  ||  |_|  ||  |_|  ||   | |   _   ||   | ||  |  _____|
-|       ||   |___ |       ||       ||       ||   | |  | |  ||   |_||_ | |_____ 
-|  _   | |    ___||       ||       ||       ||   | |  |_|  ||    __  ||_____  |
-| |_|   ||   |___ |   _   ||   _   | |     | |   | |       ||   |  | | _____| |
-|_______||_______||__| |__||__| |__|  |___|  |___| |_______||___|  |_||_______|
+```fsharp
+let mailbox =
+    createInventoryItem
+        "mailbox" "propped up by a small stick"
+        None
+        None
+        None
+        (Some [letter;])
+        [
+            (Behaviors.putIn "shoved inside the tiny mailbox.");
+            (Behaviors.takeOut "taken from the scrappy mailbox.")]
+
 ```
+
+```HotPink
+ ___   _______  _______  __   __  _______ 
+|   | |       ||       ||  |_|  ||       |
+|   | |_     _||    ___||       ||  _____|
+|   |   |   |  |   |___ |       || |_____ 
+|   |   |   |  |    ___||       ||_____  |
+|   |   |   |  |   |___ | ||_|| | _____| |
+|___|   |___|  |_______||_|   |_||_______|
+```
+
+---
 
 - Game behaviors give the player the ability to interact with items in the game
 - Each behavior assigned an Id and stored in a runtime cache
 - Behavior Id's get persisted in GameState as part of an item
 
----
-
 ```SkyBlue
  _______  _______  __   __  _______  __   __  ___   _______  ______    _______ 
 |  _    ||       ||  | |  ||   _   ||  | |  ||   | |       ||    _ |  |       |
@@ -494,6 +515,8 @@ let theSun =
 | |_|   ||   |___ |   _   ||   _   | |     | |   | |       ||   |  | | _____| |
 |_______||_______||__| |__||__| |__|  |___|  |___| |_______||___|  |_||_______|
 ```
+
+---
 
 ```fsharp
 type UpdateGameStateBehavior =
@@ -503,8 +526,6 @@ type UpdateItemBehavior =
     (ItemUse * InventoryItem) -> Result<InventoryItem,UpdateItemFailure>
 ```
 
----
-
 ```SkyBlue
  _______  _______  __   __  _______  __   __  ___   _______  ______    _______ 
 |  _    ||       ||  | |  ||   _   ||  | |  ||   | |       ||    _ |  |       |
@@ -514,6 +535,8 @@ type UpdateItemBehavior =
 | |_|   ||   |___ |   _   ||   _   | |     | |   | |       ||   |  | | _____| |
 |_______||_______||__| |__||__| |__|  |___|  |___| |_______||___|  |_||_______|
 ```
+
+---
 
 - Behaviors are saved to a cache at runtime
 
@@ -529,8 +552,6 @@ let findGameStateBehavior id =
     gameStateBehaviorCache.TryFind id
 ```
 
----
-
 ```SkyBlue
  _______  _______  __   __  _______  __   __  ___   _______  ______    _______ 
 |  _    ||       ||  | |  ||   _   ||  | |  ||   | |       ||    _ |  |       |
@@ -540,6 +561,8 @@ let findGameStateBehavior id =
 | |_|   ||   |___ |   _   ||   _   | |     | |   | |       ||   |  | | _____| |
 |_______||_______||__| |__||__| |__|  |___|  |___| |_______||___|  |_||_______|
 ```
+
+---
 
 Define behaviors
 
@@ -561,8 +584,6 @@ Define behaviors
             (updateHealthBehavior (fun (Health (life,total)) -> Health(life - amount,total)))
 ```
 
----
-
 ```SkyBlue
  _______  _______  __   __  _______  __   __  ___   _______  ______    _______ 
 |  _    ||       ||  | |  ||   _   ||  | |  ||   | |       ||    _ |  |       |
@@ -572,6 +593,8 @@ Define behaviors
 | |_|   ||   |___ |   _   ||   _   | |     | |   | |       ||   |  | | _____| |
 |_______||_______||__| |__||__| |__|  |___|  |___| |_______||___|  |_||_______|
 ```
+
+---
 
 Add the behaviors to items
 
@@ -596,8 +619,6 @@ let lantern =
         ]
 ```
 
----
-
 ```SkyBlue
  _______  _______  __   __  _______  __   __  ___   _______  ______    _______ 
 |  _    ||       ||  | |  ||   _   ||  | |  ||   | |       ||    _ |  |       |
@@ -607,6 +628,8 @@ let lantern =
 | |_|   ||   |___ |   _   ||   _   | |     | |   | |       ||   |  | | _____| |
 |_______||_______||__| |__||__| |__|  |___|  |___| |_______||___|  |_||_______|
 ```
+
+---
 
 Add items to Environments
 
@@ -631,7 +654,9 @@ let origin =
 |_______||_______||__| |__||__| |__|  |___|  |___| |_______||___|  |_||_______|
 ```
 
-- Serialized nicely
+---
+
+- JSON excerpt
 
 ```json
 "Behaviors": [
@@ -673,16 +698,6 @@ let origin =
 
 ---
 
-```SkyBlue
- _     _  __   __  __   __  ______  
-| | _ | ||  | |  ||  | |  ||      | 
-| || || ||  |_|  ||  |_|  ||___   | 
-|       ||       ||       |  __|  | 
-|       ||       ||_     _| |_____| 
-|   _   ||   _   |  |   |     __    
-|__| |__||__| |__|  |___|    |__|   
-```
-
 Does F# work well for a text adventure game?  Yes, in my opinion.
 
 - Domain driven design
@@ -693,7 +708,21 @@ Does F# work well for a text adventure game?  Yes, in my opinion.
 - .NET Core / Cross-platform
 - lots of nuget packages
 
+```Gold
+ _     _  __   __  __   __  ______  
+| | _ | ||  | |  ||  | |  ||      | 
+| || || ||  |_|  ||  |_|  ||___   | 
+|       ||       ||       |  __|  | 
+|       ||       ||_     _| |_____| 
+|   _   ||   _   |  |   |     __    
+|__| |__||__| |__|  |___|    |__|   
+```
+
 ---
+
+![ufo](../Assets/UFO_1.png)
+
+Check out FsLamp on Github <https://github.com/ilmaestro/FsLamp>
 
 ```Firebrick
  _______  __   __  _______  __    _  ___   _    __   __  _______  __   __ 
@@ -704,7 +733,3 @@ Does F# work well for a text adventure game?  Yes, in my opinion.
   |   |  |   _   ||   _   || | |   ||    _  |    |   |  |       ||       |
   |___|  |__| |__||__| |__||_|  |__||___| |_|    |___|  |_______||_______|
 ```
-
-![ufo](../Assets/UFO_1.png)
-
-Check out FsLamp on Github <https://github.com/ilmaestro/FsLamp>

@@ -56,3 +56,15 @@ let private getNextInventoryItemId () =
 
 let createInventoryItem name description health switchState stats contains behaviors =
     { Id = getNextInventoryItemId (); Name = name; Description = description; Health = health; SwitchState = switchState; Stats = stats; Contains = contains; Behaviors = behaviors }
+
+let inventoryStatus (items: InventoryItem list) =
+    let list = 
+        items 
+        |> List.map (fun item ->
+            "- " + item.Name
+        )
+        |> String.concat "\n" 
+    sprintf """
+## Inventory
+%s
+    """ list

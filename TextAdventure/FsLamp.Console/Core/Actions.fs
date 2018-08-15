@@ -13,10 +13,11 @@ type GamePart = GameState -> GameState
 module Common =
     let status : GamePart =
         fun gamestate ->
+            let playerStats = gamestate.Player |> playerStatus
+            let inventory = gamestate.Inventory |> Items.inventoryStatus
             let outputs = [
-                sprintf "%A" gamestate.Player;
-                sprintf "%A" gamestate.World.Time;    
-                sprintf "%A" gamestate.Inventory;
+                playerStats;
+                inventory
             ]
             { gamestate with Output = Output outputs }
     let noOp : GamePart =

@@ -12,7 +12,7 @@ ZORK is a game of adventure, danger, and low cunning. In it you will explore som
 
 ... okay okay, just kidding ...
 
-WECOME TO FSLAMP!
+WELCOME TO FSLAMP!
 
 FSLAMP is a homage to the original text adventure games like ZORK, but mostly an excuse to write a console game in F# using .NET Core.
 
