@@ -49,7 +49,7 @@ let defaultMap () =
             "You see the remnants of an old dusty office. Clearly this place hasn't been used in years. Except for an old typewriter on the desk is missing most of its keys, the room is completely empty."
             [ Exit.create 6 3 Open West (Steps 6) "door with no features"; Exit.create 7 5 Hidden Down (Steps 2) "secret passage"]
             [typewriter]
-            [Encounter.create "A gruet jumps out from the darkness." [grue]]
+            [Encounter.create "A grue jumps out from the darkness." [grue]]
             (Some ambientLight)
         );
         (Environment.create 5 "Secret Passage"

@@ -679,7 +679,7 @@
                         "Case": "Encounter",
                         "Fields": [
                             {
-                                "Description": "A gruet jumps out from the darkness.",
+                                "Description": "A grue jumps out from the darkness.",
                                 "Monsters": [
                                     {
                                         "Id": {
@@ -688,7 +688,7 @@
                                                 2
                                             ]
                                         },
-                                        "Name": "Gruet",
+                                        "Name": "Grue",
                                         "Health": {
                                             "Case": "Health",
                                             "Fields": [
