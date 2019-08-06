@@ -6,10 +6,12 @@ open GameState
 open LUISApi.Model
 open Parser
 open Microsoft.Extensions.Configuration
+open Microsoft.Extensions.Configuration.UserSecrets
 
 let configuration = 
-    ((new ConfigurationBuilder())
+    ((ConfigurationBuilder())
             .AddJsonFile("appsettings.json")
+            .AddUserSecrets("4dfd08bf-6085-4442-afbd-f478432a5da9")
             .Build()) :> IConfiguration
 
 let getLuisSettings (config: IConfiguration) =

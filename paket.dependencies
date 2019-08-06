@@ -1,8 +1,0 @@
-source https://www.nuget.org/api/v2
-nuget FAKE
-nuget FSharp.Data
-nuget Newtonsoft.Json
-nuget SkiaSharp
-nuget CommonMark.NET
-nuget Microsoft.Cognitive.LUIS
-nuget Microsoft.Extensions.Configuration.Json
