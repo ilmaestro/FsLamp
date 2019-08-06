@@ -3,7 +3,8 @@ open System
 open Domain
 open GameState
 open Parser
-open Primitives
+open FsLamp.Core.Primitives
+open FsLamp.Core.Primitives.Constants
 
 let private writeOutputLog = function
     | Output log ->

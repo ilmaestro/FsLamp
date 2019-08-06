@@ -5,7 +5,6 @@
     <UserSecretsId>4dfd08bf-6085-4442-afbd-f478432a5da9</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Core/Primitives.fs" />
     <Compile Include="Core/Domain.fs" />
     <Compile Include="Core/Utility.fs" />
     <Compile Include="Core/Items.fs" />
@@ -39,5 +38,8 @@
     <Content Include="appsettings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\FsLamp.Core\FsLamp.Core.fsproj" />
   </ItemGroup>
 </Project>

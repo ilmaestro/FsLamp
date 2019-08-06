@@ -1,5 +1,5 @@
 module Items
-open Primitives
+open FsLamp.Core.Primitives
 open Domain
 
 type InventoryItem = {

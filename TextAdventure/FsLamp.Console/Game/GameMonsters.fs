@@ -1,5 +1,5 @@
 module GameMonsters
-open Primitives
+open FsLamp.Core.Primitives
 open Domain
 open Environment
 

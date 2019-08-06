@@ -1,6 +1,7 @@
 module Domain
 open System
-open Primitives
+open FsLamp.Core.Primitives
+open FsLamp.Core.Primitives.Constants
 
 type Stats = {
     Attack: AttackStat

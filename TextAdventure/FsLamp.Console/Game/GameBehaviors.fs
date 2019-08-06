@@ -1,5 +1,5 @@
 module GameBehaviors
-open Primitives
+open FsLamp.Core.Primitives
 open Domain
 open ItemUse
 open Items

@@ -1,5 +1,5 @@
 module Player
-open Primitives
+open FsLamp.Core.Primitives
 open Domain
 open GameState
 

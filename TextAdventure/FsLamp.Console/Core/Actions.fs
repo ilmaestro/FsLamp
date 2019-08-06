@@ -1,5 +1,5 @@
 module Actions
-open Primitives
+open FsLamp.Core.Primitives
 open Domain
 open GameState
 open Environment

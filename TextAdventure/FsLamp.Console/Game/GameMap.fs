@@ -1,5 +1,5 @@
 module GameMap
-open Primitives
+open FsLamp.Core.Primitives
 open Domain
 open Environment
 open GameItems

@@ -1,5 +1,5 @@
 module ItemUse
-open Primitives
+open FsLamp.Core.Primitives
 open Items
 open GameState
 
