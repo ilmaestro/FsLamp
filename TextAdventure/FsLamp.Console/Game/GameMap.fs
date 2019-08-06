@@ -1,7 +1,7 @@
 module GameMap
 open FsLamp.Core.Primitives
-open Domain
-open Environment
+open FsLamp.Core.Domain
+open FsLamp.Core
 open GameItems
 open GameMonsters
 open System

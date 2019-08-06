@@ -5,13 +5,7 @@
     <UserSecretsId>4dfd08bf-6085-4442-afbd-f478432a5da9</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Core/Domain.fs" />
     <Compile Include="Core/Utility.fs" />
-    <Compile Include="Core/Items.fs" />
-    <Compile Include="Core/Environment.fs" />
-    <Compile Include="Core/GameState.fs" />
-    <Compile Include="Core/ItemUse.fs" />
-    <Compile Include="Core/Player.fs" />
     <Compile Include="Core/LUISApi.fs" />
     <Compile Include="Core/Parser.fs" />
     <Compile Include="Core/Actions.fs" />

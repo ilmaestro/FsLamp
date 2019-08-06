@@ -1,7 +1,7 @@
 module GameMonsters
 open FsLamp.Core.Primitives
-open Domain
-open Environment
+open FsLamp.Core.Domain
+open FsLamp.Core
 
 let player1 = 
     Player.create "P1" (createStats 2 14 3) 15

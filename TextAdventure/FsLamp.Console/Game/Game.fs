@@ -1,9 +1,11 @@
 module Game
-open Domain
-open ItemUse
-open GameState
+
+open FsLamp.Core
+open FsLamp.Core.Domain
+open FsLamp.Core.ItemUse
+open FsLamp.Core.GameState
 open Actions
-open Environment
+open FsLamp.Core.Environment
 open Parser
 open System
 open GameMonsters

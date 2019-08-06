@@ -1,10 +1,8 @@
 module Console
 open System
-open Domain
-open GameState
-open Parser
+open FsLamp.Core.Domain
+open FsLamp.Core.GameState
 open FsLamp.Core.Primitives
-open FsLamp.Core.Primitives.Constants
 
 let private writeOutputLog = function
     | Output log ->

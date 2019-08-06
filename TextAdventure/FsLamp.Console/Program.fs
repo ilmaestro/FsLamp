@@ -1,8 +1,6 @@
-﻿open Domain
-open Actions
-open Game
+﻿open Game
 open GameMap
-open GameState
+open FsLamp.Core.GameState
 open LUISApi.Model
 open Parser
 open Microsoft.Extensions.Configuration

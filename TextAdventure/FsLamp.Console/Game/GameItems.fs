@@ -1,6 +1,7 @@
 module GameItems
+open FsLamp.Core
 open FsLamp.Core.Primitives
-open Items
+open FsLamp.Core.Items
 open GameBehaviors
 
 let createBasicItem name description behaviors =

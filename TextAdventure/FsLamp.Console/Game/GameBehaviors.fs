@@ -1,10 +1,10 @@
 module GameBehaviors
+open FsLamp.Core
 open FsLamp.Core.Primitives
-open Domain
-open ItemUse
-open Items
-open Environment
-open GameState
+open FsLamp.Core.Domain
+open FsLamp.Core.ItemUse
+open FsLamp.Core.Items
+open FsLamp.Core.GameState
 open Actions
 open System
 
