@@ -6,6 +6,10 @@
 - Pygments (uses the pygmentize CLI) (pip install pygments)
 - SkiaSharp
 
+### Terminal Support
+
+FsLamp requires a terminal that supports TrueColor.  See list of terminals at this link: <https://gist.github.com/XVilka/8346728>
+
 ## Game Loop
 
 Input -> Parser -> Command -> Dispatcher -> Output
