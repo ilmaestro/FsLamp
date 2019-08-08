@@ -1,8 +1,8 @@
-module Dispatcher
+module FsLamp.Game.Dispatcher
 open FsLamp.Core.Domain
 open FsLamp.Core.GameState
-open Actions
 open FsLamp.Core.Items
+open FsLamp.Game.Actions
 
 let getSaveDataFilename = 
     "./SaveData/GameSave.json"

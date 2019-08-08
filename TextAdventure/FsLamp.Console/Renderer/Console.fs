@@ -25,3 +25,25 @@ let getCommand (parseInput: CommandParser) =
     | None -> 
         printfn "I don't understand %s." readline
         NoCommand
+
+type ConsoleRenderer() =
+    interface FsLamp.Core.IRenderer with
+        member x.RenderGameState(gs) =
+            let (Health (cur,max)) = gs.Player.Health
+            let health = sprintf "%i/%i" cur max
+            let (Experience (exp, _)) = gs.Player.Experience
+            let time = gs.World.Time.ToString()
+            ConsoleService.PageView.drawScreen (gs.Output |> writeOutputLog) gs.Environment.Name health exp time
+
+        member x.RenderMarkdown(input) =
+            ConsoleService.Markdown.renderSomething input
+        
+        member x.Clear() =
+            ConsoleService.clearScreen()
+
+        member x.Init() = 
+            ConsoleService.useAlternateScreenBuffer ()
+            ConsoleService.clearScreen()
+           
+        member x.Close() =
+            ConsoleService.useMainScreenBuffer()

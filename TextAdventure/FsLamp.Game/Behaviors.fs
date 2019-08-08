@@ -1,12 +1,13 @@
-module GameBehaviors
+namespace FsLamp.Game
+
+open System
 open FsLamp.Core
 open FsLamp.Core.Primitives
 open FsLamp.Core.Domain
 open FsLamp.Core.ItemUse
 open FsLamp.Core.Items
 open FsLamp.Core.GameState
-open Actions
-open System
+open FsLamp.Game.Actions
 
 module Common =
     let updateHealthBehavior f : UpdateItemBehavior=
@@ -31,7 +32,7 @@ module Common =
                 gamestate |> failGameStateUpdate (sprintf "%s is already %s" item.Name (switchState.ToString()) )
             | _ -> gamestate |> failGameStateUpdate "Item use not supported"
 
-    let slidesSwitchBehavior : UpdateGameStateBehavior =
+    let slidesSwitchBehavior (renderer: FsLamp.Core.IRenderer): UpdateGameStateBehavior =
         let rec getCommand () = 
             let keyInfo = System.Console.ReadKey()
             match keyInfo.Key with
@@ -45,15 +46,16 @@ module Common =
         fun (itemUse: ItemUse, item, gamestate) ->
             // get slide
             let slideContent = Utility.readTextAsset(item.Description)
-            let slides = slideContent.Split("---")
+            
+            let slides = slideContent.Split([|"---"|], StringSplitOptions.None)
             //let mutable slideIndex = 0
             let slideLength = slides.Length
 
             // interupt the game loop with our own game loop
             let rec slideLoop slideIndex =
-                ConsoleService.clearScreen()
+                renderer.Clear()
                 printfn ""
-                ConsoleService.Markdown.renderSomething slides.[slideIndex]
+                renderer.RenderMarkdown(slides.[slideIndex])
                 printfn ""
                 printf "%i/%i" (slideIndex + 1) (slideLength)
 
@@ -238,7 +240,7 @@ module Behaviors =
             (Description description, ItemUse.Defaults.TakeOut)
             (takeOutBehavior)
 
-    let slidesOnOff description =
+    let slidesOnOff description renderer =
         ItemUse.addGameStateBehavior
             (Description description, ItemUse.Defaults.TurnOnOff)
-            (slidesSwitchBehavior)
+            (slidesSwitchBehavior renderer)

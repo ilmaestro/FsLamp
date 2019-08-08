@@ -1,8 +1,8 @@
-module GameItems
+module FsLamp.Game.Items
 open FsLamp.Core
 open FsLamp.Core.Primitives
 open FsLamp.Core.Items
-open GameBehaviors
+open FsLamp.Game
 
 let createBasicItem name description behaviors =
     createInventoryItem name description None None None None behaviors
@@ -51,7 +51,7 @@ let lanternItem =
             (Description "Light", ProvidesLight);
         ]
 
-let slideProjector =
+let slideProjector renderer =
     createInventoryItem "slide projector"
         "presentation.md"
         None
@@ -59,7 +59,7 @@ let slideProjector =
         None
         None
         [
-            Behaviors.slidesOnOff ".... well that was interesting. Thanks!"
+            Behaviors.slidesOnOff ".... well that was interesting. Thanks!" renderer
         ]
 let gold =
     createBasicItem "Gold" "that probably fell out of someones pocket" [

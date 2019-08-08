@@ -1,4 +1,4 @@
-module Actions
+module FsLamp.Game.Actions
 open System
 open FsLamp.Core
 open FsLamp.Core.Primitives

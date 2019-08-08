@@ -12,6 +12,7 @@
     <Compile Include="GameState.fs" />
     <Compile Include="ItemUse.fs" />
     <Compile Include="Player.fs" />
+    <Compile Include="Renderer.fs" />
   </ItemGroup>
 
 </Project>

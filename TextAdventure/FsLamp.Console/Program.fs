@@ -1,5 +1,4 @@
-﻿open Game
-open GameMap
+﻿open FsLamp.Game
 open FsLamp.Core.GameState
 open LUISApi.Model
 open Parser
@@ -28,5 +27,8 @@ let main _ =
             | CustomScene parser -> parser
         Console.getCommand parser |> Dispatcher.dispatch
 
-    RunGame actionResolver (defaultGamestate (defaultMap()))
+    let renderer = Console.ConsoleRenderer()
+    let defaultMap = Map.defaultMap renderer
+    let defaultGamestate = Startup.defaultGamestate defaultMap
+    Startup.RunGame actionResolver defaultGamestate renderer
     0

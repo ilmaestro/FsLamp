@@ -1,4 +1,4 @@
-module Utility
+module FsLamp.Game.Utility
 
 open Newtonsoft.Json
 open FsLamp.Core.GameState
