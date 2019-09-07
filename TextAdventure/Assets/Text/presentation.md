@@ -1,6 +1,6 @@
 ![Hammer](../Assets/smallhammer.png)
 
-By Ryan Kilkenny - Portland F# Meetup
+By Ryan Kilkenny - Open F# Conf
 
 FsLamp is a text adventure engine written in F#. It was developed out of a learning project meant to improve F# skills, game design skills, and hopefully pave the path towards future game development and natural language processing. In this talk we'll take a look at the game engine implementation and learn how to write interactive fiction games in F#.
 
@@ -108,7 +108,9 @@ let RunGame actionResolver initialState =
 
 ---
 
-- One big object graph
+```SpringGreen
+One big object graph
+```
 
 ```fsharp
 type GameState = {
@@ -134,7 +136,9 @@ type GameState = {
 
 ---
 
-- Easy to serialize
+```SpringGreen
+Serializable
+```
 
 ```fsharp
 module IO =
@@ -159,8 +163,6 @@ module IO =
 
 ---
 
-- Function that takes __GameState__ and returns __GameState__
-
 ```fsharp
 type GamePart = GameState -> GameState
 ```
@@ -177,7 +179,9 @@ type GamePart = GameState -> GameState
 
 ---
 
-- easy to compose
+```SpringGreen
+Composable
+```
 
 ```fsharp
 let takeItem item : GamePart =
@@ -238,7 +242,9 @@ type CommandParser = string -> Command option
 
 ---
 
-- Get input
+```SpringGreen
+Get Input
+```
 
 ```fsharp
 let getCommand (parseInput: CommandParser) =
@@ -311,7 +317,9 @@ let dispatch command : GamePart =
 
 ---
 
+```SpringGreen
 Language Understanding LUIS <https://www.luis.ai/home>. A machine learning-based service to build natural language into apps, bots, and IoT devices.
+```
 
 - Create Intents: Move, Look, Examine, SwitchOn, SwitchOff
 - Create Entities: Item, Operation
@@ -320,7 +328,11 @@ Language Understanding LUIS <https://www.luis.ai/home>. A machine learning-based
 - Train
 - Publish
 
+```SpringGreen
+
 FsLamp on LUIS
+```
+
 <https://www.luis.ai/applications/a658f77c-b290-4a81-9ed8-404c95537c9d/versions/0.1/build/intents>
 
 ```SkyBlue
@@ -335,7 +347,9 @@ FsLamp on LUIS
 
 ---
 
-The LUIS outputs look like:
+```SpringGreen
+LUIS outputs
+```
 
 ```json
 {
@@ -381,7 +395,9 @@ The LUIS outputs look like:
 
 ---
 
-Example of how to parse a LUIS result
+```SpringGreen
+How to parse a LUIS result
+```
 
 ```fsharp
 match query.TopScoringIntent with
@@ -503,7 +519,7 @@ let mailbox =
 ---
 
 - Game behaviors give the player the ability to interact with items in the game
-- Each behavior assigned an Id and stored in a runtime cache
+- Each behavior is assigned an Id and stored in a runtime cache
 - Behavior Id's get persisted in GameState as part of an item
 
 ```SkyBlue
@@ -523,7 +539,7 @@ type UpdateGameStateBehavior =
     (ItemUse * InventoryItem * GameState) -> Result<GameState, UpdateGameStateFailure>
 
 type UpdateItemBehavior =
-    (ItemUse * InventoryItem) -> Result<InventoryItem,UpdateItemFailure>
+    (ItemUse * InventoryItem) -> Result<InventoryItem, UpdateItemFailure>
 ```
 
 ```SkyBlue
@@ -538,10 +554,12 @@ type UpdateItemBehavior =
 
 ---
 
-- Behaviors are saved to a cache at runtime
+```SpringGreen
+Behaviors are saved to a cache at runtime
+```
 
 ```fsharp
-let mutable private gameStateBehaviorCache : Map<(Description * ItemUse),UpdateGameStateBehavior> =
+let mutable private gameStateBehaviorCache : Map<(Description * ItemUse), UpdateGameStateBehavior> =
     Map.empty
 
 let addGameStateBehavior id b =
@@ -564,10 +582,12 @@ let findGameStateBehavior id =
 
 ---
 
+```SpringGreen
 Define behaviors
+```
 
 ```fsharp
-    let updateHealthBehavior f : UpdateItemBehavior=
+    let updateHealthBehavior f : UpdateItemBehavior =
         fun (itemUse: ItemUse, item: InventoryItem) ->
             match itemUse, item.Health, item.SwitchState with
             | LoseLifeOnUpdate, Some h, Some switch ->
@@ -581,7 +601,7 @@ Define behaviors
     let loseBattery description amount =
         ItemUse.addItemUseBehavior
             (Description description, Items.LoseLifeOnUpdate)
-            (updateHealthBehavior (fun (Health (life,total)) -> Health(life - amount,total)))
+            (updateHealthBehavior (fun (Health (life, total)) -> Health(life - amount, total)))
 ```
 
 ```SkyBlue
@@ -596,7 +616,9 @@ Define behaviors
 
 ---
 
+```SpringGreen
 Add the behaviors to items
+```
 
 ```fsharp
 let lantern =
@@ -607,7 +629,7 @@ let lantern =
         None
         None
         [
-            Behaviors.loseBattery "Batter Life" 1; // per turn
+            Behaviors.loseBattery "Battery Life" 1; // per turn
             Behaviors.batteryWarnings "Battery Warning"
                 [
                     (0,0, "Lantern's batteries are dead.");
@@ -631,16 +653,18 @@ let lantern =
 
 ---
 
+```SpringGreen
 Add items to Environments
+```
 
 ```fsharp
 let origin =
-    (Environment.create 1 "Origin"
-            (Utility.readTextAsset "1_Intro.md")
-            [Exit.create 1 2 Open North (Steps 2) "Creaky door"]
-            [keyItem (ExitId 5); lanternItem; mailbox;]
-            []
-            (Some ambientLight)
+    (Environment.create 1 "Origin"                               // name
+            (Utility.readTextAsset "1_Intro.md")                 // description
+            [Exit.create 1 2 Open North (Steps 2) "Creaky door"] // exits
+            [keyItem (ExitId 5); lanternItem; mailbox;]          // items
+            []                                                   // environment stuff
+            (Some ambientLight)                                  // light source
         )
 ```
 
@@ -655,8 +679,6 @@ let origin =
 ```
 
 ---
-
-- JSON excerpt
 
 ```json
 "Behaviors": [
@@ -698,7 +720,9 @@ let origin =
 
 ---
 
+```SpringGreen
 Does F# work well for a text adventure game?  Yes, in my opinion.
+```
 
 - Domain driven design
 - Immutable

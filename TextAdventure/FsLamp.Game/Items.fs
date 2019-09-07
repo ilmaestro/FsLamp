@@ -40,7 +40,7 @@ let lanternItem =
         None
         None
         [
-            Behaviors.loseBattery "Batter Life" 1;
+            Behaviors.loseBattery "Battery Life" 1;
             Behaviors.batteryWarnings "Battery Warning"
                 [
                     (0,0, "Lantern's batteries are dead.");
@@ -61,6 +61,7 @@ let slideProjector renderer =
         [
             Behaviors.slidesOnOff ".... well that was interesting. Thanks!" renderer
         ]
+
 let gold =
     createBasicItem "Gold" "that probably fell out of someones pocket" [
         (Behaviors.takeItem "GOOOLD!" true;)
@@ -88,18 +89,3 @@ let mailbox =
         [
             (Behaviors.putIn "shoved inside the tiny mailbox.");
             (Behaviors.takeOut "taken from the scrappy mailbox.")]
-
-// let agendaDoc =
-//     createBasicItem "agenda" "" [
-//         (Description (Utility.readTextAsset "meetup_agenda.md"), Readable);
-//         ]
-
-// let gameLoopDoc =
-//     createBasicItem "game loop" "" [
-//         (Description (Utility.readTextAsset "meetup_gameloop.md"), Readable);
-//         ]
-
-// let luisDoc =
-//     createBasicItem "luis" "" [
-//         (Description (Utility.readTextAsset "meetup_luis.md"), Readable);
-//         ]
