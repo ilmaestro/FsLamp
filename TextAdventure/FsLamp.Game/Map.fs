@@ -1,9 +1,9 @@
-module GameMap
-open Primitives
-open Domain
-open Environment
-open GameItems
-open GameMonsters
+module FsLamp.Game.Map
+open FsLamp.Core.Primitives
+open FsLamp.Core.Domain
+open FsLamp.Core
+open FsLamp.Game.Items
+open FsLamp.Game.Characters
 open System
 
 (* 
@@ -18,7 +18,7 @@ open System
     - the meetup
 
 *)
-let defaultMap () =
+let defaultMap (renderer: FsLamp.Core.IRenderer) =
     [|
         (Environment.create 1 "Origin"
             (Utility.readTextAsset "1_Intro.md")
@@ -77,7 +77,7 @@ A few seconds pass, finally a response... 'die!'.  As you fall backward you stum
         (Environment.create 8 "The Meetup"
             (Utility.readTextAsset "meetup_1.md")
             []
-            [slideProjector] //[agendaDoc; gameLoopDoc; luisDoc; ]
+            [slideProjector renderer] //[agendaDoc; gameLoopDoc; luisDoc; ]
             []
             (Some theSun)
             )

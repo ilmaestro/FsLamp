@@ -1,13 +1,12 @@
-module Game
-open Domain
-open ItemUse
-open GameState
-open Actions
-open Environment
-open Parser
+module FsLamp.Game.Startup
+
 open System
-open GameMonsters
-open ConsoleService
+open FsLamp.Core
+open FsLamp.Core.Domain
+open FsLamp.Core.ItemUse
+open FsLamp.Core.GameState
+open FsLamp.Game.Actions
+open FsLamp.Game.Characters
 
 let defaultGamestate map =
     { Player = player1;
@@ -62,9 +61,7 @@ let getGameObjectOutputs : GamePart =
         ) gamestate
 
 // loop: Read -> Parse -> Command -> Action -> Print -> Loop
-let RunGame
-    actionResolver
-    initialState =
+let RunGame actionResolver initialState (renderer: FsLamp.Core.IRenderer) =
     let rec loop history gamestate =
 
         // get action from dispatcher based on input
@@ -74,7 +71,7 @@ let RunGame
         let nextGameState = gamestate |> updateGameObjects |> action |> getGameObjectOutputs
 
         // update screen
-        Console.update nextGameState
+        renderer.RenderGameState(nextGameState)
 
         // handle output
         match nextGameState.Output with
@@ -83,22 +80,21 @@ let RunGame
         | Rollback ->
             match history with
             | _ :: old :: tail  ->
-                Console.update (old |> Output.addOutput "Rolled back...")
+                renderer.RenderGameState(old |> Output.addOutput "Rolled back...")
                 loop tail old
             | _ ->
                 loop history gamestate
         | GameOver ->
             let outputs = match initialState.Output with Output x -> x | _ -> []
             let gamestate' = {initialState with Output = Output ("Game Over! Starting back at the beginning." :: outputs) }
-            Console.update gamestate'
+            renderer.RenderGameState(gamestate')
             loop [] gamestate'
         | ExitGame ->
-            useMainScreenBuffer ()
+            renderer.Close()
 
-    useAlternateScreenBuffer ()
-    clearScreen()
+    renderer.Init()
 
     // initial screen update
-    Console.update initialState
+    renderer.RenderGameState(initialState)
 
     loop [] {initialState with Output = DoNothing }

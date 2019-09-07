@@ -1,5 +1,5 @@
 module Parser
-open Domain
+open FsLamp.Core.Domain
 open System
 
 type Pattern =

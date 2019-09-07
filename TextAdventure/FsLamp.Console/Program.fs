@@ -1,15 +1,14 @@
-﻿open Domain
-open Actions
-open Game
-open GameMap
-open GameState
+﻿open FsLamp.Game
+open FsLamp.Core.GameState
 open LUISApi.Model
 open Parser
 open Microsoft.Extensions.Configuration
+open Microsoft.Extensions.Configuration.UserSecrets
 
 let configuration = 
-    ((new ConfigurationBuilder())
+    ((ConfigurationBuilder())
             .AddJsonFile("appsettings.json")
+            .AddUserSecrets("4dfd08bf-6085-4442-afbd-f478432a5da9")
             .Build()) :> IConfiguration
 
 let getLuisSettings (config: IConfiguration) =
@@ -28,5 +27,8 @@ let main _ =
             | CustomScene parser -> parser
         Console.getCommand parser |> Dispatcher.dispatch
 
-    RunGame actionResolver (defaultGamestate (defaultMap()))
+    let renderer = Console.ConsoleRenderer()
+    let defaultMap = Map.defaultMap renderer
+    let defaultGamestate = Startup.defaultGamestate defaultMap
+    Startup.RunGame actionResolver defaultGamestate renderer
     0

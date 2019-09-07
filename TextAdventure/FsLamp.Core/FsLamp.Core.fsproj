@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="Primitives.fs" />
+    <Compile Include="Domain.fs" />
+    <Compile Include="Items.fs" />
+    <Compile Include="Environment.fs" />
+    <Compile Include="GameState.fs" />
+    <Compile Include="ItemUse.fs" />
+    <Compile Include="Player.fs" />
+    <Compile Include="Renderer.fs" />
+  </ItemGroup>
+
+</Project>

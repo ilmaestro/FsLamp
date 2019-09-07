@@ -1,34 +1,21 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <UserSecretsId>4dfd08bf-6085-4442-afbd-f478432a5da9</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Core/Primitives.fs" />
-    <Compile Include="Core/Domain.fs" />
-    <Compile Include="Core/Utility.fs" />
-    <Compile Include="Core/Items.fs" />
-    <Compile Include="Core/Environment.fs" />
-    <Compile Include="Core/GameState.fs" />
-    <Compile Include="Core/ItemUse.fs" />
-    <Compile Include="Core/Player.fs" />
-    <Compile Include="Core/LUISApi.fs" />
-    <Compile Include="Core/Parser.fs" />
-    <Compile Include="Core/Actions.fs" />
-    <Compile Include="Core/WindowsConsole.fs" />
-    <Compile Include="Core/ConsoleService.fs" />
-    <Compile Include="Game/Dispatcher.fs" />
-    <Compile Include="Game/GameBehaviors.fs" />
-    <Compile Include="Game/GameItems.fs" />
-    <Compile Include="Game/GameMonsters.fs" />
-    <Compile Include="Game/GameMap.fs" />
-    <Compile Include="Game/Console.fs" />
-    <Compile Include="Game/Game.fs" />
+    <Compile Include="Renderer/LUISApi.fs" />
+    <Compile Include="Renderer/Parser.fs" />
+    <Compile Include="Renderer/WindowsConsole.fs" />
+    <Compile Include="Renderer/ConsoleService.fs" />
+    <Compile Include="Renderer/Console.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="CommonMark.NET" Version="0.15.1" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="2.1.1" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="2.2.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="2.2.0" />
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
     <PackageReference Include="SkiaSharp" Version="1.60.1" />
     <PackageReference Include="System.Net.Http" Version="4.3.3" />
@@ -37,5 +24,9 @@
     <Content Include="appsettings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\FsLamp.Core\FsLamp.Core.fsproj" />
+    <ProjectReference Include="..\FsLamp.Game\FsLamp.Game.fsproj" />
   </ItemGroup>
 </Project>

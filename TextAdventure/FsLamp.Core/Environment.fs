@@ -1,7 +1,8 @@
-module Environment
-open Primitives
-open Domain
-open Items
+namespace FsLamp.Core
+
+open FsLamp.Core.Primitives
+open FsLamp.Core.Domain
+open FsLamp.Core.Items
 
 type Environment = {
     Id: EnvironmentId
@@ -43,7 +44,7 @@ module Monster =
         { Id = MonsterId id; Name = name; Stats = stats; Health = health; ExperiencePoints = experience}
 
     let isAlive (monster: Monster) =
-        monster.Health |> Domain.isAlive
+        monster.Health |> isAlive
 
     let setHealth health (monster: Monster) =
         {monster with Health = health}

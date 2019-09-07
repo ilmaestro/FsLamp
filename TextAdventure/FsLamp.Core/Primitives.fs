@@ -1,11 +1,12 @@
-module Primitives
+namespace FsLamp.Core.Primitives
 
 [<Measure>] type meter
 
 [<Measure>] type second
 
-let defaultSpeed = 0.1<meter/second>
-let time dist : float<second> = dist / defaultSpeed
+module Constants =
+    let defaultSpeed = 0.1<meter/second>
+    let time dist : float<second> = dist / defaultSpeed
 
 type Undefined = exn
 

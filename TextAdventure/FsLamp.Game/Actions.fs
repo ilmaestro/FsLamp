@@ -1,11 +1,11 @@
-module Actions
-open Primitives
-open Domain
-open GameState
-open Environment
-open Player
+module FsLamp.Game.Actions
 open System
-open ItemUse
+open FsLamp.Core
+open FsLamp.Core.Primitives
+open FsLamp.Core.Domain
+open FsLamp.Core.GameState
+open FsLamp.Core.Player
+open FsLamp.Core.ItemUse
 
 type GamePart = GameState -> GameState
 
@@ -117,7 +117,7 @@ module Explore =
                     let nextEnvironment = Environment.findById exit.Target gamestate
                     gamestate
                     |> World.updateWorldTravelTime exit.Distance
-                    |> setEnvironment nextEnvironment
+                    |> Environment.setEnvironment nextEnvironment
                     |> ifLightSource
                         (Output.setOutput (Output [(nextEnvironment.Describe())]))
                         (Output.setOutput (Output ["It's too dark to see."]))
@@ -253,7 +253,7 @@ module Explore =
 
     let save filename : GamePart =
         fun gamestate ->
-            IO.saveGameState filename gamestate
+            Utility.saveGameState filename gamestate
             gamestate |> Output.setOutput (Output ["Game saved."])
 
     let undo : GamePart =
@@ -270,7 +270,7 @@ module MainMenu =
 
     let loadGame : GamePart =
         fun _ ->
-            IO.loadGameState "./SaveData/GameSave.json"
+            Utility.loadGameState "./SaveData/GameSave.json"
 
 module InEncounter =
     let summarizeEncounter monsterPoints oldLevel : GamePart =
@@ -301,7 +301,7 @@ module InEncounter =
             then
                 // attack succeeds, update monster
                 let health' = damage playerDamage monster.Health
-                let monster' = monster |> Environment.Monster.setHealth health'
+                let monster' = monster |> Monster.setHealth health'
                 let encounter' = monster' |> Encounter.updateMonster encounter
                 let gamestate' =
                     gamestate
@@ -333,7 +333,7 @@ module InEncounter =
                         |> Player.setHealth health'
                     let gamestate' =
                         gamestate
-                        |> setPlayer player'
+                        |> Player.setPlayer player'
                         |> Output.appendOutputs [
                             sprintf "%s hits you with %A. %s" monster.Name monster.Stats.Damage (healthDescription health')
                         ]
@@ -353,7 +353,7 @@ module InEncounter =
         fun gamestate ->
             match gamestate.GameScene with
             | InEncounter encounter ->
-                let monsterOption = encounter |> Environment.Encounter.findAMonster
+                let monsterOption = encounter |> Encounter.findAMonster
                 match monsterOption with
                 | Some monster ->
                     // TODO: figure out initiative, who goes first.
@@ -366,7 +366,7 @@ module InEncounter =
                         gamestate'
                         |> monsterAttack monster'
 
-                    if Environment.Encounter.checkForMonsters encounter' then
+                    if Encounter.checkForMonsters encounter' then
                         gamestate'' |> Player.checkGameOver
                     else
                         let monsterPoints = encounter.Monsters |> List.sumBy (fun {ExperiencePoints = points} -> points)
