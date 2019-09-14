@@ -721,25 +721,21 @@ let origin =
 ---
 
 ```SpringGreen
-Does F# work well for a text adventure game?  Yes, in my opinion.
+NPC conversations
 ```
 
-- Domain driven design
-- Immutable
-- Multi-paradigm
-  - blend functional and imperatve coding
-  - balance performance with maintainability
-- .NET Core / Cross-platform
-- lots of nuget packages
+- Use LUIS to simulate an open converstation with an NPC
+- Unlock parts of the game through conversation
+- Buy and sell items
 
 ```Gold
- _     _  __   __  __   __  ______  
-| | _ | ||  | |  ||  | |  ||      | 
-| || || ||  |_|  ||  |_|  ||___   | 
-|       ||       ||       |  __|  | 
-|       ||       ||_     _| |_____| 
-|   _   ||   _   |  |   |     __    
-|__| |__||__| |__|  |___|    |__|   
+ _     _  __   __  _______  _______  __   _______      __    _  _______  __   __  _______  ______  
+| | _ | ||  | |  ||   _   ||       ||  | |       |    |  |  | ||       ||  |_|  ||       ||      | 
+| || || ||  |_|  ||  |_|  ||_     _||__| |  _____|    |   |_| ||    ___||       ||_     _||___   | 
+|       ||       ||       |  |   |       | |_____     |       ||   |___ |       |  |   |    __|  | 
+|       ||       ||       |  |   |       |_____  |    |  _    ||    ___| |     |   |   |   |_____| 
+|   _   ||   _   ||   _   |  |   |        _____| |    | | |   ||   |___ |   _   |  |   |     __    
+|__| |__||__| |__||__| |__|  |___|       |_______|    |_|  |__||_______||__| |__|  |___|    |__|   
 ```
 
 ---
