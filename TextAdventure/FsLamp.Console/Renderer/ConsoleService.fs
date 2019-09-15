@@ -86,40 +86,7 @@ let showBitmap path =
 module Markdown =
     open System
     open CommonMark
-
-    let rec printInline (il: Inline) =
-        let next() =
-            printInline il.FirstChild
-            printInline il.NextSibling
-
-        if il = null then ()
-        else
-            match il.Tag with
-            | InlineTag.LineBreak ->
-                printfn ""
-                printfn ""
-                next()
-            | InlineTag.SoftBreak ->
-                printfn ""
-                next()
-            | InlineTag.String ->
-                printf "%s" il.LiteralContent
-                next()
-            | InlineTag.Strong
-            | InlineTag.Emphasis ->
-                highIntensity()
-                next()
-                resetColor()
-                printf ""
-            | InlineTag.Image ->
-                showBitmap (il.TargetUrl)
-                // next()
-            | _ ->
-                next()
-
     open System.Diagnostics
-
-
 
     let pygmentize lexer (contents: string) =
         let psi = new ProcessStartInfo( "pygmentize" );
@@ -148,6 +115,36 @@ module Markdown =
             output
         finally
             if not <| isNull command then command.Close()
+
+    let rec printInline (il: Inline) =
+        let next() =
+            printInline il.FirstChild
+            printInline il.NextSibling
+
+        if il = null then ()
+        else
+            match il.Tag with
+            | InlineTag.LineBreak ->
+                printfn ""
+                printfn ""
+                next()
+            | InlineTag.SoftBreak ->
+                printfn ""
+                next()
+            | InlineTag.String ->
+                printf "%s" il.LiteralContent
+                next()
+            | InlineTag.Strong
+            | InlineTag.Emphasis ->
+                highIntensity()
+                printInline il.FirstChild
+                resetColor()
+                printInline il.NextSibling
+            | InlineTag.Image ->
+                showBitmap (il.TargetUrl)
+                // next()
+            | _ ->
+                next()
 
     let rec printBlock (block: Block) =
         let next() =
@@ -181,17 +178,15 @@ module Markdown =
                 next()
             | BlockTag.FencedCode ->
                 match block.FencedCodeData.Info with
-                | lang when lang = "fsharp" || lang = "json"->
+                | lang when lang = "fsharp" || lang = "json" ->
                     // run the data through pygmentize
                     printf "%s" (pygmentize lang (block.StringContent.ToString()))
-                    printfn ""
                 
                 | info ->
                     let color = Color.FromName(info)
                     setForegroundRgb (int color.R) (int color.G) (int color.B)
                     printf "%s" (block.StringContent.ToString())
                     resetColor()
-                    printfn ""
                 next()
             | _ ->
                 printInline block.InlineContent
@@ -219,5 +214,5 @@ module PageView =
 
     let drawScreen log room health exp time =
         Markdown.renderSomething log
-        let header = sprintf "%s \t\t\t Health: %s \t\t\t Experience: %i \t\t\t %s" room health exp time
-        renderHeader header
+        // let header = sprintf "%s \t\t\t Health: %s \t\t\t Experience: %i \t\t\t %s" room health exp time
+        // renderHeader header

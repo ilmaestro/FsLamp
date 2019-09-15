@@ -131,18 +131,23 @@ module Explore =
 
     let look : GamePart =
         fun gamestate ->
-            let exitHelper = sprintf "- A %s (%A)"
-            let itemHelper = sprintf "- A %s %s"
+            let exitHelper = sprintf "- A __%s__ (%A)"
+            let itemHelper = sprintf "- A __%s__ %s"
             let exits = gamestate.Environment.Exits |> List.filter (fun e -> e.ExitState <> Hidden) |> List.map (fun p -> exitHelper p.Description p.Direction)
             let items = gamestate.Environment.InventoryItems |> List.map (fun {Name = name; Description = description } -> itemHelper name description)
             let log = [
                 yield "You look around and see..."
-                yield "*Exits*";
+                yield "```SkyBlue";
+                yield "Exits";
+                yield "```"
                 yield! exits; 
                 match items with
                 | [] -> () 
                 | _ ->
-                    yield "*Interesting shtuff*"; 
+                    yield "```SkyBlue";
+                    yield "Interesting shtuff"; 
+                    yield "```"
+                    yield "";
                     yield! items 
                 ]
 

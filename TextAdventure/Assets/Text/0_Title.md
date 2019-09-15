@@ -1,4 +1,4 @@
-![FS Logo](../Assets/fslogo.bmp)
+![FS Logo](../Assets/fslogo_evensmaller.bmp)
 
 ```SkyBlue
    ▄████████    ▄████████       ▄█          ▄████████   ▄▄▄▄███▄▄▄▄      ▄███████▄ 
@@ -12,4 +12,4 @@
                                ▀                                                   
 ```
 
-By Ryan Kilkenny, 2019-09-26
+By Ryan Kilkenny, 09-26-2019

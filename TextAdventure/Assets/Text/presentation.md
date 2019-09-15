@@ -34,13 +34,13 @@ Ryan Kilkenny is a multi-paradigm polyglot primarily living in the .NET world. H
 
 ![alien](../Assets/alien_2.png)
 
-- The Game Loop
-- State
-- Natural Language Parsing
-- GameParts
+- Game Loop
+- Game State
+- Game Parts
+- Natural Language Processing
+- Parser and Dispatcher
 - Items
 - Behaviors
-- Why F#?
 
 ```Gold
  _______  _______  _______  __    _  ______   _______ 
@@ -205,6 +205,121 @@ let takeItem item : GamePart =
 
 ---
 
+```SpringGreen
+Language Understanding LUIS <https://www.luis.ai/home>. A machine learning-based service to build natural language into apps, bots, and IoT devices.
+```
+
+- Intents: Move, Look, Examine, SwitchOn, SwitchOff
+- Entities: Item, SwitchOperation, MoveOperation, ExamineOperation
+- Utterances: "go to the north", "open the door with key"
+- Patterns: "open {item:target} with {item:source}"
+- Train
+- Publish
+
+```SpringGreen
+
+FsLamp on LUIS
+```
+
+<https://www.luis.ai/applications/a658f77c-b290-4a81-9ed8-404c95537c9d/versions/0.1/build/intents>
+
+```SkyBlue
+ ___      __   __  ___   _______ 
+|   |    |  | |  ||   | |       |
+|   |    |  | |  ||   | |  _____|
+|   |    |  |_|  ||   | | |_____ 
+|   |___ |       ||   | |_____  |
+|       ||       ||   |  _____| |
+|_______||_______||___| |_______|
+```
+
+---
+
+```SpringGreen
+LUIS outputs
+```
+
+```json
+{
+  "query": "turn slide projector on",
+  "topScoringIntent": {
+    "intent": "SwitchOn",
+    "score": 0.6997941
+  },
+  "intents": [
+    {
+      "intent": "SwitchOn",
+      "score": 0.6997941
+    }
+  ],
+  "entities": [
+    {
+      "entity": "slide projector",
+      "type": "Item",
+      "startIndex": 5,
+      "endIndex": 17,
+      "score": 0.5267918
+    },
+    {
+      "entity": "on",
+      "type": "SwitchOperation",
+      "startIndex": 19,
+      "endIndex": 20,
+      "score": 0.6275403
+    }
+  ]
+}
+```
+
+```SkyBlue
+ ___      __   __  ___   _______ 
+|   |    |  | |  ||   | |       |
+|   |    |  | |  ||   | |  _____|
+|   |    |  |_|  ||   | | |_____ 
+|   |___ |       ||   | |_____  |
+|       ||       ||   |  _____| |
+|_______||_______||___| |_______|
+```
+
+---
+
+```SpringGreen
+How to parse a LUIS result
+```
+
+```fsharp
+match query.TopScoringIntent with
+| { Intent = "Move";} ->
+    match query.Entities with
+    | entity :: _ when entity.Type = "Direction" && entity.Score > 0.5 ->
+        entity.Entity |> Direction.Parse |> Option.map Move
+    | _ -> None
+| { Intent = "SwitchOn"}
+| { Intent = "SwitchOff"} ->
+    match query.Entities with
+    | [e1; e2] when e1.Type = "Item" && e2.Type = "SwitchOperation" ->
+        if e2.Entity = "on" 
+        then SwitchItemOn (e1.Entity) |> Some
+        else SwitchItemOff (e1.Entity) |> Some
+    | [e2; e1] when e2.Type = "SwitchOperation" && e1.Type = "Item" ->
+        if e2.Entity = "on"
+        then SwitchItemOn (e1.Entity) |> Some
+        else SwitchItemOff (e1.Entity) |> Some
+    | _ -> None
+```
+
+```SkyBlue
+ ___      __   __  ___   _______ 
+|   |    |  | |  ||   | |       |
+|   |    |  | |  ||   | |  _____|
+|   |    |  |_|  ||   | | |_____ 
+|   |___ |       ||   | |_____  |
+|       ||       ||   |  _____| |
+|_______||_______||___| |_______|
+```
+
+---
+
 - __Parsing__ takes user input and translates it into a command
 - a command can then be __dispatched__ to an __action__
 
@@ -313,121 +428,6 @@ let dispatch command : GamePart =
 | |_|   ||   | |_____  ||    ___||       |  |   |  |      _||       ||    ___||    __  |
 |       ||   |  _____| ||   |    |   _   |  |   |  |     |_ |   _   ||   |___ |   |  | |
 |______| |___| |_______||___|    |__| |__|  |___|  |_______||__| |__||_______||___|  |_|
-```
-
----
-
-```SpringGreen
-Language Understanding LUIS <https://www.luis.ai/home>. A machine learning-based service to build natural language into apps, bots, and IoT devices.
-```
-
-- Create Intents: Move, Look, Examine, SwitchOn, SwitchOff
-- Create Entities: Item, Operation
-- Define utterances: "go to the north", "open the door with key"
-- Improve matching with Patterns: "open {item:target} with {item:source}"
-- Train
-- Publish
-
-```SpringGreen
-
-FsLamp on LUIS
-```
-
-<https://www.luis.ai/applications/a658f77c-b290-4a81-9ed8-404c95537c9d/versions/0.1/build/intents>
-
-```SkyBlue
- ___      __   __  ___   _______ 
-|   |    |  | |  ||   | |       |
-|   |    |  | |  ||   | |  _____|
-|   |    |  |_|  ||   | | |_____ 
-|   |___ |       ||   | |_____  |
-|       ||       ||   |  _____| |
-|_______||_______||___| |_______|
-```
-
----
-
-```SpringGreen
-LUIS outputs
-```
-
-```json
-{
-  "query": "turn slide projector on",
-  "topScoringIntent": {
-    "intent": "SwitchOn",
-    "score": 0.6997941
-  },
-  "intents": [
-    {
-      "intent": "SwitchOn",
-      "score": 0.6997941
-    }
-  ],
-  "entities": [
-    {
-      "entity": "slide projector",
-      "type": "Item",
-      "startIndex": 5,
-      "endIndex": 17,
-      "score": 0.5267918
-    },
-    {
-      "entity": "on",
-      "type": "SwitchOperation",
-      "startIndex": 19,
-      "endIndex": 20,
-      "score": 0.6275403
-    }
-  ]
-}
-```
-
-```SkyBlue
- ___      __   __  ___   _______ 
-|   |    |  | |  ||   | |       |
-|   |    |  | |  ||   | |  _____|
-|   |    |  |_|  ||   | | |_____ 
-|   |___ |       ||   | |_____  |
-|       ||       ||   |  _____| |
-|_______||_______||___| |_______|
-```
-
----
-
-```SpringGreen
-How to parse a LUIS result
-```
-
-```fsharp
-match query.TopScoringIntent with
-| { Intent = "Move";} ->
-    match query.Entities with
-    | entity :: _ when entity.Type = "Direction" && entity.Score > 0.5 ->
-        entity.Entity |> Direction.Parse |> Option.map Move
-    | _ -> None
-| { Intent = "SwitchOn"}
-| { Intent = "SwitchOff"} ->
-    match query.Entities with
-    | [e1; e2] when e1.Type = "Item" && e2.Type = "SwitchOperation" ->
-        if e2.Entity = "on" 
-        then SwitchItemOn (e1.Entity) |> Some
-        else SwitchItemOff (e1.Entity) |> Some
-    | [e2; e1] when e2.Type = "SwitchOperation" && e1.Type = "Item" ->
-        if e2.Entity = "on"
-        then SwitchItemOn (e1.Entity) |> Some
-        else SwitchItemOff (e1.Entity) |> Some
-    | _ -> None
-```
-
-```SkyBlue
- ___      __   __  ___   _______ 
-|   |    |  | |  ||   | |       |
-|   |    |  | |  ||   | |  _____|
-|   |    |  |_|  ||   | | |_____ 
-|   |___ |       ||   | |_____  |
-|       ||       ||   |  _____| |
-|_______||_______||___| |_______|
 ```
 
 ---
