@@ -206,22 +206,10 @@ let takeItem item : GamePart =
 ---
 
 ```SpringGreen
-Language Understanding LUIS <https://www.luis.ai/home>. A machine learning-based service to build natural language into apps, bots, and IoT devices.
+Language Understanding (LUIS)
 ```
 
-- Intents: Move, Look, Examine, SwitchOn, SwitchOff
-- Entities: Item, SwitchOperation, MoveOperation, ExamineOperation
-- Utterances: "go to the north", "open the door with key"
-- Patterns: "open {item:target} with {item:source}"
-- Train
-- Publish
-
-```SpringGreen
-
-FsLamp on LUIS
-```
-
-<https://www.luis.ai/applications/a658f77c-b290-4a81-9ed8-404c95537c9d/versions/0.1/build/intents>
+A machine learning-based service to build natural language into apps, bots, and IoT devices.
 
 ```SkyBlue
  ___      __   __  ___   _______ 
@@ -236,7 +224,95 @@ FsLamp on LUIS
 ---
 
 ```SpringGreen
-LUIS outputs
+FsLamp app on LUIS
+```
+
+<https://www.luis.ai/applications/a658f77c-b290-4a81-9ed8-404c95537c9d/versions/0.1/build/intents>
+
+- Intents - how to determine what a user wants to do
+- Entities - like variables, used to pass important information
+- Utterances - phrases for intent or entity used to train the model
+- Patterns - utterance templates with placeholders used to further improve the model
+
+```SkyBlue
+ ___      __   __  ___   _______ 
+|   |    |  | |  ||   | |       |
+|   |    |  | |  ||   | |  _____|
+|   |    |  |_|  ||   | | |_____ 
+|   |___ |       ||   | |_____  |
+|       ||       ||   |  _____| |
+|_______||_______||___| |_______|
+```
+
+---
+
+```SpringGreen
+Intents
+```
+
+- __Look__: "look around", "describe my surroundings", "what's around me?"
+- __Move__: "walk west", "go north", "east"
+- __Take__: "take lamp", "take key", "take horse"
+- __Put__: "put letter in mailbox", "shove letter in mailbox"
+- __SwitchOff__: "switch lamp off", "turn off the lamp"
+- __SwitchOn__: "switch lamp on", "turn on the lamp"
+- __Use__: "use typewriter", "open door with key"
+
+```SkyBlue
+ ___      __   __  ___   _______ 
+|   |    |  | |  ||   | |       |
+|   |    |  | |  ||   | |  _____|
+|   |    |  |_|  ||   | | |_____ 
+|   |___ |       ||   | |_____  |
+|       ||       ||   |  _____| |
+|_______||_______||___| |_______|
+```
+
+---
+
+```SpringGreen
+Entities
+```
+
+- __Direction__: "go {north}", "climb {up}"
+- __Item__: "take {lamp}", "put {key} in the {mailbox}"
+- __ExamineOperation__: "{read} the letter", "{smell} the coffee"
+- __SwitchOperation__: "turn {on} the slide projector", "switch the lamp {off}"
+
+```SkyBlue
+ ___      __   __  ___   _______ 
+|   |    |  | |  ||   | |       |
+|   |    |  | |  ||   | |  _____|
+|   |    |  |_|  ||   | | |_____ 
+|   |___ |       ||   | |_____  |
+|       ||       ||   |  _____| |
+|_______||_______||___| |_______|
+```
+
+---
+
+```SpringGreen
+Patterns
+```
+
+- "put {Item:source} in {Item:target}" -> __PUT__
+- "take {Item:target} from {Item:source}" -> __TAKE__
+- "open {Item:target} with {Item:source}" -> __USE__
+
+```SkyBlue
+ ___      __   __  ___   _______ 
+|   |    |  | |  ||   | |       |
+|   |    |  | |  ||   | |  _____|
+|   |    |  |_|  ||   | | |_____ 
+|   |___ |       ||   | |_____  |
+|       ||       ||   |  _____| |
+|_______||_______||___| |_______|
+```
+
+---
+
+```SpringGreen
+LUIS result
 ```
 
 ```json
@@ -284,45 +360,73 @@ LUIS outputs
 ---
 
 ```SpringGreen
-How to parse a LUIS result
+Command parser = string -> Command option
+```
+
+Given any string input, we must map to a command, using LUIS to help identify the intent of the input.
+
+```Yellow
+ _______  _______  ______    _______  _______  ______   
+|       ||   _   ||    _ |  |       ||       ||    _ |  
+|    _  ||  |_|  ||   | ||  |  _____||    ___||   | ||  
+|   |_| ||       ||   |_||_ | |_____ |   |___ |   |_||_ 
+|    ___||       ||    __  ||_____  ||    ___||    __  |
+|   |    |   _   ||   |  | | _____| ||   |___ |   |  | |
+|___|    |__| |__||___|  |_||_______||_______||___|  |_|
+
+```
+
+---
+
+```fsharp
+type Command =
+    | Move of Direction
+    | Look
+    | LookIn of ItemName: string
+    | Take of ItemName: string
+    | TakeFrom of TargetName: string * ItemName: string
+    | Drop of ItemName: string
+    | Use of ItemName: string
+    | UseWith of TargetName: string * ItemName: string
+    | SwitchItemOn of ItemName: string
+    | SwitchItemOff of ItemName: string
+    | PutItem of TargetName: string * ItemName: string
+    | SaveGame
+    | Read of ItemName: string
+    ...
+```
+
+```Yellow
+ _______  _______  ______    _______  _______  ______   
+|       ||   _   ||    _ |  |       ||       ||    _ |  
+|    _  ||  |_|  ||   | ||  |  _____||    ___||   | ||  
+|   |_| ||       ||   |_||_ | |_____ |   |___ |   |_||_ 
+|    ___||       ||    __  ||_____  ||    ___||    __  |
+|   |    |   _   ||   |  | | _____| ||   |___ |   |  | |
+|___|    |__| |__||___|  |_||_______||_______||___|  |_|
+
+```
+
+---
+
+```SpringGreen
+Match LUIS result to a command
 ```
 
 ```fsharp
 match query.TopScoringIntent with
-| { Intent = "Move";} ->
-    match query.Entities with
-    | entity :: _ when entity.Type = "Direction" && entity.Score > 0.5 ->
-        entity.Entity |> Direction.Parse |> Option.map Move
-    | _ -> None
+...
 | { Intent = "SwitchOn"}
 | { Intent = "SwitchOff"} ->
     match query.Entities with
     | [e1; e2] when e1.Type = "Item" && e2.Type = "SwitchOperation" ->
-        if e2.Entity = "on" 
-        then SwitchItemOn (e1.Entity) |> Some
-        else SwitchItemOff (e1.Entity) |> Some
-    | [e2; e1] when e2.Type = "SwitchOperation" && e1.Type = "Item" ->
         if e2.Entity = "on"
         then SwitchItemOn (e1.Entity) |> Some
         else SwitchItemOff (e1.Entity) |> Some
+    ...
     | _ -> None
 ```
 
-```SkyBlue
- ___      __   __  ___   _______ 
-|   |    |  | |  ||   | |       |
-|   |    |  | |  ||   | |  _____|
-|   |    |  |_|  ||   | | |_____ 
-|   |___ |       ||   | |_____  |
-|       ||       ||   |  _____| |
-|_______||_______||___| |_______|
-```
-
----
-
-- __Parsing__ takes user input and translates it into a command
-- a command can then be __dispatched__ to an __action__
-
 ```Yellow
  _______  _______  ______    _______  _______  ______   
 |       ||   _   ||    _ |  |       ||       ||    _ |  
@@ -337,69 +441,18 @@ match query.TopScoringIntent with
 ---
 
 ```SpringGreen
-User Input -> Command Parser (LUIS) -> Dispatcher
+The dispatcher matches a command to an action and returns a new game state resulting from that action.
 ```
-
-```fsharp
-type CommandParser = string -> Command option
-```
-
-```Yellow
- _______  _______  ______    _______  _______  ______   
-|       ||   _   ||    _ |  |       ||       ||    _ |  
-|    _  ||  |_|  ||   | ||  |  _____||    ___||   | ||  
-|   |_| ||       ||   |_||_ | |_____ |   |___ |   |_||_ 
-|    ___||       ||    __  ||_____  ||    ___||    __  |
-|   |    |   _   ||   |  | | _____| ||   |___ |   |  | |
-|___|    |__| |__||___|  |_||_______||_______||___|  |_|
-
-```
-
----
-
-```SpringGreen
-Get Input
-```
-
-```fsharp
-let getCommand (parseInput: CommandParser) =
-    Console.Write("\n> ")
-    let readline = Console.ReadLine()
-    match readline |> parseInput with
-    | Some command -> command
-    | None -> 
-        printfn "I don't understand %s." readline
-        NoCommand
-```
-
-```Yellow
- _______  _______  ______    _______  _______  ______   
-|       ||   _   ||    _ |  |       ||       ||    _ |  
-|    _  ||  |_|  ||   | ||  |  _____||    ___||   | ||  
-|   |_| ||       ||   |_||_ | |_____ |   |___ |   |_||_ 
-|    ___||       ||    __  ||_____  ||    ___||    __  |
-|   |    |   _   ||   |  | | _____| ||   |___ |   |  | |
-|___|    |__| |__||___|  |_||_______||_______||___|  |_|
-
-```
-
----
 
 ```fsharp
 let dispatch command : GamePart =
     fun gamestate ->
-        let action = 
+        let action =
             match command with
-            // open explore
             | NoCommand                         -> message "Nothing to do."
-            | Status                            -> status
-            | Wait ts                           -> Explore.wait ts
-            | Exit                              -> Explore.exitGame
-            | Help                              -> Explore.help
             | Move dir                          -> Explore.move dir
             | Look                              -> Explore.look
             | LookIn itemName                   -> Explore.lookIn itemName
-            | Undo                              -> Explore.undo
             | Take itemName                     -> Explore.take itemName
             | TakeFrom (targetName, itemName)   -> Explore.takeFrom targetName itemName
             | Drop itemName                     -> Explore.drop itemName
@@ -407,15 +460,8 @@ let dispatch command : GamePart =
             | UseWith (targetName, itemName)    -> Explore.useItemOn targetName itemName
             | SwitchItemOn itemName             -> Explore.switch itemName SwitchState.SwitchOn
             | SwitchItemOff itemName            -> Explore.switch itemName SwitchState.SwitchOff
-            | PutItem (sourceName, targetName)  -> Explore.put sourceName targetName
-            | SaveGame                          -> Explore.save getSaveDataFilename
-            | Read itemName                     -> Explore.readItem itemName
-            // main menu
-            | NewGame                           -> MainMenu.startGame
-            | LoadGame                          -> MainMenu.loadGame >> MainMenu.startGame
-            // in encounter
-            | Attack                            -> InEncounter.attack
-            | Run                               -> InEncounter.run
+
+            ...
 
         {gamestate with LastCommand = command } |> action
 ```
