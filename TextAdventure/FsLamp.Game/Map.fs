@@ -33,11 +33,11 @@ let defaultMap (renderer: FsLamp.Core.IRenderer) =
                 Exit.create 2 1 Open South (Steps 2) "Creaky door";
                 Exit.create 3 3 Open North (Steps 6) "Dark hallway";]
             []
-            [Encounter.create "Green Slime appears and is attacking you!" [greenSlime]]
+            [Encounter.create "__Green Slime__ appears and is ready to attack you!" [greenSlime]]
             (Some ambientLight);
         );
         (Environment.create 3 "Long Hallway, North End"
-            "It gets so dark you have to feel your way around. Thankfully there's nothing too dangerous in your path."
+            (Utility.readTextAsset "northhall.md")
             [ 
                 Exit.create 4 2 Open South (Steps 6) "hallway";
                 Exit.create 5 4 Locked East (Steps 6) "door with no features"]
@@ -49,7 +49,7 @@ let defaultMap (renderer: FsLamp.Core.IRenderer) =
             "You see the remnants of an old dusty office. Clearly this place hasn't been used in years. Except for an old typewriter on the desk is missing most of its keys, the room is completely empty."
             [ Exit.create 6 3 Open West (Steps 6) "door with no features"; Exit.create 7 5 Hidden Down (Steps 2) "secret passage"]
             [typewriter]
-            [Encounter.create "A grue jumps out from the darkness." [grue]]
+            [Encounter.create "A __grue__ jumps out from behind the desk and gets ready to attack you!" [grue]]
             (Some ambientLight)
         );
         (Environment.create 5 "Secret Passage"

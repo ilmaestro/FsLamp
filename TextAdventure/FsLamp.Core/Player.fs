@@ -45,12 +45,16 @@ module Player =
         let (Health (current, max)) = player.Health
         let (Experience (total, level)) = player.Experience
         sprintf """
-    ## STATS
-    ```FloralWhite
-    Health:     %i / %i     Attack:     %i
-    Level:      %i          Defense:    %i
-    Experience: %i          Damage:     %i
-    ```""" current max attack level defense total damage
+```SpringGreen
+Player Stats
+
+```
+
+```FloralWhite
+Health:     %i / %i     Attack:     %i
+Level:      %i          Defense:    %i
+Experience: %i          Damage:     %i
+```     """ current max attack level defense total damage
 
     module Rolls =
         let private rnd = System.Random()

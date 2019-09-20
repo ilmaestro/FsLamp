@@ -1,9 +1,10 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
-
+  <ItemGroup>
+    <ProjectReference Include="..\FsLamp.Core\FsLamp.Core.fsproj" />
+  </ItemGroup>
   <ItemGroup>
     <Compile Include="Utility.fs" />
     <Compile Include="Actions.fs" />
@@ -14,12 +15,7 @@
     <Compile Include="Map.fs" />
     <Compile Include="Startup.fs" />
   </ItemGroup>
-
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\FsLamp.Core\FsLamp.Core.fsproj" />
   </ItemGroup>
 </Project>

@@ -223,7 +223,7 @@ module Behaviors =
     let takeItem description canTake =
         ItemUse.addGameStateBehavior
             (Description description, Items.CanTake canTake)
-            (addToInventoryBehavior (fun item -> [sprintf "%s taken." item.Name]) (fun _ -> [sprintf "%s" description]))
+            (addToInventoryBehavior (fun item -> [sprintf "- __%s__ added to inventory." item.Name]) (fun _ -> [sprintf "%s" description]))
 
     let turnOnOff description =
         ItemUse.addGameStateBehavior

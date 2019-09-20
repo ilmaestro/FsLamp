@@ -67,6 +67,11 @@ module Items =
             )
             |> String.concat "\n" 
         sprintf """
-    ## Inventory
-    %s
+```SpringGreen
+
+Inventory
+
+```
+
+%s
         """ list
