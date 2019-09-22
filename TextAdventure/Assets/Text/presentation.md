@@ -1,6 +1,11 @@
-![OPENFS](../Assets/openfs-icon.png)
+```SpringGreen
 
-Ryan Kilkenny - Open F# Conference
+    Ryan Kilkenny - Open F# Conference - 09/26/2019
+
+
+
+
+```
 
 ```SkyBlue
  _______  _______    ___      _______  __   __  _______ 
@@ -1030,6 +1035,12 @@ NPC conversations
 ```
 
 ---
+
+```SpringGreen
+How do you actually compose a game then?
+
+
+```
 
 ```Gold
 
