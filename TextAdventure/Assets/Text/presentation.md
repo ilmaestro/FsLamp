@@ -16,14 +16,12 @@ Ryan Kilkenny - Open F# Conference
 
 ![farmer](../Assets/FarmerSprite.png)
 
-- Love retro games and hardware - own an Amiga 500 (w/Vampire 2+), C64, VIC-20
+- Love retro games and hardware
 - Sr Technical Lead, Banfield Pet Hospital
-- Slowly teaching F# to a few fellow C# associates
 - F# projects peppered throughout my 4 yr tenure at Banfield
-- Currently attempting F# domain models in C# micro services
+- Currently attempting F# domain models in C# microservices
 
 ```SpringGreen
-
  _     _  __   __  _______    _______  __   __    ___   ______  
 | | _ | ||  | |  ||       |  |   _   ||  |_|  |  |   | |      | 
 | || || ||  |_|  ||   _   |  |  |_|  ||       |  |   | |___   | 
@@ -225,6 +223,9 @@ Game logic is written as game parts.  A game part is simply a function that mani
 ```fsharp
 type GamePart = GameState -> GameState
 
+```
+
+```SpringGreen
 
 ```
 
@@ -526,8 +527,11 @@ How do we use LUIS as a "command" parser?
 ```
 
 ```fsharp
-
 type CommandParser = string -> Command option
+```
+
+```SpringGreen
+
 
 ```
 
@@ -664,24 +668,11 @@ let dispatch command : GamePart =
 
 ---
 
-- optional properties used over inherited types
-  - keeps serialization simple
-  - new properties will likely need to be added, which may make increase maintenance
-- list of behaviors
-
-```HotPink
+```SpringGreen
+How do we build items in the game? Mailbox, key, lantern, letter, rock...
 
 
- ___   _______  _______  __   __  _______ 
-|   | |       ||       ||  |_|  ||       |
-|   | |_     _||    ___||       ||  _____|
-|   |   |   |  |   |___ |       || |_____ 
-|   |   |   |  |    ___||       ||_____  |
-|   |   |   |  |   |___ | ||_|| | _____| |
-|___|   |___|  |_______||_|   |_||_______|
 ```
-
----
 
 ```fsharp
 type InventoryItem = {
@@ -696,6 +687,25 @@ type InventoryItem = {
 }
 ```
 
+```SpringGreen
+
+Benefits
+
+```
+
+- F# Record Type instead of OOP inhertence
+- Optional properties (health, stats, switching) consumed by different items
+- Ensures everything is serializable
+
+```SpringGreen
+
+Drawbacks
+
+```
+
+- As new items are created, new properties will likely be added too
+- Fine for now, will address this later...
+
 ```HotPink
 
 
@@ -709,11 +719,26 @@ type InventoryItem = {
 ```
 
 ---
+
+```SpringGreen
+
+A basic item, the sun, used to provide light
+
+```
 
 ```fsharp
-let theSun =
-    createBasicItem "sun" "is shining overhead." [(Description "ball of fire", ProvidesLight)]
-
+let theSun = {
+    Id = ItemId 1
+    Name = "sun"
+    Description = "is shining overhead."
+    Health = None
+    SwitchState = None
+    Stats = None
+    Contains = None
+    Behaviors = [
+        (Description "Ball of fire", ProvidesLight)
+        ]
+    }
 ```
 
 ```HotPink
@@ -729,6 +754,12 @@ let theSun =
 ```
 
 ---
+
+```SpringGreen
+
+Helper functions used to simplify item creation.
+
+```
 
 ```fsharp
 let mailbox =
@@ -758,23 +789,19 @@ let mailbox =
 
 ---
 
+```SpringGreen
+
+How do items interact with the game?
+
+```
+
 - Game behaviors give the player the ability to interact with items in the game
 - Each behavior is assigned an Id and stored in a runtime cache
 - Behavior Id's get persisted in GameState as part of an item
 
-```SkyBlue
+```SpringGreen
 
-
- _______  _______  __   __  _______  __   __  ___   _______  ______    _______ 
-|  _    ||       ||  | |  ||   _   ||  | |  ||   | |       ||    _ |  |       |
-| |_|   ||    ___||  |_|  ||  |_|  ||  |_|  ||   | |   _   ||   | ||  |  _____|
-|       ||   |___ |       ||       ||       ||   | |  | |  ||   |_||_ | |_____ 
-|  _   | |    ___||       ||       ||       ||   | |  |_|  ||    __  ||_____  |
-| |_|   ||   |___ |   _   ||   _   | |     | |   | |       ||   |  | | _____| |
-|_______||_______||__| |__||__| |__|  |___|  |___| |_______||___|  |_||_______|
 ```
-
----
 
 ```fsharp
 type UpdateGameStateBehavior =
@@ -896,6 +923,8 @@ let lantern =
 ```
 
 ```SkyBlue
+
+
  _______  _______  __   __  _______  __   __  ___   _______  ______    _______ 
 |  _    ||       ||  | |  ||   _   ||  | |  ||   | |       ||    _ |  |       |
 | |_|   ||    ___||  |_|  ||  |_|  ||  |_|  ||   | |   _   ||   | ||  |  _____|
@@ -998,6 +1027,20 @@ NPC conversations
 |       ||       ||       |  |   |       |_____  |    |  _    ||    ___| |     |   |   |   |_____| 
 |   _   ||   _   ||   _   |  |   |        _____| |    | | |   ||   |___ |   _   |  |   |     __    
 |__| |__||__| |__||__| |__|  |___|       |_______|    |_|  |__||_______||__| |__|  |___|    |__|   
+```
+
+---
+
+```Gold
+
+ _______  __   __  _______  ______    _______    ______   _______  __   __  _______ 
+|       ||  | |  ||       ||    _ |  |       |  |      | |       ||  |_|  ||       |
+|  _____||  |_|  ||   _   ||   | ||  |_     _|  |  _    ||    ___||       ||   _   |
+| |_____ |       ||  | |  ||   |_||_   |   |    | | |   ||   |___ |       ||  | |  |
+|_____  ||       ||  |_|  ||    __  |  |   |    | |_|   ||    ___||       ||  |_|  |
+ _____| ||   _   ||       ||   |  | |  |   |    |       ||   |___ | ||_|| ||       |
+|_______||__| |__||_______||___|  |_|  |___|    |______| |_______||_|   |_||_______|
+
 ```
 
 ---
