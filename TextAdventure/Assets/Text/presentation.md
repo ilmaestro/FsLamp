@@ -1,8 +1,6 @@
-![Hammer](../Assets/smallhammer.png)
+![OPENFS](../Assets/openfs-icon.png)
 
-By Ryan Kilkenny - Open F# Conf
-
-FsLamp is a text adventure engine written in F#. It was developed out of a learning project meant to improve F# skills, game design skills, and hopefully pave the path towards future game development and natural language processing. In this talk we'll take a look at the game engine implementation and learn how to write interactive fiction games in F#.
+Ryan Kilkenny - Open F# Conference
 
 ```SkyBlue
  _______  _______    ___      _______  __   __  _______ 
@@ -18,9 +16,14 @@ FsLamp is a text adventure engine written in F#. It was developed out of a learn
 
 ![farmer](../Assets/FarmerSprite.png)
 
-Ryan Kilkenny is a multi-paradigm polyglot primarily living in the .NET world. He's been an F# enthusiast since 2013 and interested in game development since playing Space Invaders on a Commodore VIC-20 in 1985. He is currently employed by Banfield Pet Hospital and enjoys working within a team of extremely talented IT professionals to make the world better for pets.
+- Love retro games and hardware - own an Amiga 500 (w/Vampire 2+), C64, VIC-20
+- Sr Technical Lead, Banfield Pet Hospital
+- Slowly teaching F# to a few fellow C# associates
+- F# projects peppered throughout my 4 yr tenure at Banfield
+- Currently attempting F# domain models in C# micro services
 
 ```SpringGreen
+
  _     _  __   __  _______    _______  __   __    ___   ______  
 | | _ | ||  | |  ||       |  |   _   ||  |_|  |  |   | |      | 
 | || || ||  |_|  ||   _   |  |  |_|  ||       |  |   | |___   | 
@@ -34,13 +37,12 @@ Ryan Kilkenny is a multi-paradigm polyglot primarily living in the .NET world. H
 
 ![alien](../Assets/alien_2.png)
 
-- Game Loop
-- Game State
-- Game Parts
-- Natural Language Processing
-- Parser and Dispatcher
-- Items
-- Behaviors
+- Game loop, state, and parts
+- Natural language processing
+- Parser and dispatcher
+- Items and behaviors
+- How to build a game...
+- What's next?
 
 ```Gold
  _______  _______  _______  __    _  ______   _______ 
@@ -55,10 +57,25 @@ Ryan Kilkenny is a multi-paradigm polyglot primarily living in the .NET world. H
 ---
 
 ```SpringGreen
-Input -> Action -> Output -> Print -> Loop
+
+Await Input ->
+    Parse Input ->
+            Dispatch Action ->
+                Update Game State ->
+                    Render Output ->
+                        Loop
+
+
 ```
 
+- All text outputs treated as markdown
+- Custom markdown console renderer, based on CommonMark.NET
+- Image support (each pixel = 1 character)
+- Pygmentize used for code highlighting...
+
 ```SkyBlue
+
+
  _______  _______  __   __  _______    ___      _______  _______  _______ 
 |       ||   _   ||  |_|  ||       |  |   |    |       ||       ||       |
 |    ___||  |_|  ||       ||    ___|  |   |    |   _   ||   _   ||    _  |
@@ -69,6 +86,13 @@ Input -> Action -> Output -> Print -> Loop
 ```
 
 ---
+
+```SpringGreen
+
+The game loop is a recursive function over the gamestate.
+
+
+```
 
 ```fsharp
 let RunGame actionResolver initialState =
@@ -97,6 +121,7 @@ let RunGame actionResolver initialState =
 ```
 
 ```SkyBlue
+
  _______  _______  __   __  _______    ___      _______  _______  _______ 
 |       ||   _   ||  |_|  ||       |  |   |    |       ||       ||       |
 |    ___||  |_|  ||       ||    ___|  |   |    |   _   ||   _   ||    _  |
@@ -108,10 +133,6 @@ let RunGame actionResolver initialState =
 
 ---
 
-```SpringGreen
-One big object graph
-```
-
 ```fsharp
 type GameState = {
     Player: Player
@@ -121,7 +142,36 @@ type GameState = {
     GameScene: GameScene
     LastCommand: Command
     Output: Output
-}
+    }
+
+and Player = {
+    Name: string
+    Health: Health
+    Experience: Experience
+    Stats: Stats
+    }
+
+and Environment = {
+    Id: EnvironmentId
+    Name: string
+    Description: string
+    Exits: Exit list
+    InventoryItems: InventoryItem list
+    EnvironmentItems: EnvironmentItem list
+    LightSource: InventoryItem option
+    }
+
+and World = {
+    Time: System.DateTime
+    Map: Environment []
+    }
+
+and Output =
+    | Output of string list
+    | DoNothing
+    | ExitGame
+    | Rollback
+    | GameOver
 ```
 
 ```Lime
@@ -138,6 +188,8 @@ type GameState = {
 
 ```SpringGreen
 Serializable
+
+
 ```
 
 ```fsharp
@@ -152,6 +204,8 @@ module IO =
 ```
 
 ```Lime
+
+
  _______  _______  __   __  _______    _______  _______  _______  _______  _______ 
 |       ||   _   ||  |_|  ||       |  |       ||       ||   _   ||       ||       |
 |    ___||  |_|  ||       ||    ___|  |  _____||_     _||  |_|  ||_     _||    ___|
@@ -163,11 +217,24 @@ module IO =
 
 ---
 
-```fsharp
-type GamePart = GameState -> GameState
+```SpringGreen
+Game logic is written as game parts.  A game part is simply a function that manipulates the game state.
+
 ```
 
+```fsharp
+type GamePart = GameState -> GameState
+
+
+```
+
+- Inspired by Suave WebParts
+- Pure functions
+- Composable
+
 ```SkyBlue
+
+
  _______  _______  __   __  _______  _______  _______  ______    _______ 
 |       ||   _   ||  |_|  ||       ||       ||   _   ||    _ |  |       |
 |    ___||  |_|  ||       ||    ___||    _  ||  |_|  ||   | ||  |_     _|
@@ -180,10 +247,12 @@ type GamePart = GameState -> GameState
 ---
 
 ```SpringGreen
-Composable
+How to compose the "take {item}" GamePart
+
 ```
 
 ```fsharp
+
 let takeItem item : GamePart =
     fun gamestate ->
         gamestate
@@ -191,6 +260,13 @@ let takeItem item : GamePart =
         |> Inventory.addItem item
         |> World.updateWorldEnvironment
         |> Output.setOutput (Output (getSuccessOutputs item))
+
+// Could also be written as ...
+let takeItem item gamestate ->
+    gamestate
+    |> Environment.removeItemFromEnvironment item
+    ...
+
 ```
 
 ```SkyBlue
@@ -206,12 +282,40 @@ let takeItem item : GamePart =
 ---
 
 ```SpringGreen
-Language Understanding (LUIS)
+How might we interpret what the user wants to do in a natural way?
+
 ```
 
-A machine learning-based service to build natural language into apps, bots, and IoT devices.
+- "take key" - easy
+- "take the rusty key in the corner" - doable
+- "I'd like to take that rusty key over there in the corner if it pleases you, the almighty zeus" - ridiculous?
 
 ```SkyBlue
+
+
+ __    _  _______  _______  __   __  ______    _______  ___        ___      _______  __    _  _______  __   __  _______  _______  _______ 
+|  |  | ||   _   ||       ||  | |  ||    _ |  |   _   ||   |      |   |    |   _   ||  |  | ||       ||  | |  ||   _   ||       ||       |
+|   |_| ||  |_|  ||_     _||  | |  ||   | ||  |  |_|  ||   |      |   |    |  |_|  ||   |_| ||    ___||  | |  ||  |_|  ||    ___||    ___|
+|       ||       |  |   |  |  |_|  ||   |_||_ |       ||   |      |   |    |       ||       ||   | __ |  |_|  ||       ||   | __ |   |___ 
+|  _    ||       |  |   |  |       ||    __  ||       ||   |___   |   |___ |       ||  _    ||   ||  ||       ||       ||   ||  ||    ___|
+| | |   ||   _   |  |   |  |       ||   |  | ||   _   ||       |  |       ||   _   || | |   ||   |_| ||       ||   _   ||   |_| ||   |___ 
+|_|  |__||__| |__|  |___|  |_______||___|  |_||__| |__||_______|  |_______||__| |__||_|  |__||_______||_______||__| |__||_______||_______|
+```
+
+---
+
+```SpringGreen
+Language Understanding (LUIS)
+
+
+```
+
+- Machine learning-based service from Microsoft <https://www.luis.ai>
+- Allows applications to interpret natural language inputs!
+
+```SkyBlue
+
+
  ___      __   __  ___   _______ 
 |   |    |  | |  ||   | |       |
 |   |    |  | |  ||   | |  _____|
@@ -224,10 +328,10 @@ A machine learning-based service to build natural language into apps, bots, and 
 ---
 
 ```SpringGreen
-FsLamp app on LUIS
-```
+How does LUIS work?
 
-<https://www.luis.ai/applications/a658f77c-b290-4a81-9ed8-404c95537c9d/versions/0.1/build/intents>
+
+```
 
 - Intents - how to determine what a user wants to do
 - Entities - like variables, used to pass important information
@@ -235,6 +339,8 @@ FsLamp app on LUIS
 - Patterns - utterance templates with placeholders used to further improve the model
 
 ```SkyBlue
+
+
  ___      __   __  ___   _______ 
 |   |    |  | |  ||   | |       |
 |   |    |  | |  ||   | |  _____|
@@ -247,7 +353,9 @@ FsLamp app on LUIS
 ---
 
 ```SpringGreen
-Intents
+FsLamp Intents
+
+
 ```
 
 - __Look__: "look around", "describe my surroundings", "what's around me?"
@@ -259,6 +367,8 @@ Intents
 - __Use__: "use typewriter", "open door with key"
 
 ```SkyBlue
+
+
  ___      __   __  ___   _______ 
 |   |    |  | |  ||   | |       |
 |   |    |  | |  ||   | |  _____|
@@ -271,7 +381,9 @@ Intents
 ---
 
 ```SpringGreen
-Entities
+FsLamp Entities
+
+
 ```
 
 - __Direction__: "go {north}", "climb {up}"
@@ -280,6 +392,8 @@ Entities
 - __SwitchOperation__: "turn {on} the slide projector", "switch the lamp {off}"
 
 ```SkyBlue
+
+
  ___      __   __  ___   _______ 
 |   |    |  | |  ||   | |       |
 |   |    |  | |  ||   | |  _____|
@@ -292,7 +406,9 @@ Entities
 ---
 
 ```SpringGreen
-Patterns
+FsLamp Patterns
+
+
 ```
 
 - "put {Item:source} in {Item:target}" -> __PUT__
@@ -300,6 +416,8 @@ Patterns
 - "open {Item:target} with {Item:source}" -> __USE__
 
 ```SkyBlue
+
+
  ___      __   __  ___   _______ 
 |   |    |  | |  ||   | |       |
 |   |    |  | |  ||   | |  _____|
@@ -312,7 +430,9 @@ Patterns
 ---
 
 ```SpringGreen
-LUIS result
+What does LUIS actually return?
+
+
 ```
 
 ```json
@@ -360,12 +480,64 @@ LUIS result
 ---
 
 ```SpringGreen
-Command parser = string -> Command option
+LUIS domain model
+
 ```
 
-Given any string input, we must map to a command, using LUIS to help identify the intent of the input.
+```fsharp
+type LuisQuery = {
+    Query: string
+    TopScoringIntent: IntentResult
+    Entities: EntityResult list
+    }
+
+and IntentResult = {
+    Intent: string
+    Score: float
+    }
+
+and EntityResult = {
+    Entity: string
+    Type: string
+    StartIndex: int
+    EndIndex: int
+    Score: float
+    Role: string
+    }
+```
+
+```SkyBlue
+
+
+ ___      __   __  ___   _______ 
+|   |    |  | |  ||   | |       |
+|   |    |  | |  ||   | |  _____|
+|   |    |  |_|  ||   | | |_____ 
+|   |___ |       ||   | |_____  |
+|       ||       ||   |  _____| |
+|_______||_______||___| |_______|
+```
+
+---
+
+```SpringGreen
+How do we use LUIS as a "command" parser?
+
+```
+
+```fsharp
+
+type CommandParser = string -> Command option
+
+```
+
+- Given any string input
+- Use LUIS to parse out the Intents and Entities
+- Construct commands based on the results
 
 ```Yellow
+
+
  _______  _______  ______    _______  _______  ______   
 |       ||   _   ||    _ |  |       ||       ||    _ |  
 |    _  ||  |_|  ||   | ||  |  _____||    ___||   | ||  
@@ -377,6 +549,11 @@ Given any string input, we must map to a command, using LUIS to help identify th
 ```
 
 ---
+
+```SpringGreen
+What are these "commands" you speak of?
+
+```
 
 ```fsharp
 type Command =
@@ -397,6 +574,7 @@ type Command =
 ```
 
 ```Yellow
+
  _______  _______  ______    _______  _______  ______   
 |       ||   _   ||    _ |  |       ||       ||    _ |  
 |    _  ||  |_|  ||   | ||  |  _____||    ___||   | ||  
@@ -410,7 +588,9 @@ type Command =
 ---
 
 ```SpringGreen
-Match LUIS result to a command
+F# pattern matching used to match a LUIS result to a command
+
+
 ```
 
 ```fsharp
@@ -428,6 +608,8 @@ match query.TopScoringIntent with
 ```
 
 ```Yellow
+
+
  _______  _______  ______    _______  _______  ______   
 |       ||   _   ||    _ |  |       ||       ||    _ |  
 |    _  ||  |_|  ||   | ||  |  _____||    ___||   | ||  
@@ -442,6 +624,8 @@ match query.TopScoringIntent with
 
 ```SpringGreen
 The dispatcher matches a command to an action and returns a new game state resulting from that action.
+
+
 ```
 
 ```fsharp
@@ -467,6 +651,8 @@ let dispatch command : GamePart =
 ```
 
 ```Fuchsia
+
+
  ______   ___   _______  _______  _______  _______  _______  __   __  _______  ______   
 |      | |   | |       ||       ||   _   ||       ||       ||  | |  ||       ||    _ |  
 |  _    ||   | |  _____||    _  ||  |_|  ||_     _||       ||  |_|  ||    ___||   | ||  
@@ -484,6 +670,8 @@ let dispatch command : GamePart =
 - list of behaviors
 
 ```HotPink
+
+
  ___   _______  _______  __   __  _______ 
 |   | |       ||       ||  |_|  ||       |
 |   | |_     _||    ___||       ||  _____|
@@ -509,6 +697,8 @@ type InventoryItem = {
 ```
 
 ```HotPink
+
+
  ___   _______  _______  __   __  _______ 
 |   | |       ||       ||  |_|  ||       |
 |   | |_     _||    ___||       ||  _____|
@@ -527,6 +717,8 @@ let theSun =
 ```
 
 ```HotPink
+
+
  ___   _______  _______  __   __  _______ 
 |   | |       ||       ||  |_|  ||       |
 |   | |_     _||    ___||       ||  _____|
@@ -553,6 +745,8 @@ let mailbox =
 ```
 
 ```HotPink
+
+
  ___   _______  _______  __   __  _______ 
 |   | |       ||       ||  |_|  ||       |
 |   | |_     _||    ___||       ||  _____|
@@ -569,6 +763,8 @@ let mailbox =
 - Behavior Id's get persisted in GameState as part of an item
 
 ```SkyBlue
+
+
  _______  _______  __   __  _______  __   __  ___   _______  ______    _______ 
 |  _    ||       ||  | |  ||   _   ||  | |  ||   | |       ||    _ |  |       |
 | |_|   ||    ___||  |_|  ||  |_|  ||  |_|  ||   | |   _   ||   | ||  |  _____|
@@ -589,6 +785,8 @@ type UpdateItemBehavior =
 ```
 
 ```SkyBlue
+
+
  _______  _______  __   __  _______  __   __  ___   _______  ______    _______ 
 |  _    ||       ||  | |  ||   _   ||  | |  ||   | |       ||    _ |  |       |
 | |_|   ||    ___||  |_|  ||  |_|  ||  |_|  ||   | |   _   ||   | ||  |  _____|
@@ -602,6 +800,8 @@ type UpdateItemBehavior =
 
 ```SpringGreen
 Behaviors are saved to a cache at runtime
+
+
 ```
 
 ```fsharp
@@ -617,6 +817,8 @@ let findGameStateBehavior id =
 ```
 
 ```SkyBlue
+
+
  _______  _______  __   __  _______  __   __  ___   _______  ______    _______ 
 |  _    ||       ||  | |  ||   _   ||  | |  ||   | |       ||    _ |  |       |
 | |_|   ||    ___||  |_|  ||  |_|  ||  |_|  ||   | |   _   ||   | ||  |  _____|
@@ -630,27 +832,31 @@ let findGameStateBehavior id =
 
 ```SpringGreen
 Define behaviors
+
+
 ```
 
 ```fsharp
-    let updateHealthBehavior f : UpdateItemBehavior =
-        fun (itemUse: ItemUse, item: InventoryItem) ->
-            match itemUse, item.Health, item.SwitchState with
-            | LoseLifeOnUpdate, Some h, Some switch ->
-                if switch = SwitchOn then { item with Health = Some (f h)} else item
-                |> Ok
-            | LoseLifeOnUpdate, Some h, None ->
-                { item with Health = Some (f h)}
-                |> Ok
-            | _ -> item |> failItemUpdate "Item use not supported"
+let updateHealthBehavior f : UpdateItemBehavior =
+    fun (itemUse: ItemUse, item: InventoryItem) ->
+        match itemUse, item.Health, item.SwitchState with
+        | LoseLifeOnUpdate, Some h, Some switch ->
+            if switch = SwitchOn then { item with Health = Some (f h)} else item
+            |> Ok
+        | LoseLifeOnUpdate, Some h, None ->
+            { item with Health = Some (f h)}
+            |> Ok
+        | _ -> item |> failItemUpdate "Item use not supported"
 
-    let loseBattery description amount =
-        ItemUse.addItemUseBehavior
-            (Description description, Items.LoseLifeOnUpdate)
-            (updateHealthBehavior (fun (Health (life, total)) -> Health(life - amount, total)))
+let loseBattery description amount =
+    ItemUse.addItemUseBehavior
+        (Description description, Items.LoseLifeOnUpdate)
+        (updateHealthBehavior (fun (Health (life, total)) -> Health(life - amount, total)))
 ```
 
 ```SkyBlue
+
+
  _______  _______  __   __  _______  __   __  ___   _______  ______    _______ 
 |  _    ||       ||  | |  ||   _   ||  | |  ||   | |       ||    _ |  |       |
 | |_|   ||    ___||  |_|  ||  |_|  ||  |_|  ||   | |   _   ||   | ||  |  _____|
@@ -664,6 +870,8 @@ Define behaviors
 
 ```SpringGreen
 Add the behaviors to items
+
+
 ```
 
 ```fsharp
@@ -701,6 +909,8 @@ let lantern =
 
 ```SpringGreen
 Add items to Environments
+
+
 ```
 
 ```fsharp
@@ -715,6 +925,8 @@ let origin =
 ```
 
 ```SkyBlue
+
+
  _______  _______  __   __  _______  __   __  ___   _______  ______    _______ 
 |  _    ||       ||  | |  ||   _   ||  | |  ||   | |       ||    _ |  |       |
 | |_|   ||    ___||  |_|  ||  |_|  ||  |_|  ||   | |   _   ||   | ||  |  _____|
@@ -768,6 +980,8 @@ let origin =
 
 ```SpringGreen
 NPC conversations
+
+
 ```
 
 - Use LUIS to simulate an open converstation with an NPC
@@ -775,6 +989,8 @@ NPC conversations
 - Buy and sell items
 
 ```Gold
+
+
  _     _  __   __  _______  _______  __   _______      __    _  _______  __   __  _______  ______  
 | | _ | ||  | |  ||   _   ||       ||  | |       |    |  |  | ||       ||  |_|  ||       ||      | 
 | || || ||  |_|  ||  |_|  ||_     _||__| |  _____|    |   |_| ||    ___||       ||_     _||___   | 
@@ -791,6 +1007,8 @@ NPC conversations
 Check out FsLamp on Github <https://github.com/ilmaestro/FsLamp>
 
 ```Firebrick
+
+
  _______  __   __  _______  __    _  ___   _    __   __  _______  __   __ 
 |       ||  | |  ||   _   ||  |  | ||   | | |  |  | |  ||       ||  | |  |
 |_     _||  |_|  ||  |_|  ||   |_| ||   |_| |  |  |_|  ||   _   ||  | |  |

@@ -41,14 +41,16 @@ module Common =
             | ConsoleKey.RightArrow -> "next"
             | ConsoleKey.LeftArrow -> "back"
             | ConsoleKey.Escape -> "exit"
+            | ConsoleKey.F8 -> "refresh"
             | _ -> getCommand ()
 
+        let loadSlides asset =
+            let slideContent = Utility.readTextAsset(asset)
+            slideContent.Split([|"---"|], StringSplitOptions.None)
+
         fun (itemUse: ItemUse, item, gamestate) ->
-            // get slide
-            let slideContent = Utility.readTextAsset(item.Description)
             
-            let slides = slideContent.Split([|"---"|], StringSplitOptions.None)
-            //let mutable slideIndex = 0
+            let mutable slides = loadSlides(item.Description)
             let slideLength = slides.Length
 
             // interupt the game loop with our own game loop
@@ -70,6 +72,9 @@ module Common =
                     slideLoop nextIndex
                 | "end" ->
                     slideLoop (slideLength - 1)
+                | "refresh" ->
+                    slides <- loadSlides(item.Description)
+                    slideLoop slideIndex
                 | _ -> ()
 
             slideLoop 0

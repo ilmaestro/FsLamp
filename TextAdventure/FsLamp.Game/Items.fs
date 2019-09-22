@@ -22,7 +22,7 @@ let keyItem exitId =
 
 let typewriter =
     createBasicItem "typewriter" "collecting dust"
-        [Behaviors.openSecretPassage "As you press down hard on one of the keys. The air begins to move around you. Suddenly, the desk under the typewriter shifts to reveal a secret passage with steps leading down almost immediately into darkness." (ExitId 7);
+        [Behaviors.openSecretPassage (Utility.readTextAsset "typewriter.md") (ExitId 7);
             Behaviors.takeItem "After several attempts of trying to pick up the typewriter, you realize you don't actually want to carry this thing around." false]
 
 let rock =

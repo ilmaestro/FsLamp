@@ -6,18 +6,6 @@ open FsLamp.Game.Items
 open FsLamp.Game.Characters
 open System
 
-(* 
- linear map:
-    - origin
-    - hallway south
-    - hallway north
-    - office (locked)
-    - secret passage (hidden)
-    - dark passage (hidden)
-    - dark hole
-    - the meetup
-
-*)
 let defaultMap (renderer: FsLamp.Core.IRenderer) =
     [|
         (Environment.create 1 "Origin"
@@ -53,9 +41,7 @@ let defaultMap (renderer: FsLamp.Core.IRenderer) =
             (Some ambientLight)
         );
         (Environment.create 5 "Secret Passage"
-            """The path leads downward with considerable gradient. Things turn cold as you hear a voice... 'stoi impul chani, mario.' Frozen, but unable to make out any figures ahead of you, you shout back 'Who's there?'
-A few seconds pass, finally a response... 'die!'.  As you fall backward you stumble over a rock.            
-            """
+            (Utility.readTextAsset "secretpassage.md")
             [ Exit.create 7 4 Open Up (Steps 2) "Secret Entrance"; Exit.create 8 6 Hidden East (Steps 10) "dark passage towards the footsteps"]
             [rock]
             []
