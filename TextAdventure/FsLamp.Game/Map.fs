@@ -57,7 +57,7 @@ let defaultMap (renderer: FsLamp.Core.IRenderer) =
         (Environment.create 7 "Dark Hole"
             "You've discovered the pit to hell! Now what?"
             [ Exit.create 11 8 Open Down (Steps 1000) "Rabbit Hole" ]
-            []
+            [towel]
             []
             (Some ambientLight));
         (Environment.create 8 "The Meetup"

@@ -1056,6 +1056,30 @@ How do you actually compose a game then?
 
 ---
 
+```SpringGreen
+What have we learned today?
+
+
+```
+
+- Game structure & logic
+- Natural language input
+- Items and behaviors
+- Building a game
+
+```Gold
+
+ ___      _______  _______  ______    __    _  ___   __    _  _______  _______ 
+|   |    |       ||   _   ||    _ |  |  |  | ||   | |  |  | ||       ||       |
+|   |    |    ___||  |_|  ||   | ||  |   |_| ||   | |   |_| ||    ___||  _____|
+|   |    |   |___ |       ||   |_||_ |       ||   | |       ||   | __ | |_____ 
+|   |___ |    ___||       ||    __  ||  _    ||   | |  _    ||   ||  ||_____  |
+|       ||   |___ |   _   ||   |  | || | |   ||   | | | |   ||   |_| | _____| |
+|_______||_______||__| |__||___|  |_||_|  |__||___| |_|  |__||_______||_______|
+```
+
+---
+
 ![ufo](../Assets/UFO_1.png)
 
 Check out FsLamp on Github <https://github.com/ilmaestro/FsLamp>

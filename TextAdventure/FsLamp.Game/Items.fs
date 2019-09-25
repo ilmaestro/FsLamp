@@ -29,6 +29,10 @@ let rock =
     createBasicItem "rock" "just lying around"
         [Behaviors.openSecretPassage "You throw the rock directly at the voice and hear a terrible scream.  Moments later you can hear footsteps running to the east away from you." (ExitId 8);]
 
+let towel =
+    createBasicItem "towel" "somehow hanging beside you"
+        [Behaviors.takeItem "A towel, [The Hitchhiker's Guide to the Galaxy] says, is about the most massively useful thing an interstellar hitchhiker can have. Partly it has great practical value. You can wrap it around you for warmth as you bound across... ... ... just don't forget to bring a towel." true]
+
 // lantern is an item you can take that allows you to see in dark places.
 // it can be turned on & off
 // it consumes battery life when it's turned on
