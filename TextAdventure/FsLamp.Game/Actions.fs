@@ -131,18 +131,30 @@ module Explore =
 
     let look : GamePart =
         fun gamestate ->
-            let exitHelper = sprintf "- A %s (%A)"
-            let itemHelper = sprintf "- A %s %s"
+            let exitHelper = sprintf "- A __%s__ (%A)"
+            let itemHelper = sprintf "- A __%s__ %s"
             let exits = gamestate.Environment.Exits |> List.filter (fun e -> e.ExitState <> Hidden) |> List.map (fun p -> exitHelper p.Description p.Direction)
             let items = gamestate.Environment.InventoryItems |> List.map (fun {Name = name; Description = description } -> itemHelper name description)
             let log = [
+                yield "```SkyBlue";
+                yield "";
+                yield "```"
                 yield "You look around and see..."
-                yield "*Exits*";
+                yield "```SkyBlue";
+                yield "";
+                yield "Exits";
+                yield ""
+                yield "```"
                 yield! exits; 
                 match items with
                 | [] -> () 
                 | _ ->
-                    yield "*Interesting shtuff*"; 
+                    yield "```SkyBlue";
+                    yield "";
+                    yield "Interesting shtuff"; 
+                    yield "";
+                    yield "```"
+                    yield "";
                     yield! items 
                 ]
 
@@ -160,9 +172,9 @@ module Explore =
                     let outputs = contents |> List.map (fun i -> sprintf "- A %s" i.Name)
                     gamestate |> Output.setOutput (Output ("*You see*" :: outputs))
                 | _ ->
-                    gamestate |> Output.setOutput (Output [sprintf "There's nothing inside %s." itemName])
+                    gamestate |> Output.setOutput (Output [sprintf "There's nothing inside __%s__." itemName])
             | None ->
-                gamestate |> Output.setOutput (Output [sprintf "Couldn't find %s." itemName])
+                gamestate |> Output.setOutput (Output [sprintf "Couldn't find __%s__." itemName])
 
     let take (itemName: string) : GamePart =
         useGeneric itemName [ItemUse.Defaults.CanTake]
@@ -192,13 +204,14 @@ module Explore =
                 |> Environment.addItemToEnvironment item
                 |> World.updateWorldEnvironment
                 |> Inventory.setInventory inventory'
-                |> Output.setOutput (Output [sprintf "You dropped %s." item.Name])
+                |> Output.setOutput (Output [sprintf "- You dropped __%s__." item.Name])
             | None ->    
                 gamestate
-                |> Output.setOutput (Output [sprintf "Couldn't find %s." itemName])
+                |> Output.setOutput (Output [sprintf "Couldn't find __%s__." itemName])
 
     let switch (itemName: string) switchState : GamePart =
         useGeneric itemName [ItemUse.Defaults.TurnOnOff]
+            (fun (item, _, Description desc) gamestate -> gamestate)
             (fun (item, _, Description desc) gamestate ->
                 let otherOutputs =
                     if (item |> ItemUse.itemHasUse Items.ProvidesLight) && gamestate.Environment.LightSource.IsNone && switchState = (Items.SwitchOn)
@@ -209,9 +222,7 @@ module Explore =
                 // TODO: if item isn't in Inventory, update it in environment
                 gamestate 
                 |> Inventory.updateItem item
-                |> Output.setOutput (Output ([desc; sprintf "%s turned %s" item.Name (switchState.ToString());] @ otherOutputs)))
-            (fun (_, _, Description desc) gamestate ->
-                gamestate |> Output.setOutput (Output [desc]))
+                |> Output.setOutput (Output ([desc; sprintf "- __%s__ turned __%s__." item.Name (switchState.ToString());] @ otherOutputs)))
             (fun update (_, item) -> update (Items.TurnOnOff switchState, item))
             (fun update (_, item, gamestate) -> update (Items.TurnOnOff switchState, item, gamestate))
 
@@ -224,7 +235,7 @@ module Explore =
                 // TODO: if item isn't in Inventory, update it in environment
                 gamestate 
                 |> Inventory.updateItem item
-                |> Output.setOutput (Output [sprintf "Used %s." item.Name; desc]))
+                |> Output.setOutput (Output [sprintf "- Used __%s__." item.Name; desc]))
             (fun (item, itemUse, Description desc) gamestate ->
                 gamestate |> Output.setOutput (Output [desc]))
             bindId
@@ -249,7 +260,7 @@ module Explore =
                     (fun update (_, item, gamestate) -> update (putInUse, item, gamestate))
             | None ->
                 gamestate
-                |> Output.setOutput (Output [sprintf "Couldn't find %s." sourceName])
+                |> Output.setOutput (Output [sprintf "Couldn't find __%s__." sourceName])
 
     let save filename : GamePart =
         fun gamestate ->
@@ -279,8 +290,8 @@ module InEncounter =
             gamestate
             |> Output.appendOutputs [
                 yield "The battle is over.";
-                yield sprintf "You gained %i experience points. Total: %i" monsterPoints points;
-                if level > oldLevel then yield sprintf "You are now level %i" level;                
+                yield sprintf "You gained __%i__ experience points. Total: __%i__" monsterPoints points;
+                if level > oldLevel then yield sprintf "You are now level __%i__" level;                
             ]
 
     let finishEncounter experience : GamePart =
@@ -308,7 +319,7 @@ module InEncounter =
                     |> Encounter.updateEncounter encounter'
                     |> Scene.setScene (InEncounter encounter') // make sure to update the encounter in the scene
                     |> Output.appendOutputs [
-                        sprintf "You hit %s with %A. %s" monster.Name playerDamage (healthDescription health')
+                        sprintf "You hit __%s__ with __%A__. %s" monster.Name playerDamage (healthDescription health')
                     ]
                 (monster', encounter', gamestate')
             else
@@ -335,7 +346,7 @@ module InEncounter =
                         gamestate
                         |> Player.setPlayer player'
                         |> Output.appendOutputs [
-                            sprintf "%s hits you with %A. %s" monster.Name monster.Stats.Damage (healthDescription health')
+                            sprintf "%s hits you with __%A__. %s" monster.Name monster.Stats.Damage (healthDescription health')
                         ]
                     (player', gamestate')
                 else

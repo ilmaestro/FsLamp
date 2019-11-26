@@ -22,12 +22,16 @@ let keyItem exitId =
 
 let typewriter =
     createBasicItem "typewriter" "collecting dust"
-        [Behaviors.openSecretPassage "As you press down hard on one of the keys. The air begins to move around you. Suddenly, the desk under the typewriter shifts to reveal a secret passage with steps leading down almost immediately into darkness." (ExitId 7);
+        [Behaviors.openSecretPassage (Utility.readTextAsset "typewriter.md") (ExitId 7);
             Behaviors.takeItem "After several attempts of trying to pick up the typewriter, you realize you don't actually want to carry this thing around." false]
 
 let rock =
     createBasicItem "rock" "just lying around"
         [Behaviors.openSecretPassage "You throw the rock directly at the voice and hear a terrible scream.  Moments later you can hear footsteps running to the east away from you." (ExitId 8);]
+
+let towel =
+    createBasicItem "towel" "somehow hanging beside you"
+        [Behaviors.takeItem "A towel, [The Hitchhiker's Guide to the Galaxy] says, is about the most massively useful thing an interstellar hitchhiker can have. Partly it has great practical value. You can wrap it around you for warmth as you bound across... ... ... just don't forget to bring a towel." true]
 
 // lantern is an item you can take that allows you to see in dark places.
 // it can be turned on & off
@@ -40,7 +44,7 @@ let lanternItem =
         None
         None
         [
-            Behaviors.loseBattery "Batter Life" 1;
+            Behaviors.loseBattery "Battery Life" 1;
             Behaviors.batteryWarnings "Battery Warning"
                 [
                     (0,0, "Lantern's batteries are dead.");
@@ -61,6 +65,7 @@ let slideProjector renderer =
         [
             Behaviors.slidesOnOff ".... well that was interesting. Thanks!" renderer
         ]
+
 let gold =
     createBasicItem "Gold" "that probably fell out of someones pocket" [
         (Behaviors.takeItem "GOOOLD!" true;)
@@ -88,18 +93,3 @@ let mailbox =
         [
             (Behaviors.putIn "shoved inside the tiny mailbox.");
             (Behaviors.takeOut "taken from the scrappy mailbox.")]
-
-// let agendaDoc =
-//     createBasicItem "agenda" "" [
-//         (Description (Utility.readTextAsset "meetup_agenda.md"), Readable);
-//         ]
-
-// let gameLoopDoc =
-//     createBasicItem "game loop" "" [
-//         (Description (Utility.readTextAsset "meetup_gameloop.md"), Readable);
-//         ]
-
-// let luisDoc =
-//     createBasicItem "luis" "" [
-//         (Description (Utility.readTextAsset "meetup_luis.md"), Readable);
-//         ]
